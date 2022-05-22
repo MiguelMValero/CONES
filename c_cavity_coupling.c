@@ -26,7 +26,6 @@
 #include <math.h>
 
 #include "cwipi.h"
-#include "grid_mesh.h"
 
 char cl_coupling_name[20], cl_exchange_name[20];
 char output_format[20], output_format_option[20];
