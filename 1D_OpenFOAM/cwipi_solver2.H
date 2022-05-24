@@ -55,10 +55,10 @@ int variable2 = 0;
 
 //******************************************************************** To fill
 // Define mesh
-if (runTime.elapsedCpuTime() = 0){
+if (runTime.timeName() == 0){
     cwipi_define_mesh(cl_coupling_name,
-                  nvertex,
-                  nelts,
+                  nPoints,
+                  nCells,
                   coords,
                   connecindex,
                   connec);

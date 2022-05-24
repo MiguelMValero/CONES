@@ -29,7 +29,7 @@ Description
     algorithm.
 
 \*---------------------------------------------------------------------------*/
-// #include <mpi.h>
+#include <mpi.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
@@ -37,7 +37,8 @@ Description
 #include <vector>
 #include <time.h>
 #include <math.h>
-#include <iostream>
+
+#include "cwipi.h"
 
 #include "fvCFD.H"
 #include "singlePhaseTransportModel.H"
@@ -74,7 +75,7 @@ int main(int argc, char *argv[])
     while (simple.loop(runTime))
     {
         Info<< "Time = " << runTime.timeName() << nl << endl;
-
+        Info<< "Our initial time is equal to " << runTime.deltaTValue() << endl;
         // #include "cwipi_solver2.H"
         // --- Pressure-velocity SIMPLE corrector
         {
