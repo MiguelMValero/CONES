@@ -64,7 +64,6 @@ int main(int argc, char *argv[])
     #include "initContinuityErrs.H"
 
     #include "cwipi_solver1.H"
-    #include "cwipi_solver2.H"
 
     turbulence->validate();
 
@@ -75,7 +74,8 @@ int main(int argc, char *argv[])
     while (simple.loop(runTime))
     {
         Info<< "Time = " << runTime.timeName() << nl << endl;
-
+        
+        #include "cwipi_solver2.H"
         // --- Pressure-velocity SIMPLE corrector
         {
             #include "UEqn.H"
@@ -90,6 +90,7 @@ int main(int argc, char *argv[])
         Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
             << "  ClockTime = " << runTime.elapsedClockTime() << " s"
             << nl << endl;
+        
     }
 
     Info<< "End\n" << endl;
