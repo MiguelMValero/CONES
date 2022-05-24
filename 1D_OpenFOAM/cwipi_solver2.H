@@ -1,3 +1,4 @@
+int rank;
 double *coords = NULL;
 int *connecindex = NULL;
 int *connec = NULL;
@@ -7,6 +8,7 @@ const label& nCells = mesh.nCells();
 const label& nInternalFaces = mesh.nInternalFaces();
 const faceList& Faces = mesh.faces(); // Face to node
 int sizeFaces = Faces.size();
+const pointField& Points = mesh.points(); // Node to coordinates
 
 // Number of vertices in every direction
 int nx = 2;
@@ -21,18 +23,17 @@ connec = (int*) malloc(sizeof(int) * 4 * nCells);
 if (rank == 0) printf("        Create mesh\n");
 
 // Coordinates
-for (int nbpoint(0); nbpoint < nPoints; ++nbpoint){
-double x(Points[nbpoint].x());
-double y(Points[nbpoint].y());
-double z(Points[nbpoint].z());
-}
-
 int variable1 = 0;
 for (int nbpoint(0); nbpoint < nPoints; ++nbpoint){
-    coords[variable1] = x[nbpoint];
-    coords[variable1 + 1] = y[nbpoint];
-    coords[variable1 + 2] = z[nbpoint];
-    variable1 = variable1 + 3;
+  double x(Points[nbpoint].x());
+  double y(Points[nbpoint].y());
+  double z(Points[nbpoint].z());
+
+  coords[variable1] = x;
+  coords[variable1 + 1] = y;
+  coords[variable1 + 2] = z;
+
+  variable1 = variable1 + 3;
 }
 
 // Connectivity
@@ -53,9 +54,11 @@ int variable2 = 0;
     connec[variable2 + 7] = ycells * 2 + 2;
   }
 
+scalar t = mesh.time().value(); 
+
 //******************************************************************** To fill
 // Define mesh
-if (runTime.timeName() == 0){
+if (t == runTime.deltaTValue()){
     cwipi_define_mesh(cl_coupling_name,
                   nPoints,
                   nCells,
