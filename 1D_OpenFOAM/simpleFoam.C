@@ -29,12 +29,25 @@ Description
     algorithm.
 
 \*---------------------------------------------------------------------------*/
+#include <mpi.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stddef.h>
+#include <string.h>
+#include <time.h>
+#include <math.h>
+#include "cwipi.h"
 
 #include "fvCFD.H"
 #include "singlePhaseTransportModel.H"
 #include "kinematicMomentumTransportModel.H"
 #include "simpleControl.H"
 #include "fvOptions.H"
+
+char cl_coupling_name[20], cl_exchange_name[20];
+char output_format[20], output_format_option[20];
+char cl_sending_field_name[20], cl_receiving_field_name[20];
+int il_error = 0;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -48,6 +61,9 @@ int main(int argc, char *argv[])
     #include "createControl.H"
     #include "createFields.H"
     #include "initContinuityErrs.H"
+
+    #include "cwipi_solver1.H"
+    #include "cwipi_solver2.H"
 
     turbulence->validate();
 

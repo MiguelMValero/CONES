@@ -17,28 +17,20 @@
   License along with this library. If not, see <http://www.gnu.org/licenses/>.
 */
 
-int nvertex;
-int nelts;
 int grank;
 int rank;
 int commWorldSize;
-int coord_id;
-int nNotLocatedPoints = 0;
-
-int stride;
 float geom_tol = 0.1;
 
 // MPI Initilization
 MPI_Comm localcomm;
 char *codeName;
-int codeId;
 char *codeCoupledName;
 MPI_Init(&argc, &argv);
 MPI_Comm_rank(MPI_COMM_WORLD, &grank);
 MPI_Comm_size(MPI_COMM_WORLD, &commWorldSize);
 
 codeName = "code2";
-coord_id = 1; // coordinate to send (Y coordinate, since it is a 1D problem)
 codeCoupledName = "code1";
 
 //******************************************************************** To fill
