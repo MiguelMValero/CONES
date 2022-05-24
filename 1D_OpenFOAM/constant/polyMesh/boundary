@@ -9,99 +9,84 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       dictionary;
-    object      blockMeshDict;
+    class       polyBoundaryMesh;
+    location    "constant/polyMesh";
+    object      boundary;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-convertToMeters 1;
-
-vertices
-(
-    (0 0 0)
-    (0.1473 0 0)
-    (0 1 0)
-    (0.1473 1 0)
-    (0 2 0)
-    (0.1473 2 0)
-    (0 0 0.0982)
-    (0.1473 0 0.0982)
-    (0 1 0.0982)
-    (0.1473 1 0.0982)
-    (0 2 0.0982)
-    (0.1473 2 0.0982)
-);
-
-blocks
-(
-    hex (0 1 3 2 6 7 9 8) (1 10 1) simpleGrading (1 3.1602 1)
-    hex (2 3 5 4 8 9 11 10) (1 10 1) simpleGrading (1 0.3164 1)
-);
-
-edges
-(
-);
-
-boundary
+10
 (
     bottomWall
     {
         type            wall;
-        faces           ((0 1 7 6));
+        inGroups        List<word> 1(wall);
+        nFaces          1;
+        startFace       19;
     }
     topWall
     {
         type            wall;
-        faces           ((4 10 11 5));
+        inGroups        List<word> 1(wall);
+        nFaces          1;
+        startFace       20;
     }
-
     sides1_half0
     {
         type            empty;
-        faces           ((0 2 3 1));
+        inGroups        List<word> 1(empty);
+        nFaces          10;
+        startFace       21;
     }
     sides1_half1
     {
         type            empty;
-        faces           ((6 7 9 8));
+        inGroups        List<word> 1(empty);
+        nFaces          10;
+        startFace       31;
     }
-
     sides2_half0
     {
         type            empty;
-        faces           ((2 4 5 3));
+        inGroups        List<word> 1(empty);
+        nFaces          10;
+        startFace       41;
     }
     sides2_half1
     {
         type            empty;
-        faces           ((8 9 11 10));
+        inGroups        List<word> 1(empty);
+        nFaces          10;
+        startFace       51;
     }
-
     inout1_half0
     {
         type            empty;
-        faces           ((1 3 9 7));
+        inGroups        List<word> 1(empty);
+        nFaces          10;
+        startFace       61;
     }
     inout1_half1
     {
         type            empty;
-        faces           ((0 6 8 2));
+        inGroups        List<word> 1(empty);
+        nFaces          10;
+        startFace       71;
     }
-
     inout2_half0
     {
         type            empty;
-        faces           ((3 5 11 9));
+        inGroups        List<word> 1(empty);
+        nFaces          10;
+        startFace       81;
     }
     inout2_half1
     {
         type            empty;
-        faces           ((2 8 10 4));
+        inGroups        List<word> 1(empty);
+        nFaces          10;
+        startFace       91;
     }
-);
-
-mergePatchPairs
-(
-);
+)
 
 // ************************************************************************* //

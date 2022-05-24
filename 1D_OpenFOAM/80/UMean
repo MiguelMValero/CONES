@@ -9,45 +9,53 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volScalarField;
-    location    "1";
-    object      nut;
+    class       volVectorField;
+    location    "80";
+    object      UMean;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 2 -1 0 0 0 0];
+dimensions      [0 1 -1 0 0 0 0];
 
-internalField   uniform 0;
+internalField   nonuniform List<vector> 
+20
+(
+(2.33774 0 0)
+(1.17936 0 0)
+(0.994566 0 0)
+(0.861176 0 0)
+(0.746876 0 0)
+(0.692229 0 0)
+(0.676587 0 0)
+(0.705208 0 0)
+(0.791644 0 0)
+(0.925032 0 0)
+(0.925216 0 0)
+(0.792 0 0)
+(0.705677 0 0)
+(0.677193 0 0)
+(0.692997 0 0)
+(0.747799 0 0)
+(0.86223 0 0)
+(0.995721 0 0)
+(1.18071 0 0)
+(2.34004 0 0)
+)
+;
 
 boundaryField
 {
     bottomWall
     {
-        type            nutkWallFunction;
-        value		 uniform 0;
+        type            calculated;
+        value           uniform (0 0 0);
     }
     topWall
     {
-        type            nutkWallFunction;
-        value		 uniform 0;
+        type            calculated;
+        value           uniform (0 0 0);
     }
     sides1_half0
-    {
-        type            empty;
-    }
-    sides2_half0
-    {
-        type            empty;
-    }
-    inout1_half0
-    {
-        type            empty;
-    }
-    inout2_half0
-    {
-        type            empty;
-    }
-    sides2_half1
     {
         type            empty;
     }
@@ -55,7 +63,23 @@ boundaryField
     {
         type            empty;
     }
+    sides2_half0
+    {
+        type            empty;
+    }
+    sides2_half1
+    {
+        type            empty;
+    }
+    inout1_half0
+    {
+        type            empty;
+    }
     inout1_half1
+    {
+        type            empty;
+    }
+    inout2_half0
     {
         type            empty;
     }

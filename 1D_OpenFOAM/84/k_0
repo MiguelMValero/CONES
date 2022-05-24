@@ -10,44 +10,52 @@ FoamFile
     version     2.0;
     format      ascii;
     class       volScalarField;
-    location    "1";
-    object      nut;
+    location    "84";
+    object      k_0;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 2 -1 0 0 0 0];
+dimensions      [0 2 -2 0 0 0 0];
 
-internalField   uniform 0;
+internalField   nonuniform List<scalar> 
+20
+(
+0.0586094
+0.062437
+0.0316542
+0.0301224
+0.028235
+0.0262227
+0.0263911
+0.0293131
+0.0340685
+0.0339119
+0.0339052
+0.0340613
+0.0293069
+0.0263856
+0.0262176
+0.0282299
+0.0301186
+0.0316487
+0.0624238
+0.0586109
+)
+;
 
 boundaryField
 {
     bottomWall
     {
-        type            nutkWallFunction;
-        value		 uniform 0;
+        type            kqRWallFunction;
+        value           uniform 0.0586094;
     }
     topWall
     {
-        type            nutkWallFunction;
-        value		 uniform 0;
+        type            kqRWallFunction;
+        value           uniform 0.0586109;
     }
     sides1_half0
-    {
-        type            empty;
-    }
-    sides2_half0
-    {
-        type            empty;
-    }
-    inout1_half0
-    {
-        type            empty;
-    }
-    inout2_half0
-    {
-        type            empty;
-    }
-    sides2_half1
     {
         type            empty;
     }
@@ -55,7 +63,23 @@ boundaryField
     {
         type            empty;
     }
+    sides2_half0
+    {
+        type            empty;
+    }
+    sides2_half1
+    {
+        type            empty;
+    }
+    inout1_half0
+    {
+        type            empty;
+    }
     inout1_half1
+    {
+        type            empty;
+    }
+    inout2_half0
     {
         type            empty;
     }

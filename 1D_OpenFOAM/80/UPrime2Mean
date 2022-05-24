@@ -9,45 +9,53 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volScalarField;
-    location    "1";
-    object      nut;
+    class       volSymmTensorField;
+    location    "80";
+    object      UPrime2Mean;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 2 -1 0 0 0 0];
+dimensions      [0 2 -2 0 0 0 0];
 
-internalField   uniform 0;
+internalField   nonuniform List<symmTensor> 
+20
+(
+(0.424308 0 0 0 0 0)
+(0.00844011 0 0 0 0 0)
+(0.0220642 0 0 0 0 0)
+(0.019428 0 0 0 0 0)
+(0.00971906 0 0 0 0 0)
+(0.00435435 0 0 0 0 0)
+(0.00145141 0 0 0 0 0)
+(0.00118926 0 0 0 0 0)
+(0.00287142 0 0 0 0 0)
+(0.00536686 0 0 0 0 0)
+(0.00540687 0 0 0 0 0)
+(0.00295449 0 0 0 0 0)
+(0.00127012 0 0 0 0 0)
+(0.00148107 0 0 0 0 0)
+(0.00427602 0 0 0 0 0)
+(0.0094719 0 0 0 0 0)
+(0.0189397 0 0 0 0 0)
+(0.0213804 0 0 0 0 0)
+(0.00809132 0 0 0 0 0)
+(0.428236 0 0 0 0 0)
+)
+;
 
 boundaryField
 {
     bottomWall
     {
-        type            nutkWallFunction;
-        value		 uniform 0;
+        type            calculated;
+        value           uniform (0 0 0 0 0 0);
     }
     topWall
     {
-        type            nutkWallFunction;
-        value		 uniform 0;
+        type            calculated;
+        value           uniform (0 0 0 0 0 0);
     }
     sides1_half0
-    {
-        type            empty;
-    }
-    sides2_half0
-    {
-        type            empty;
-    }
-    inout1_half0
-    {
-        type            empty;
-    }
-    inout2_half0
-    {
-        type            empty;
-    }
-    sides2_half1
     {
         type            empty;
     }
@@ -55,7 +63,23 @@ boundaryField
     {
         type            empty;
     }
+    sides2_half0
+    {
+        type            empty;
+    }
+    sides2_half1
+    {
+        type            empty;
+    }
+    inout1_half0
+    {
+        type            empty;
+    }
     inout1_half1
+    {
+        type            empty;
+    }
+    inout2_half0
     {
         type            empty;
     }

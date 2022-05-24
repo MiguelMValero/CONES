@@ -24,12 +24,12 @@ boundaryField
     bottomWall
     {
         type            epsilonWallFunction;
-        value           uniform 14.855;
+        value		 uniform 14.855;
     }
     topWall
     {
         type            epsilonWallFunction;
-        value           uniform 14.855;
+        value		 uniform 14.855;
     }
     sides1_half0
     {

@@ -17,19 +17,19 @@ FoamFile
 
 dimensions      [0 2 -2 0 0 0 0];
 
-internalField   uniform 0;
+internalField   uniform 10000;
 
 boundaryField
 {
     bottomWall
     {
-        type            fixedValue;
-        value           uniform 0;
+        type            kqRWallFunction;
+        value           uniform 10000;
     }
     topWall
     {
-        type            fixedValue;
-        value           uniform 0;
+        type            kqRWallFunction;
+        value           uniform 10000;
     }
     sides1_half0
     {

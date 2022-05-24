@@ -23,13 +23,11 @@ boundaryField
 {
     bottomWall
     {
-        type            nutkWallFunction;
-        value		 uniform 0;
+        type            zeroGradient;
     }
     topWall
     {
-        type            nutkWallFunction;
-        value		 uniform 0;
+        type            zeroGradient;
     }
     sides1_half0
     {

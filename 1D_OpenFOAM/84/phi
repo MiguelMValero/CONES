@@ -9,13 +9,13 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volScalarField;
-    location    "1";
-    object      nut;
+    class       surfaceScalarField;
+    location    "84";
+    object      phi;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 2 -1 0 0 0 0];
+dimensions      [0 3 -1 0 0 0 0];
 
 internalField   uniform 0;
 
@@ -23,45 +23,53 @@ boundaryField
 {
     bottomWall
     {
-        type            nutkWallFunction;
-        value		 uniform 0;
+        type            calculated;
+        value           uniform 0;
     }
     topWall
     {
-        type            nutkWallFunction;
-        value		 uniform 0;
+        type            calculated;
+        value           uniform 0;
     }
     sides1_half0
     {
         type            empty;
-    }
-    sides2_half0
-    {
-        type            empty;
-    }
-    inout1_half0
-    {
-        type            empty;
-    }
-    inout2_half0
-    {
-        type            empty;
-    }
-    sides2_half1
-    {
-        type            empty;
+        value           nonuniform List<scalar> 0();
     }
     sides1_half1
     {
         type            empty;
+        value           nonuniform List<scalar> 0();
+    }
+    sides2_half0
+    {
+        type            empty;
+        value           nonuniform List<scalar> 0();
+    }
+    sides2_half1
+    {
+        type            empty;
+        value           nonuniform List<scalar> 0();
+    }
+    inout1_half0
+    {
+        type            empty;
+        value           nonuniform List<scalar> 0();
     }
     inout1_half1
     {
         type            empty;
+        value           nonuniform List<scalar> 0();
+    }
+    inout2_half0
+    {
+        type            empty;
+        value           nonuniform List<scalar> 0();
     }
     inout2_half1
     {
         type            empty;
+        value           nonuniform List<scalar> 0();
     }
 }
 

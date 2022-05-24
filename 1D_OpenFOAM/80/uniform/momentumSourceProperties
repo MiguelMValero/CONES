@@ -10,21 +10,12 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    location    "constant";
-    object      momentumTransport;
+    location    "80/uniform";
+    object      momentumSourceProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-simulationType RAS;
-
-RAS
-{
-    model           LaunderSharmaKE;
-
-    turbulence      on;
-
-    printCoeffs     on;
-}
+gradient        8.56118e+07;
 
 
 // ************************************************************************* //

@@ -10,20 +10,21 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    location    "constant";
-    object      momentumTransport;
+    location    "80/uniform";
+    object      fieldAverage(U,p,prime2Mean=yes)Properties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-simulationType RAS;
-
-RAS
+U
 {
-    model           LaunderSharmaKE;
+    totalIter       401;
+    totalTime       80.2;
+}
 
-    turbulence      on;
-
-    printCoeffs     on;
+p
+{
+    totalIter       401;
+    totalTime       80.2;
 }
 
 

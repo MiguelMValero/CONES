@@ -10,21 +10,20 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    location    "constant";
-    object      momentumTransport;
+    location    "80/uniform";
+    object      time;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-simulationType RAS;
+value           80.0000000000005969;
 
-RAS
-{
-    model           LaunderSharmaKE;
+name            "80";
 
-    turbulence      on;
+index           400;
 
-    printCoeffs     on;
-}
+deltaT          0.2;
+
+deltaT0         0.2;
 
 
 // ************************************************************************* //
