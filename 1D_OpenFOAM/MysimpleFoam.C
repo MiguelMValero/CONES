@@ -71,6 +71,8 @@ int *connec = NULL;
 double *sendvalues = NULL;
 double *receivedvalues = NULL;
 
+sprintf(cl_coupling_name,"cpl1");
+
     #include "cwipi_solver1.H"
 
     turbulence->validate();
@@ -94,6 +96,7 @@ double *receivedvalues = NULL;
         turbulence->correct();
 
         #include "cwipi_solver2.H"
+        std::cout << 'I arrived here\n';
 
         runTime.write();
 

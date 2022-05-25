@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 if (rank == 0) printf("        Delete coupling\n");
 
 //******************************************************************** To fill
