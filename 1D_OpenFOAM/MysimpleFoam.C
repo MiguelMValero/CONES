@@ -77,8 +77,6 @@ int main(int argc, char *argv[])
     {
         Info << "Time = " << runTime.timeName() << nl << endl;
 
-        #include "cwipi_solver2.H"
-        
         // --- Pressure-velocity SIMPLE corrector
         {
             #include "UEqn.H"
@@ -87,6 +85,8 @@ int main(int argc, char *argv[])
 
         laminarTransport.correct();
         turbulence->correct();
+
+        #include "cwipi_solver2.H"
 
         runTime.write();
 

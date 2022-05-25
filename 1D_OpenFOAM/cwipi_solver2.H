@@ -1,7 +1,13 @@
 int rank;
+int coord_id = 1; // value of the coordinate that we want to send (Y)
+int stride;
+int nNotLocatedPoints = 0;
+
 double *coords = NULL;
 int *connecindex = NULL;
 int *connec = NULL;
+double *sendvalues = NULL;
+double *receivedvalues = NULL;
 
 const label& nPoints = mesh.nPoints();
 const label& nCells = mesh.nCells();
@@ -11,13 +17,13 @@ int sizeFaces = Faces.size();
 const pointField& Points = mesh.points(); // Node to coordinates
 
 // Number of vertices in every direction
-int nx = 2;
 int ny = nInternalFaces + 1;
-int nz = 2;
 
 coords = (double*) malloc(sizeof(double) * 3 * nPoints);
 connecindex = (int*) malloc(sizeof(int) * (nCells + 1));
 connec = (int*) malloc(sizeof(int) * 4 * nCells);
+sendvalues = (double*) malloc(sizeof(double) * nPoints);
+receivedvalues = (double*) malloc(sizeof(double) * nPoints);
 
 // Mesh definition
 if (rank == 0) printf("        Create mesh\n");
@@ -70,5 +76,34 @@ if (t == runTime.deltaTValue()){
 else {
     cwipi_update_location(cl_coupling_name);
     }
+
+//******************************************************************** End To fill
+
+// Send receive
+if (rank == 0) printf("        Exchange\n");
+
+for (int nbpoint(0); nbpoint < nPoints; ++nbpoint){
+  sendvalues[nbpoint] = coords[3 * nbpoint + coord_id];
+  receivedvalues[nbpoint] = 0;
+}
+  
+stride = 1;
+
+sprintf(cl_exchange_name, "exch1");
+sprintf(cl_sending_field_name, "cooy");
+sprintf(cl_receiving_field_name, "recv");
+
+// We define the iterations
+
+cwipi_exchange_status_t status = cwipi_exchange(cl_coupling_name,
+                                cl_exchange_name,
+                                stride,
+                                1,     // n_step
+                                t,   // physical_time
+                                cl_sending_field_name,
+                                sendvalues,
+                                cl_receiving_field_name,
+                                receivedvalues,
+                                &nNotLocatedPoints);
 
 //******************************************************************** End To fill
