@@ -64,7 +64,14 @@ int main(int argc, char *argv[])
 #include "createFields.H"
 #include "initContinuityErrs.H"
 
-    // #include "cwipi_solver1.H"
+int rank;
+double *coords = NULL;
+int *connecindex = NULL;
+int *connec = NULL;
+double *sendvalues = NULL;
+double *receivedvalues = NULL;
+
+    #include "cwipi_solver1.H"
 
     turbulence->validate();
 
@@ -98,6 +105,7 @@ int main(int argc, char *argv[])
     Info << "End\n"
          << endl;
 
+     #include "cwipi_solver3.H"
     return 0;
 }
 
