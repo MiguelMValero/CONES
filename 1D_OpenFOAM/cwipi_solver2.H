@@ -2,7 +2,7 @@ int strideCWIPI = 1;
 int it;
 int nNotLocatedPoints = 0;
 
-float t = mesh.time().value();
+scalar t = mesh.time().value();
 
 //******************************************************************** To fill
 // Define mesh
@@ -32,7 +32,12 @@ for (int nbpoint(0); nbpoint < nPoints; ++nbpoint){
 }
   
 sprintf(cl_exchange_name, "exch1");
-sprintf(cl_sending_field_name, "cooy");
+if (coord_id == 1){
+  sprintf(cl_sending_field_name, "cooy");
+}
+else{
+  sprintf(cl_sending_field_name, "coox");
+}
 sprintf(cl_receiving_field_name, "recv");
 
 // We define the iterations

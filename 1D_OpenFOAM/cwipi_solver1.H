@@ -1,5 +1,6 @@
 int grank;
 int commWorldSize;
+int coord_id;
 float geom_tol = 0.1;
 
 // MPI Initilization
@@ -10,8 +11,16 @@ MPI_Init(&argc, &argv);
 MPI_Comm_rank(MPI_COMM_WORLD, &grank);
 MPI_Comm_size(MPI_COMM_WORLD, &commWorldSize);
 
-codeName = "code2";
-codeCoupledName = "code1";
+if (grank < commWorldSize / 2) {
+  codeName = "code1";
+  coord_id = 0; // coordinate to send (X)
+  codeCoupledName = "code2";
+}
+else {
+  codeName = "code2";
+  coord_id = 1; // coordinate to send (Y)
+  codeCoupledName = "code1";
+}
 
 //******************************************************************** To fill
 // Initialization of the coupling
@@ -28,7 +37,6 @@ MPI_Comm_rank(localcomm, &rank);
 if (rank == 0) printf("        Create coupling\n");
 cwipi_solver_type_t solver_type;
 solver_type = CWIPI_SOLVER_CELL_VERTEX;
-sprintf(cl_coupling_name,"cpl1");
 sprintf(output_format,"EnSight Gold");
 sprintf(output_format_option,"text");
 cwipi_create_coupling(cl_coupling_name,
@@ -55,8 +63,6 @@ int ny = nInternalFaces + 1;
 coords = (double*) malloc(sizeof(double) * 3 * nPoints);
 connecindex = (int*) malloc(sizeof(int) * (nCells + 1));
 connec = (int*) malloc(sizeof(int) * 4 * nCells);
-sendvalues = (double*) malloc(sizeof(double) * nPoints);
-receivedvalues = (double*) malloc(sizeof(double) * nPoints);
 
 // Mesh definition
 if (rank == 0) printf("        Create mesh\n");
@@ -77,9 +83,9 @@ for (int nbpoint(0); nbpoint < nPoints; ++nbpoint){
 
 // Connectivity
 connecindex[0] = 0;
-  for (int nbcells(0); nbcells < nCells; ++nbcells){
-    connecindex[nbcells + 1] = nbcells * 4 + 4;
-  }
+for (int nbcells; nbcells < nCells; ++nbcells){
+  connecindex[nbcells + 1] = nbcells * 4 + 4;
+}
 
 int variable2 = 0;
   for (int ycells(0); ycells < (ny - 1); ++ycells){

@@ -32,7 +32,10 @@
  * Main : surface coupling test :  
  *
  *---------------------------------------------------------------------*/
- 
+char cl_coupling_name[20], cl_exchange_name[20];
+char output_format[20], output_format_option[20];
+int il_error = 0;
+
 int main
 (
  int    argc,    /* Nombre d'arguments dans la ligne de commandes */
@@ -41,9 +44,6 @@ int main
 {
 
 char cl_sending_field_name[20], cl_receiving_field_name[20];
-char cl_coupling_name[20], cl_exchange_name[20];
-char output_format[20], output_format_option[20];
-int il_error = 0;
 
 int nvertex = 9;
 int nelts = 4;
@@ -57,11 +57,11 @@ int stride;
 float geom_tol = 0.1;
 
 double *coords = NULL;
-coords = (double*) malloc(sizeof(double) * 27);
+coords = (double*) malloc(sizeof(double) * 3 * nvertex);
 int *connecindex = NULL;
 connecindex = (int*) malloc(sizeof(int) * (nelts + 1));
 int *connec = NULL;
-connec = (int*) malloc(sizeof(int) * 16);
+connec = (int*) malloc(sizeof(int) * 4 * nelts);
 
 double *values = NULL;
 values = (double*) malloc(sizeof(double) * nvertex);
@@ -117,6 +117,7 @@ cwipi_create_coupling(cl_coupling_name,
                       output_format,                            // Postprocessing format
                       output_format_option);
 
+cwipi_dump_application_properties();
 //******************************************************************** End To fill
   
 // Mesh definition
@@ -212,7 +213,7 @@ if (coord_id == 0){
 else{
   sprintf(cl_sending_field_name, "cooy");
 }
-sprintf(cl_receiving_field_name,"VarRcv");
+sprintf(cl_receiving_field_name,"recv");
 
 printf("I arrived here 3\n");
 cwipi_exchange_status_t status = cwipi_exchange(cl_coupling_name,
