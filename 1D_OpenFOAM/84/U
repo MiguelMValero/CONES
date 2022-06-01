@@ -1,0 +1,91 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  8
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    location    "84";
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   nonuniform List<vector> 
+20
+(
+(1.89829 0 0)
+(1.18585 0 0)
+(1.08648 0 0)
+(0.943079 0 0)
+(0.818301 0 0)
+(0.749822 0 0)
+(0.708235 0 0)
+(0.710645 0 0)
+(0.778254 0 0)
+(0.901817 0 0)
+(0.901903 0 0)
+(0.778364 0 0)
+(0.710749 0 0)
+(0.708342 0 0)
+(0.749935 0 0)
+(0.818409 0 0)
+(0.943177 0 0)
+(1.0866 0 0)
+(1.186 0 0)
+(1.89839 0 0)
+)
+;
+
+boundaryField
+{
+    bottomWall
+    {
+        type            noSlip;
+    }
+    topWall
+    {
+        type            noSlip;
+    }
+    sides1_half0
+    {
+        type            empty;
+    }
+    sides1_half1
+    {
+        type            empty;
+    }
+    sides2_half0
+    {
+        type            empty;
+    }
+    sides2_half1
+    {
+        type            empty;
+    }
+    inout1_half0
+    {
+        type            empty;
+    }
+    inout1_half1
+    {
+        type            empty;
+    }
+    inout2_half0
+    {
+        type            empty;
+    }
+    inout2_half1
+    {
+        type            empty;
+    }
+}
+
+
+// ************************************************************************* //

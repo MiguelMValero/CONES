@@ -1,0 +1,93 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  8
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volSymmTensorField;
+    location    "40";
+    object      UPrime2Mean;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   nonuniform List<symmTensor> 
+20
+(
+(0.530177 0 0 0 0 0)
+(0.0168642 0 0 0 0 0)
+(0.0289229 0 0 0 0 0)
+(0.0250737 0 0 0 0 0)
+(0.010775 0 0 0 0 0)
+(0.00382792 0 0 0 0 0)
+(0.00152188 0 0 0 0 0)
+(0.00234789 0 0 0 0 0)
+(0.0054437 0 0 0 0 0)
+(0.00985146 0 0 0 0 0)
+(0.00992837 0 0 0 0 0)
+(0.00560453 0 0 0 0 0)
+(0.00251271 0 0 0 0 0)
+(0.00161295 0 0 0 0 0)
+(0.00375857 0 0 0 0 0)
+(0.0104399 0 0 0 0 0)
+(0.0243446 0 0 0 0 0)
+(0.0278376 0 0 0 0 0)
+(0.0161665 0 0 0 0 0)
+(0.534812 0 0 0 0 0)
+)
+;
+
+boundaryField
+{
+    bottomWall
+    {
+        type            calculated;
+        value           uniform (0 0 0 0 0 0);
+    }
+    topWall
+    {
+        type            calculated;
+        value           uniform (0 0 0 0 0 0);
+    }
+    sides1_half0
+    {
+        type            empty;
+    }
+    sides1_half1
+    {
+        type            empty;
+    }
+    sides2_half0
+    {
+        type            empty;
+    }
+    sides2_half1
+    {
+        type            empty;
+    }
+    inout1_half0
+    {
+        type            empty;
+    }
+    inout1_half1
+    {
+        type            empty;
+    }
+    inout2_half0
+    {
+        type            empty;
+    }
+    inout2_half1
+    {
+        type            empty;
+    }
+}
+
+
+// ************************************************************************* //
