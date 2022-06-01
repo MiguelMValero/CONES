@@ -52,9 +52,13 @@ int rank;
 int commWorldSize;
 int coord_id;
 int nNotLocatedPoints = 0;
+int itdeb;
+int itend;
+float ttime;
+float dt;
 
 int stride;
-float geom_tol = 0.1;
+float geom_tol = 0.001;
 
 double *coords = NULL;
 coords = (double*) malloc(sizeof(double) * 3 * nvertex);
@@ -79,12 +83,12 @@ MPI_Comm_size(MPI_COMM_WORLD, &commWorldSize);
 
 if (grank < commWorldSize / 2) {
   codeName = "code1";
-  coord_id = 0; // coordinate to send
+  coord_id = 0; // coordinate to send (X)
   codeCoupledName = "code2";
 }
 else {
   codeName = "code2";
-  coord_id = 1; // coordinate to send
+  coord_id = 1; // coordinate to send (Y)
   codeCoupledName = "code1";
 }
 
@@ -122,39 +126,28 @@ cwipi_create_coupling(cl_coupling_name,
 // Mesh definition
 if (rank == 0) printf("        Create mesh\n");
 
-coords[0] = 0, coords[1] = 0, coords[2] = 0;
-coords[3] = 1, coords[4] = 0, coords[5] = 0;
-coords[6] = 2, coords[7] = 0, coords[8] = 0;
-coords[9] = 3, coords[10] = 0, coords[11] = 0;
-coords[12] = 0, coords[13] = 1, coords[14] = 0;
-coords[15] = 2, coords[16] = 1, coords[17] = 0;
-coords[18] = 3, coords[19] = 1, coords[20] = 0;
-coords[21] = 1, coords[22] = 2, coords[23] = 0;
-coords[24] = 0, coords[25] = 3, coords[26] = 0;
-coords[27] = 2, coords[28] = 3, coords[29] = 0;
-coords[30] = 3, coords[31] = 3, coords[32] = 0;
 
-connecindex[0] = 0;
-connecindex[1] = 3;
-connecindex[2] = 7;
-connecindex[3] = 11;
-connecindex[4] = 16;
-connecindex[5] = 21;
+itdeb = 1; // Initial iteration
+itend = 84; // Final iteration
+ttime = 0.2; // Physical time
+dt = 0.2; // time step
 
-connec[0] = 1, connec[1] = 2, connec[2] = 5;
-connec[3] = 3, connec[4] = 4, connec[5] = 7, connec[6] = 6;
-connec[7] = 5, connec[8] = 8, connec[9] = 10, connec[10] = 9;
-connec[11] = 5, connec[12] = 2, connec[13] = 3, connec[14] = 6, connec[15] = 8;
-connec[16] = 6, connec[17] = 7, connec[18] = 11, connec[19] = 10, connec[20] = 8;
+for (int it = itdeb; it <= itend; ++it) {
+
 
 //******************************************************************** To fill
 // Define mesh
-cwipi_define_mesh(cl_coupling_name,
+if (it == itdeb) {
+  cwipi_define_mesh(cl_coupling_name,
                   nvertex,
                   nelts,
                   coords,
                   connecindex,
                   connec);
+}
+else {
+  cwipi_update_location(cl_coupling_name);
+    }
 
 //******************************************************************** End To fill
 
@@ -162,7 +155,6 @@ cwipi_define_mesh(cl_coupling_name,
 // Send receive
 if (rank == 0) printf("        Exchange\n");
 
-printf("I arrived here 1\n");
 for (int i = 0; i < nvertex; ++i){
   values[i] = coords[3 * i + coord_id];
 }
@@ -178,12 +170,11 @@ else{
 }
 sprintf(cl_receiving_field_name, "recv");
 
-printf("I arrived here 2\n");
 cwipi_exchange_status_t status = cwipi_exchange(cl_coupling_name,
                                 cl_exchange_name,
                                 stride,
-                                1,     // n_step
-                                0.1,   // physical_time
+                                it,     // n_step
+                                ttime,   // physical_time
                                 cl_sending_field_name,
                                 values,
                                 cl_receiving_field_name,
@@ -191,6 +182,8 @@ cwipi_exchange_status_t status = cwipi_exchange(cl_coupling_name,
                                 &nNotLocatedPoints);
 
 //******************************************************************** End To fill
+  ttime = ttime + dt;
+}
 
 if (rank == 0) printf("        Delete coupling\n");
 
