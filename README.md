@@ -1,6 +1,3 @@
-# CWIPI
-Here we include all the steps to make CWIPI work:
-
 # CWIPI - EnKF in the cavity case of OpenFOAM
 Here we include all the steps to make CWIPI work:
 
