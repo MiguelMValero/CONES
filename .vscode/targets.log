@@ -8,7 +8,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Thu Jul  7 09:33:08 2022
+# Make data base, printed on Thu Jul  7 17:31:15 2022
 
 # Variables
 
@@ -225,7 +225,7 @@ GNOME_SHELL_SESSION_MODE = ubuntu
 # environment
 WM_COMPILER_TYPE = system
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-9a4bd351-8e69-4819-916a-e2c8023cf140.sock
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-850f0967-3d65-433e-b2a1-f59ac5cf9f1c.sock
 # default
 MAKE_VERSION := 4.2.1
 # environment
@@ -274,10 +274,9 @@ MFLAGS = -pqrR
 GDK_BACKEND = x11
 # environment
 LC_PAPER = fr_FR.UTF-8
-# environment
-NO_AT_BRIDGE = 1
 # default
 SUFFIXES := 
+ 
 # environment
 FOAM_LIBBIN = /opt/openfoam8/platforms/linux64GccDPInt32Opt/lib
 # environment
@@ -286,7 +285,6 @@ MPI_BUFFER_SIZE = 20000000
 QT_ACCESSIBILITY = 1
 # environment
 FOAM_SITE_LIBBIN = /opt/site/8/platforms/linux64GccDPInt32Opt/lib
- 
 # environment
 ParaView_LIB_DIR = /opt/paraviewopenfoam56/lib
 # default
@@ -314,7 +312,7 @@ CONDA_PYTHON_EXE = /home/miguel/anaconda3/bin/python
 # environment
 FOAM_SITE_APPBIN = /opt/site/8/platforms/linux64GccDPInt32Opt/bin
 # environment
-GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/8ea02184_1e31_42d2_8886_8a256befe48e
+GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/3cbe33cb_01bf_4362_9fed_ca055a15a3fd
 # automatic
 ^F = $(notdir $^)
 # environment
@@ -350,13 +348,13 @@ LANG = C
 # environment
 TERM = xterm-256color
 # environment
-VSCODE_PID = 1282212
+VSCODE_PID = 2300322
 # environment
 DBUS_STARTER_ADDRESS = unix:path=/run/user/1000/bus,guid=88a34e485f8cebe2a3aebda962a8c7a6
 # environment
 _CE_CONDA = 
 # variable set hash-table stats:
-# Load=171/1024=17%, Rehash=0, Collisions=28/193=15%
+# Load=170/1024=17%, Rehash=0, Collisions=28/192=15%
 
 # Pattern-specific Variable Values
 
@@ -364,9 +362,9 @@ _CE_CONDA =
 
 # Directories
 
-# . (device 66306, inode 42994863): 8 files, no impossibilities.
+# . (device 66306, inode 42994863): 7 files, no impossibilities.
 
-# 8 files, no impossibilities in 1 directories.
+# 7 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -416,12 +414,12 @@ GNUmakefile:
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 16 / storage = 150 B / avg = 9 B
-# current buf: size = 8162 B / used = 150 B / count = 16 / avg = 9 B
+# strcache buffers: 1 (0) / strings = 15 / storage = 140 B / avg = 9 B
+# current buf: size = 8162 B / used = 140 B / count = 15 / avg = 9 B
 
-# strcache performance: lookups = 19 / hit rate = 15%
+# strcache performance: lookups = 18 / hit rate = 16%
 # hash-table stats:
-# Load=16/8192=0%, Rehash=0, Collisions=1/19=5%
-# Finished Make data base on Thu Jul  7 09:33:08 2022
+# Load=15/8192=0%, Rehash=0, Collisions=1/18=6%
+# Finished Make data base on Thu Jul  7 17:31:15 2022
 
  

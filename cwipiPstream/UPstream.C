@@ -70,7 +70,6 @@ MPI_Comm localComm;
 
 bool Foam::UPstream::init(int& argc, char**& argv, const bool needsThread)
 {
-    // MPI_Init(&argc, &argv);
     int provided_thread_support;
     MPI_Init_thread
     (
@@ -84,34 +83,42 @@ bool Foam::UPstream::init(int& argc, char**& argv, const bool needsThread)
         &provided_thread_support
     );
 
-    // MPI_Init_thread
-    // (
-    //     &argc,
-    //     &argv,
-    //     MPI_THREAD_MULTIPLE,
-    //     &provided_thread_support
-    // );
+    int numGlobalprocs;
+    MPI_Comm_size(MPI_COMM_WORLD, &numGlobalprocs);
+    int myGlobalRank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &myGlobalRank);
 
-    // int numprocs;
-    // MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
-    // int myGlobalRank;
-    // MPI_Comm_rank(MPI_COMM_WORLD, &myGlobalRank);
-
-    // int myGlobalRank;
-    // MPI_Comm_rank(MPI_COMM_WORLD, &myGlobalRank);
-    // MPI_Comm_split
-    // (
-    //     MPI_COMM_WORLD,
-    //     1,
-    //     myGlobalRank,
-    //     &PstreamGlobals::MPI_COMM_FOAM
-    // );
-
-    cwipi_init(MPI_COMM_WORLD, "cwipiFoam", &localComm);
     int numprocs;
     MPI_Comm_size(localComm, &numprocs);
     int myRank;
     MPI_Comm_rank(localComm, &myRank);
+
+    for (int i(0); i < 10; ++i){
+        if (myGlobalRank == 1)
+            char codeName[10] = 'OpenFOAM1';
+        else if (myGlobalRank == 2)
+            char codeName[10] = 'OpenFOAM2';
+        else if (myGlobalRank == 3)
+            char codeName[10] = 'OpenFOAM3';
+        else if (myGlobalRank == 4)
+            char codeName[10] = 'OpenFOAM4';
+        else if (myGlobalRank == 5)
+            char codeName[10] = 'OpenFOAM5';
+        else if (myGlobalRank == 6)
+            char codeName[10] = 'OpenFOAM6';
+        else if (myGlobalRank == 7)
+            char codeName[10] = 'OpenFOAM7';
+        else if (myGlobalRank == 8)
+            char codeName[10] = 'OpenFOAM8';
+        else if (myGlobalRank == 9)
+            char codeName[10] = 'OpenFOAM9';
+        else if (myGlobalRank == 10)
+            char codeName[10] = 'OpenFOAM10';
+        else
+            Info<< "Either you did not specify 10 ensembles for the EnKF or your proc 0 does not correspond with the EnKF"
+            << nl << endl;
+    }
+    cwipi_init(MPI_COMM_WORLD, codeName, &localComm);
 
     if (debug)
     {
