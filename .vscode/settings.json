@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
     "files.associations": {
         "tests.C": "cpp",
         "*.tcc": "c",
@@ -134,4 +135,7 @@
             "binaryArgs": []
         }
     ]
+=======
+	"makefile.extensionOutputFolder": "./.vscode"
+>>>>>>> 07e2976861dc457f6d25fa2d7f70d99aa1382789
 }
