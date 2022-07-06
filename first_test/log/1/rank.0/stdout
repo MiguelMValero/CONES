@@ -1,0 +1,100 @@
+
+cwipi 0.12.0 initializing
+------------------------
+
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  8
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+Build  : 8-1c9b5879390b
+Exec   : cwipiIcoFoam -parallel
+Date   : Jun 20 2022
+Time   : 14:18:21
+Host   : "miguel-Precision-7920-Tower"
+PID    : 389155
+I/O    : uncollated
+Case   : /home/miguel/CWIPI_OpenFOAM/first_test
+nProcs : 2
+Slaves : 1("miguel-Precision-7920-Tower.389156")
+Pstream initialized with:
+    floatTransfer      : 0
+    nProcsSimpleSum    : 0
+    commsType          : nonBlocking
+    polling iterations : 0
+sigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 10)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 0
+
+Reading transportProperties
+
+Reading field p
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+Here we are
+
+Here we are 2
+
+Here we are 3
+
+Here we are 4
+
+Here we are 5
+
+Here we are 6
+
+Here we are 7
+
+Here we are 8
+
+
+Local application properties
+
+'cwipiFoam' properties
+  - Ranks in global MPI_comm : 0 <= ranks <= 1 
+  - Int Control Parameter :
+  - Double Control Parameter :
+  - String Control Parameter :
+
+Distant application properties
+
+'FOAM_APE' properties
+  - Ranks in global MPI_comm : 2 <= ranks <= 2 
+  - Int Control Parameter :
+  - Double Control Parameter :
+  - String Control Parameter :
+
+Here we are 8a
+
+Here we are 8b
+
+Here we are 9
+
+After if
+
+
+Starting time loop
+
+Time = 0.005
+
+Courant Number mean: 0 max: 0
+smoothSolver:  Solving for Ux, Initial residual = 1, Final residual = 7.58384e-06, No Iterations 22
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+DICPCG:  Solving for p, Initial residual = 1, Final residual = 0.0493696, No Iterations 25
+time step continuity errors : sum local = 0.000330778, global = -1.32349e-20, cumulative = -1.32349e-20
+DICPCG:  Solving for p, Initial residual = 0.534162, Final residual = 9.31648e-07, No Iterations 39
+time step continuity errors : sum local = 1.05384e-08, global = -2.1242e-19, cumulative = -2.25655e-19
+Send Ok
+Before wait.
+After wait.
+Receive2 Ok

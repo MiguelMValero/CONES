@@ -1,0 +1,31 @@
+[1] #0  Foam::error::printStack(Foam::Ostream&) at ??:?
+[1] #1  Foam::sigSegv::sigHandler(int) at ??:?
+[1] #2  ? in "/lib/x86_64-linux-gnu/libc.so.6"
+[1] #3  mca_pml_ob1_recv_req_start at ??:?
+[1] #4  mca_pml_ob1_irecv at ??:?
+[1] #5  ompi_coll_base_barrier_intra_two_procs in "/usr/lib/x86_64-linux-gnu/libmpi.so.40"
+[1] #6  MPI_Barrier in "/usr/lib/x86_64-linux-gnu/libmpi.so.40"
+[1] #7  cwipi::oldCoupling::_fieldsVisualization(char const*, int, int, double, char const*, void const*, char const*, void const*) in "/home/miguel/cwipi-0.12.0/lib/libcwp.so.0.12.0"
+[1] #8  cwipi::oldCoupling::waitIrecv(int) in "/home/miguel/cwipi-0.12.0/lib/libcwp.so.0.12.0"
+[1] #9  cwipi_wait_irecv in "/home/miguel/cwipi-0.12.0/lib/libcwp.so.0.12.0"
+[1] #10  ? in "/home/miguel/OpenFOAM/miguel-8/platforms/linux64GccDPInt32Opt/bin/cwipiIcoFoam"
+[1] #11  __libc_start_main in "/lib/x86_64-linux-gnu/libc.so.6"
+[1] #12  ? in "/home/miguel/OpenFOAM/miguel-8/platforms/linux64GccDPInt32Opt/bin/cwipiIcoFoam"
+[miguel-Precision-7920-Tower:389156] *** Process received signal ***
+[miguel-Precision-7920-Tower:389156] Signal: Segmentation fault (11)
+[miguel-Precision-7920-Tower:389156] Signal code:  (-6)
+[miguel-Precision-7920-Tower:389156] Failing at address: 0x3e80005f024
+[miguel-Precision-7920-Tower:389156] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x43090)[0x7f1f6bbae090]
+[miguel-Precision-7920-Tower:389156] [ 1] /lib/x86_64-linux-gnu/libc.so.6(gsignal+0xcb)[0x7f1f6bbae00b]
+[miguel-Precision-7920-Tower:389156] [ 2] /lib/x86_64-linux-gnu/libc.so.6(+0x43090)[0x7f1f6bbae090]
+[miguel-Precision-7920-Tower:389156] [ 3] /usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_pml_ob1.so(mca_pml_ob1_recv_req_start+0x260)[0x7f1f69113ef0]
+[miguel-Precision-7920-Tower:389156] [ 4] /usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_pml_ob1.so(mca_pml_ob1_irecv+0x14f)[0x7f1f6910562f]
+[miguel-Precision-7920-Tower:389156] [ 5] /usr/lib/x86_64-linux-gnu/libmpi.so.40(ompi_coll_base_barrier_intra_two_procs+0xa9)[0x7f1f6b8a5729]
+[miguel-Precision-7920-Tower:389156] [ 6] /usr/lib/x86_64-linux-gnu/libmpi.so.40(MPI_Barrier+0xb0)[0x7f1f6b85a730]
+[miguel-Precision-7920-Tower:389156] [ 7] /home/miguel/cwipi-0.12.0/lib/libcwp.so.0.12.0(_ZN5cwipi11oldCoupling20_fieldsVisualizationEPKciidS2_PKvS2_S4_+0xea)[0x7f1f6b24498a]
+[miguel-Precision-7920-Tower:389156] [ 8] /home/miguel/cwipi-0.12.0/lib/libcwp.so.0.12.0(_ZN5cwipi11oldCoupling9waitIrecvEi+0x2fd)[0x7f1f6b247f3d]
+[miguel-Precision-7920-Tower:389156] [ 9] /home/miguel/cwipi-0.12.0/lib/libcwp.so.0.12.0(cwipi_wait_irecv+0x165)[0x7f1f6b196785]
+[miguel-Precision-7920-Tower:389156] [10] cwipiIcoFoam(+0x2ab21)[0x560804676b21]
+[miguel-Precision-7920-Tower:389156] [11] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0xf3)[0x7f1f6bb8f083]
+[miguel-Precision-7920-Tower:389156] [12] cwipiIcoFoam(+0x2bbde)[0x560804677bde]
+[miguel-Precision-7920-Tower:389156] *** End of error message ***

@@ -1,0 +1,7 @@
+UOPwrite.C
+UIPread.C
+UPstream.C
+PstreamGlobals.C
+cwipiPstream.C
+
+LIB = $(FOAM_USER_LIBBIN)/libcwipiPstream

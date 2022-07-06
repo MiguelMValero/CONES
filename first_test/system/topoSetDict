@@ -1,0 +1,49 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  8
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      topoSetDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+actions
+(
+  {
+    name    selectedProbesPointSet;
+    type    cellSet;
+    action  new;
+    source  nearestToCell;
+    sourceInfo
+    {
+       points
+       (
+       	( 0.0425 0.0975 0.005 )
+       	( 0.0475 0.0975 0.005 )
+       	( 0.0525 0.0975 0.005 )
+       	( 0.0575 0.0975 0.005 )
+       	( 0.06   0.0975 0.005 )
+       );
+       set selectedProbesSet;
+    }
+   /*
+    name    selectedProbes;
+    type    cellZoneSet;
+    action  new;
+    source  setToCellZone;
+    sourceInfo
+    {
+    	set selectedProbesSet;
+    }*/
+  }
+);
+
+// ************************************************************************* //

@@ -1,0 +1,19 @@
+FORMAT
+type: ensight gold
+
+GEOMETRY
+model: chr.geo
+
+VARIABLE
+scalar per element:          partitioning       chr.partitioning
+scalar per element: 1 S_c0_ex1_u0,v0,w0_c       chr.s_c0_ex1_u0,v0,w0_c0.****
+scalar per element: 1 S_c1_ex1_u0,v0,w0_c       chr.s_c1_ex1_u0,v0,w0_c1.****
+scalar per element: 1 S_c2_ex1_u0,v0,w0_c       chr.s_c2_ex1_u0,v0,w0_c2.****
+
+TIME
+time set:              1
+number of steps:       1
+filename start number: 1
+filename increment:    1
+time values:
+            0.005

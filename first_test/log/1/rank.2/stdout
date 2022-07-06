@@ -1,0 +1,27 @@
+cav here 1 
+cav here 2 
+cav here 3 
+cav here 4 
+
+cwipi 0.12.0 initializing
+------------------------
+
+cav here 4.5 
+Create coupling
+cav here 5 
+cav here 6 
+        Create mesh
+cav here 7 
+cav here 7b 
+cav here 8 
+Receive Ok
+Send2 Ok
+Before wait 2
+After wait 2
+        Delete coupling
+cav here 9 
+cav here 9a 
+cav here 9b 
+cav here 9c 
+cav here 10 
+Finalize cwipi

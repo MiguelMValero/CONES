@@ -1,0 +1,18 @@
+-include $(GENERAL_RULES)/mplibType
+
+EXE_INC  = $(PFLAGS) $(PINC) \
+    -I$(LIB_SRC)/meshTools/lnInclude \
+    -I$(LIB_SRC)/dynamicMesh/lnInclude \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I/home/miguel/cwipi-0.12.0/include \
+    -Wfatal-errors \
+    -Wno-old-style-cast \
+    -DFULLDEBUG -g -O0
+    
+LIB_LIBS = $(PLIBS) \
+    -lmeshTools \
+    -ldynamicMesh \
+    -lfiniteVolume \
+    -L/home/miguel/cwipi-0.12.0/lib \
+    -lcwpf \
+    -lcwp
