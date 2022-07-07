@@ -102,7 +102,6 @@ bool Foam::UPstream::init(int& argc, char**& argv, const bool needsThread)
             << nl << endl;
     }
     cwipi_init(MPI_COMM_WORLD, codeName, &localComm);
-
     if (debug)
     {
         Pout<< "UPstream::init : initialised with numProcs:" << numprocs
