@@ -1,4 +1,4 @@
-# CWIPI - EnKF in the cavity case of OpenFOAM;
+# CWIPI - EnKF in the cavity case of OpenFOAM
 In this git repository it is intended to perform the EnKF in the "cavity" case of OpenFOAM. The communications between the EnKF and OpenFOAM are performed by a coupler called CWIPI. Here we include all the steps to make CWIPI work:
 
 Firstly, you need to create the .so executable with all CWIPI functions. In order to do that, go to the folder "cwipiPstream" and compile it by doing:\
