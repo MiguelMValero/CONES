@@ -1,8 +1,12 @@
 {
+<<<<<<< HEAD
 	"files.associations": {
 		"UPstream.C": "cpp",
 		"type_traits": "cpp",
 		"cwipiPstream.C": "cpp"
 	},
 	"C_Cpp.errorSquiggles": "Disabled"
+=======
+	"makefile.extensionOutputFolder": "./.vscode"
+>>>>>>> beb97d3054a6b2d2c54f10b96184b591555a6452
 }
