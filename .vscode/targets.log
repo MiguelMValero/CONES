@@ -8,7 +8,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Wed Jul  6 17:43:37 2022
+# Make data base, printed on Thu Jul  7 09:33:08 2022
 
 # Variables
 
@@ -225,7 +225,7 @@ GNOME_SHELL_SESSION_MODE = ubuntu
 # environment
 WM_COMPILER_TYPE = system
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-15c9d7ec-ebb6-41b1-8ab9-4e5890609eb6.sock
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-9a4bd351-8e69-4819-916a-e2c8023cf140.sock
 # default
 MAKE_VERSION := 4.2.1
 # environment
@@ -284,9 +284,9 @@ FOAM_LIBBIN = /opt/openfoam8/platforms/linux64GccDPInt32Opt/lib
 MPI_BUFFER_SIZE = 20000000
 # environment
 QT_ACCESSIBILITY = 1
- 
 # environment
 FOAM_SITE_LIBBIN = /opt/site/8/platforms/linux64GccDPInt32Opt/lib
+ 
 # environment
 ParaView_LIB_DIR = /opt/paraviewopenfoam56/lib
 # default
@@ -314,7 +314,7 @@ CONDA_PYTHON_EXE = /home/miguel/anaconda3/bin/python
 # environment
 FOAM_SITE_APPBIN = /opt/site/8/platforms/linux64GccDPInt32Opt/bin
 # environment
-GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/4ba5b8a1_6420_4143_a404_8786248e828b
+GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/8ea02184_1e31_42d2_8886_8a256befe48e
 # automatic
 ^F = $(notdir $^)
 # environment
@@ -343,7 +343,6 @@ LC_IDENTIFICATION = fr_FR.UTF-8
 .RECIPEPREFIX := 
 # environment
 LC_ADDRESS = fr_FR.UTF-8
- 
 # default
 MAKE_HOST := x86_64-pc-linux-gnu
 # environment
@@ -423,6 +422,6 @@ GNUmakefile:
 # strcache performance: lookups = 19 / hit rate = 15%
 # hash-table stats:
 # Load=16/8192=0%, Rehash=0, Collisions=1/19=5%
-# Finished Make data base on Wed Jul  6 17:43:37 2022
+# Finished Make data base on Thu Jul  7 09:33:08 2022
 
  
