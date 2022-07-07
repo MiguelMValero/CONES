@@ -304,8 +304,9 @@ else
 Pout << "Processor number " << Pstream::myProcNo() << " is creating the file with interpolated velocities " <<
 nl << endl;
 
-myfile.open(UInt, std::ios::out | std::ios::app);
 std::ofstream myfile;
+myfile.open(UInt, std::ios::out | std::ios::app);
+
 // MPI_File myfile;
 // double* buf = (double *)malloc( parameters * sizeof(double) );
 // char buf[1000000];
