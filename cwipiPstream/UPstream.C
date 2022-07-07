@@ -93,14 +93,13 @@ bool Foam::UPstream::init(int& argc, char**& argv, const bool needsThread)
     int myRank;
     MPI_Comm_rank(localComm, &myRank);
 
-    for (int i(0); i < 10; ++i){
-        if (myGlobalRank == i + 1)
-            char codeName[10];
-            sprintf(codeName, "OpenFOAM%i", i);
-        else
-            Info<< "Either you did not specify 10 ensembles for the EnKF or your proc 0 does not correspond with the EnKF"
-            << nl << endl;
-    }
+    char codeName[10];
+    if ((myGlobalRank > 0) && (myRank < 10))
+        sprintf(codeName, "OpenFOAM%i", myGlobalRank);
+    else
+        Info<< "Either you did not specify 10 ensembles for the EnKF or your proc 0 does not correspond with the EnKF"
+        << nl << endl;
+        
     cwipi_init(MPI_COMM_WORLD, codeName, &localComm);
     if (debug)
     {
