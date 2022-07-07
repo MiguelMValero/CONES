@@ -14,7 +14,7 @@ Next, the EnKF has to be compiled. Go to the folder "first_test" and run:\
 **make all**
 
 To finish with, run the "cavity" case from the OpenFOAM tutorials by doing the following:\
-**mpirun -np <number_processors> cwipiIcoFoam -parallel : -np 1 ./KF_coupling.exe**\
+**mpirun -np 1 ./KF_coupling.exe** : -np <number_processors> cwipiIcoFoam -parallel\
 NOTE: even though the case in OpenFOAM is launched with 1 processor, it is necessary to specify the option "-parallel"
 
 For any doubts regarding the code you can contact Miguel MARTINEZ VALERO: miguel.martinez_valero@ensam.eu or Lucas VILLANUEVA: lucas.villanueva@ensma.fr
