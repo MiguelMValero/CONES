@@ -1,3 +1,12 @@
 {
+<<<<<<< HEAD
 	"makefile.extensionOutputFolder": "./.vscode"
+=======
+	"files.associations": {
+		"UPstream.C": "cpp",
+		"type_traits": "cpp",
+		"cwipiPstream.C": "cpp"
+	},
+	"C_Cpp.errorSquiggles": "Disabled"
+>>>>>>> Miguelbranch
 }

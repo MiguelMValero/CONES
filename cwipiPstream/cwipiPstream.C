@@ -67,7 +67,6 @@ void cwipiCoupling(const fvMesh& mesh, double* pointCoords, int* connecIdx, int*
     
     Info << "Here we are 2" << nl << endl;
 
-    // double* pointCoords = new double[3*mesh.nPoints()];
     forAll(mesh.points(),i)
     {
         pointCoords[3*i+0]=mesh.points()[i].x();
@@ -77,7 +76,6 @@ void cwipiCoupling(const fvMesh& mesh, double* pointCoords, int* connecIdx, int*
     
     Info << "Here we are 3" << nl << endl;
 
-    // int* connecIdx = new int[mesh.nCells()+1];
     connecIdx[0]=0;
     forAll(mesh.cells(),i)
     {
@@ -86,7 +84,6 @@ void cwipiCoupling(const fvMesh& mesh, double* pointCoords, int* connecIdx, int*
 
     Info << "Here we are 4" << nl << endl;
 
-    // int* connec = new int[mesh.nCells()*8];
     forAll(mesh.cells(),i)
     {
         forAll(mesh.cellShapes()[i],j)
@@ -97,7 +94,7 @@ void cwipiCoupling(const fvMesh& mesh, double* pointCoords, int* connecIdx, int*
     
     Info << "Here we are 5" << nl << endl;
 
-    /*Options :
+    /* Options :
     CWIPI_COUPLING_SEQUENTIAL
     CWIPI_COUPLING_PARALLEL_WITHOUT_PARTITIONING
     CWIPI_COUPLING_PARALLEL_WITH_PARTITIONING
