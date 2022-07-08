@@ -1,17 +1,21 @@
 #!/bin/sh
-#cd ${0%/*} || exit 1    # Run from this directory
 
-# Source tutorial run functions
-#. $WM_PROJECT_DIR/bin/tools/RunFunctions
-
-# We read the number of ensembles from the controlDict
-controlDict="system/controlDict"
+# Read the number of ensembles from the controlDict file
+controlDict= "system/controlDict"
 
 while read -r line
 do
     ensemble= grep -oP "cwipiMembers\s+\K\w+"
   echo "$ensemble"
 done < "$controlDict"
+
+# We remove all possible existing processors 
+rm -r processor*
+
+# for i in {1..$ensemble}
+# do
+#    mkdir processor
+# done
 
 
 # cwipiMembers = 10
