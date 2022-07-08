@@ -128,8 +128,8 @@ void cwipiCoupling(const fvMesh& mesh, double* pointCoords, int* connecIdx, int*
 
 void UInterpolation(Foam::volVectorField& U, Foam::fvMesh& mesh)
 {
-std::string proj_file = "/home/villanul/OpenFOAM/villanul-8/run/cwipi_tests/first_test/obs_coordinates.txt";
-std::string UInt = "/home/villanul/OpenFOAM/villanul-8/run/cwipi_tests/first_test/UInt";
+std::string proj_file = "/home/miguel/OpenFOAM/miguel-8/run/CWIPI_OpenFOAM_cavity/first_test/obs_coordinates.txt";
+const char* UInt = "/home/miguel/OpenFOAM/miguel-8/run/CWIPI_OpenFOAM_cavity/first_test/UInt";
 
 std::ifstream file;
 file.open(proj_file);
@@ -141,7 +141,7 @@ Foam::interpolationCellPointWallModified<Foam::vector> triangulateCellsU(U);
 Foam::point pointCoord;
 
 if (Foam::Pstream::master()){
-	if (remove("/home/villanul/OpenFOAM/villanul-8/run/cwipi_tests/first_test/UInt") != 0)
+	if (remove(UInt) != 0)
 		perror( "Error deleting file with interpolated velocities" );
 	else
 		//puts( "File successfully deleted " );
