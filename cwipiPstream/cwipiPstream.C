@@ -94,15 +94,22 @@ void cwipiCoupling(const fvMesh& mesh, double* pointCoords, int* connecIdx, int*
     
     Info << "Here we are 5" << nl << endl;
 
+    int myGlobalRank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &myGlobalRank);
+    char rankChar[50];
+    sprintf(rankChar, "%i", myGlobalRank);
+    char couplingName[250] = {"cwipiFoamCoupling"};
+    strcat(couplingName,rankChar);
+
     /*Options :
     CWIPI_COUPLING_SEQUENTIAL
     CWIPI_COUPLING_PARALLEL_WITHOUT_PARTITIONING
     CWIPI_COUPLING_PARALLEL_WITH_PARTITIONING
-    */
+    */   
 
-    cwipi_create_coupling("cwipiFoamCoupling",
+    cwipi_create_coupling(couplingName,
                           CWIPI_COUPLING_PARALLEL_WITH_PARTITIONING,
-                          "FOAM_APE",
+                          "KF",
                           3,
                           1.0,
                           CWIPI_STATIC_MESH,
@@ -112,11 +119,11 @@ void cwipiCoupling(const fvMesh& mesh, double* pointCoords, int* connecIdx, int*
                           "text");
     Info << "Here we are 8" << nl << endl;
 
-    cwipi_synchronize_control_parameter("FOAM_APE");
+    cwipi_synchronize_control_parameter("KF");
     
     cwipi_dump_application_properties();
-    cwipi_define_mesh("cwipiFoamCoupling", nPoints, nCells, pointCoords,connecIdx,connec);
-    cwipi_locate("cwipiFoamCoupling");
+    cwipi_define_mesh(couplingName, nPoints, nCells, pointCoords,connecIdx,connec);
+    cwipi_locate(couplingName);
 }
 
 void UInterpolation(Foam::volVectorField& U, Foam::fvMesh& mesh)
@@ -215,9 +222,16 @@ void cwipiSend(const fvMesh& mesh, const volVectorField& vf, const Time& runTime
     Info << "Here we are 10" << nl << endl;
     scalar t = runTime.value();
 
+    int myGlobalRank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &myGlobalRank);
+    char rankChar[50];
+    sprintf(rankChar, "%i", myGlobalRank);
+    char couplingName[250] = {"cwipiFoamCoupling"};
+    strcat(couplingName,rankChar);
+
     Info<< "Before sending to KF" << endl;  
-    cwipi_issend("cwipiFoamCoupling","ex1",sendTag,3,cwipiIteration,t,"u0,v0,w0",fieldsToSend,&status);
-    cwipi_wait_issend("cwipiFoamCoupling",status);
+    cwipi_issend(couplingName,"ex1",sendTag,3,cwipiIteration,t,"u0,v0,w0",fieldsToSend,&status);
+    cwipi_wait_issend(couplingName,status);
     Info<< "After sending to KF" << endl;
 
     switch(status)
@@ -243,20 +257,14 @@ void cwipiSendParams(const fvMesh& mesh, const volVectorField& vf, const Time& r
     double* ParamsToSend = new double[cwipiParams];
     // Info << "number of cells: " << mesh.nCells() << endl;
 
-    int myRank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &myRank);
+    std::cout << "Before sending params to KF" << std::endl; 
+    label top = mesh.boundaryMesh().findPatchID("movingWall");
+    fvPatchVectorField movingWallU = vf.boundaryField()[top];
+    
+    ParamsToSend[0]=movingWallU[0].component(0);
 
-    if (myRank == (nbParts))
-    {
-        std::cout << "Before sending params to KF" << std::endl; 
-        label top = mesh.boundaryMesh().findPatchID("movingWall");
-        fvPatchVectorField movingWallU = vf.boundaryField()[top];
-        
-        ParamsToSend[0]=movingWallU[0].component(0);
- 
-        MPI_Send(ParamsToSend,1,MPI_DOUBLE,0,sendTag_params,MPI_COMM_WORLD);
-        std::cout << "After sending params to KF" << std::endl;
-    }
+    MPI_Send(ParamsToSend,1,MPI_DOUBLE,0,sendTag_params,MPI_COMM_WORLD);
+    std::cout << "After sending params to KF" << std::endl;
 
     delete[] ParamsToSend;
 }
@@ -268,9 +276,17 @@ void cwipiRecv(const fvMesh& mesh, volVectorField& U, const Time& runTime, int c
     Info << "Before Re-receive" << endl;
 
     scalar t = runTime.value();
-    cwipi_irecv("cwipiFoamCoupling","ex2",recvTag,3,cwipiIteration,t,"u0,v0,w0",fieldsToRecv,&status2);
 
-    cwipi_wait_irecv("cwipiFoamCoupling", status2);
+    int myGlobalRank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &myGlobalRank);
+    char rankChar[50];
+    sprintf(rankChar, "%i", myGlobalRank);
+    char couplingName[250] = {"cwipiFoamCoupling"};
+    strcat(couplingName,rankChar);
+
+    cwipi_irecv(couplingName,"ex2",recvTag,3,cwipiIteration,t,"u0,v0,w0",fieldsToRecv,&status2);
+
+    cwipi_wait_irecv(couplingName, status2);
 
     switch(status2)
     {
@@ -303,29 +319,22 @@ void cwipiRecvParams(const fvMesh& mesh, volVectorField& U, int cwipiParams, int
     Info << "Before Re-receive params" << endl;
 
     MPI_Status status4;
-    int myRank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &myRank);
 
-    int testRank = nbParts/partsReparty + nbParts/partsReparty*(partsReparty-2);
 
-    Info << "testRank = " << testRank << endl;
+    MPI_Recv(paramsToRecv,1, MPI_DOUBLE, 0, recvTag_params, MPI_COMM_WORLD, &status4);
 
-    if (myRank > testRank)
+    label top = mesh.boundaryMesh().findPatchID("movingWall");
+    fvPatchVectorField& movingWallU = U.boundaryFieldRef()[top];
+
+    forAll(movingWallU,faceI)
     {
-        MPI_Recv(paramsToRecv,1, MPI_DOUBLE, 0, recvTag_params, MPI_COMM_WORLD, &status4);
+        Info << movingWallU[faceI].component(0) << endl;
 
-        label top = mesh.boundaryMesh().findPatchID("movingWall");
-        fvPatchVectorField& movingWallU = U.boundaryFieldRef()[top];
-
-        forAll(movingWallU,faceI)
-        {
-            Info << movingWallU[faceI].component(0) << endl;
-
-            movingWallU[faceI]=vector(paramsToRecv[0],0,0);
-            
-            Info << movingWallU[faceI].component(0) << endl;
-        }
+        movingWallU[faceI]=vector(paramsToRecv[0],0,0);
+        
+        Info << movingWallU[faceI].component(0) << endl;
     }
+
     
     Info << "After Re-receive params" << endl << "\n";
 
@@ -335,7 +344,15 @@ void cwipiRecvParams(const fvMesh& mesh, volVectorField& U, int cwipiParams, int
 void cwipideleteCoupling(double* pointCoords, int* connecIdx, int* connec)
 {
     Info << "Delete Cwipi coupling from OF" << endl << "\n";
-    cwipi_delete_coupling("cwipiFoamCoupling");
+
+    int myGlobalRank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &myGlobalRank);
+    char rankChar[50];
+    sprintf(rankChar, "%i", myGlobalRank);
+    char couplingName[250] = {"cwipiFoamCoupling"};
+    strcat(couplingName,rankChar);
+
+    cwipi_delete_coupling(couplingName);
     delete[] pointCoords;
     delete[] connecIdx;
     delete[] connec;
