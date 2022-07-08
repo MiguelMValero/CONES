@@ -1,1 +1,0 @@
-../allReduceTemplates.C
