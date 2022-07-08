@@ -1,0 +1,41 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "cppbuild",
+			"label": "C/C++: g++ générer le fichier actif",
+			"command": "/usr/bin/g++",
+			"args": [
+				"-fdiagnostics-color=always",
+				"-g",
+				"${file}",
+				"-I/home/villanul/Documents/Travail/tools/eigen-3.4.0/",
+                "-I/home/villanul/Documents/Travail/tools/pbplots/",
+				"-I/home/villanul/Documents/Travail/tools/OpenFOAM-palm/src/OpenFOAM/lnInclude",
+                "-I/home/villanul/Documents/Travail/tools/OpenFOAM-palm/src/MomentumTransportModels/momentumTransportModels/lnInclude",
+                "-I/home/villanul/Documents/Travail/tools/OpenFOAM-palm/src/MomentumTransportModels/incompressible/lnInclude",
+				"-I/home/villanul/Documents/Travail/tools/OpenFOAM-palm/src/transportModels/lnInclude",
+                "-I/home/villanul/Documents/Travail/tools/OpenFOAM-palm/src/finiteVolume/lnInclude",
+                "-I/home/villanul/Documents/Travail/tools/OpenFOAM-palm/src/fvOptions/lnInclude",
+                "-I/home/villanul/Documents/Travail/tools/OpenFOAM-palm/src/sampling/lnInclude",
+                "-I/home/villanul/Documents/Travail/tools/OpenFOAM-palm/src/dynamicFvMesh/lnInclude",
+                "-I/home/villanul/Documents/Travail/tools/OpenFOAM-palm/src/dynamicMesh/lnInclude",
+                "-I/home/villanul/Documents/Travail/tools/OpenFOAM-palm/src/meshTools/lnInclude",
+                "-I/home/villanul/Documents/Travail/tools/OpenFOAM-palm/src/OSspecific/POSIX/lnInclude",
+				"-I/home/villanul/Documents/Travail/tools/OpenPalm/PALM_MP/linux64r4openmpi/include",
+				"-I/home/villanul/Documents/Travail/tools/cwipi/build/include",
+				"-I/home/villanul/OpenFOAM/villanul-8/src/cwipiPstream/lnInclude",
+				"-o",
+				"${fileDirname}/${fileBasenameNoExtension}"
+			],
+			"options": {
+				"cwd": "${fileDirname}"
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": "build",
+			"detail": "compilateur : /usr/bin/g++"
+		}
+	]
+}

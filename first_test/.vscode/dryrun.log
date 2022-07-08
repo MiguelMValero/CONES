@@ -1,0 +1,6 @@
+make --dry-run --keep-going --print-directory
+make: Entering directory '/home/villanul/OpenFOAM/villanul-8/applications/solvers/incompressible/cwipiIcoFoam'
+make: Leaving directory '/home/villanul/OpenFOAM/villanul-8/applications/solvers/incompressible/cwipiIcoFoam'
+ 
+make: *** No targets specified and no makefile found.  Stop.
+
