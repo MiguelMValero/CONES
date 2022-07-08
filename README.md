@@ -14,15 +14,15 @@ wclean\
 wmake
 ```
 
-Next, the EnKF has to be compiled. Go to the folder "first_test" and run:\
+Next, the EnKF has to be compiled. Go to the folder "first_test" and run:
 ```
-make allclean\
+make allclean
 make all
 ```
 
-To finish with, run the "cavity" case from the OpenFOAM tutorials by doing the following:\
+To finish with, run the "cavity" case from the OpenFOAM tutorials by doing the following:
 ```
-mpirun -np 1 ./KF_coupling.exe : -np <number_processors> cwipiIcoFoam -parallel \
+mpirun -np 1 ./KF_coupling.exe : -np <number_processors> cwipiIcoFoam -parallel 
 ```
 =======
 ```
