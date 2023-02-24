@@ -33,13 +33,18 @@ Description
 #include "fvCFD.H"
 #include "pisoControl.H"
 #include "interpolationCellPointWallModified.H"
+#include <iostream>
+#include <fstream>
+#include <algorithm>
+
+#include <mpi.h>
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 int main(int argc, char *argv[])
 {
     #include "setRootCase.H"
-    #include "createTime.H"
+    #include "cwipiCreateTime.H"
     #include "createMesh.H"
 
     pisoControl piso(mesh);
@@ -52,18 +57,13 @@ int main(int argc, char *argv[])
     //========== Declaration of cwipi variables ==========
     #include "cwipiVariables.H"
 
-    double* pointCoords = new double[3*mesh.nPoints()];
-    int* connecIdx = new int[mesh.nCells()+1];
-    int* connec = new int[mesh.nCells()*8];
-
     //========== Create cwipi coupling and control parameters ==========
     if (cwipiSwitch)
     {
-        Info << "Here we are" << nl << endl;
-        addControlParams(numberCwipiPhase, cwipiStep, runTime.deltaTValue(), runTime.value(), cwipiMembers, cwipiObs, cwipiParams, nbParts, partsRepart[1]);
-        cwipiCoupling(mesh, pointCoords, connecIdx, connec);
+        if (cwipiVerbose == 1) Info << "Here we are" << nl << endl;
+        addControlParams(numberCwipiPhase, runTime.deltaTValue(), runTime.value(), nbParts, partsRepart[1]);
+        cwipiCoupling(mesh, pointCoords, face_index, face_connectivity_index, cell_to_face_connectivity, face_connectivity, c2fconnec_size, fconnec_size, cwipiVerbose, geom_tol);
     }
-    // Info << "After if" << nl << endl;
 
     Info<< "\nStarting time loop\n" << endl;
 
@@ -131,17 +131,17 @@ int main(int argc, char *argv[])
             U.correctBoundaryConditions();
         }
 
-        Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
-            << "  ClockTime = " << runTime.elapsedClockTime() << " s"
-            << nl << endl;
+        Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s" << "  ClockTime = " << runTime.elapsedClockTime() << " s" << nl << endl;
 
         //========= Sending Velocity Field and Parameters and creating sampled velocities ==========
         if (cwipiSwitch && cwipiTimestep == cwipiStep)
         {
-            // UInterpolation(U, mesh);
-
-            cwipiSend(mesh, U, runTime, cwipiIteration);
-            cwipiSendParams(mesh, U, runTime, cwipiIteration, cwipiParams, nbParts, partsRepart[1]);
+            if (cwipiParamsObs == 0) UInterpolation(U, mesh, cwipiObsU, cwipiVerbose, globalRootPath);
+            else if (cwipiParamsObs == 1) pInterpolation(p, mesh, cwipiVerbose, globalRootPath);
+            else if (cwipiParamsObs == 2) UpInterpolation(U, p, mesh, cwipiObsU, cwipiObsp, cwipiVerbose, globalRootPath);
+            
+            cwipiSend(mesh, U, runTime, cwipiIteration, cwipiVerbose);
+            cwipiSendParams(mesh, U, runTime, cwipiIteration, cwipiParams, nbParts, partsRepart[1], cwipiVerbose);
 
             cwipiTimestep = 0;
             cwipiPhaseCheck = 1;
@@ -153,8 +153,32 @@ int main(int argc, char *argv[])
         //========= Receiving back updated Velocity Field and parameters ==========
         if (cwipiSwitch && cwipiPhaseCheck == 1)
         {
-            cwipiRecv(mesh, U, runTime, cwipiIteration);
-            cwipiRecvParams(mesh, U, cwipiParams, nbParts, partsRepart[1]);
+            cwipiRecv(mesh, U, runTime, cwipiIteration, cwipiVerbose);
+            cwipiRecvParams(mesh, U, cwipiParams, nbParts, partsRepart[1], cwipiVerbose);
+
+            // ========== We correct the pressure after the DA cycle 
+            //(solve a Poisson equation for the approximate pressure taking into account the
+            //updated source term)==========
+            
+            Info<< "Out of the receive parameters function" << endl;
+            volScalarField magSqrU_DA(magSqr(U));
+            volSymmTensorField FF(sqr(U)/(magSqrU_DA + small*average(magSqrU_DA)));
+            volScalarField divDivUU_DA
+            (
+                fvc::div
+                (
+                    FF & fvc::div(phi, U),
+                    "div(div(phi,U))"
+                )
+            );
+            fvScalarMatrix pEqn_DA
+            (
+                fvm::laplacian(p) + divDivUU_DA
+            );
+            pEqn_DA.setReference(pRefCell, pRefValue);
+            pEqn_DA.solve();
+
+            if (cwipiVerbose == 1) Info<< "Pressure updated after DA analysis" << endl;
 
             cwipiPhaseCheck = 0;
             cwipiIteration = cwipiIteration + 1;
@@ -168,7 +192,7 @@ int main(int argc, char *argv[])
     //========== Delete Cwipi Coupling and allocated arrays ===========
     if (cwipiSwitch)
     {
-        cwipideleteCoupling(pointCoords, connecIdx, connec);
+        cwipideleteCoupling(pointCoords, face_index, face_connectivity_index, cell_to_face_connectivity, face_connectivity, cwipiVerbose);
     }
     Info<< "End\n" << endl;
 

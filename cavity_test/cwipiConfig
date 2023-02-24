@@ -1,0 +1,12 @@
+cwipiStep = 20
+cwipiMembers = 10
+cwipiObsU = 5
+cwipiObsp = 0
+cwipiParams = 1
+geomtricTolerance = 1.0
+cwipiOutputNb = 50
+sigmaUserU = 0.015
+sigmaUserp = 0.015
+cwipiVerbose = 1
+timedObs = 0
+cwipiParamsObs = 0

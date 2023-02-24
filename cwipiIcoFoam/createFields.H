@@ -33,7 +33,6 @@ volScalarField p
     mesh
 );
 
-
 Info<< "Reading field U\n" << endl;
 volVectorField U
 (
