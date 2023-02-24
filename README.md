@@ -18,7 +18,7 @@ sudo apt install libeigen3-dev
 
 It is possible that some specific testcases require additional libraries. Contact the developers in case of further problems.
 
-# Procedure to run a case, e.g., cavity test case)
+# Procedure to run a case (e.g., cavity test case)
 
 In the cavity case of OpenFOAM the parameter to be optimized is the velocity at the top wall (initially with a **U**(1 0 0)), and the observations correspond to a simulation where the velocity is equal to **U**(5 0 0) m/s at the top wall. Here we include all the steps to make CWIPI work:
 
