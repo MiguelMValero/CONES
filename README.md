@@ -50,6 +50,8 @@ To finish with, run the "cavity_test" case from the OpenFOAM tutorials. Go the "
 ./initCwipiIco
 ```
 
+A userguide is currently being created. You can access to it as an observant via the following link: https://www.overleaf.com/read/xrxgckrgjqst
+
 NOTE: even though the case in OpenFOAM is launched with 1 processor, it is necessary to specify the option "-parallel"
 
 For any doubts regarding the code you can contact Miguel MARTINEZ VALERO: miguel.martinez_valero@ensam.eu or Lucas VILLANUEVA: lucas.villanueva@ensma.fr
