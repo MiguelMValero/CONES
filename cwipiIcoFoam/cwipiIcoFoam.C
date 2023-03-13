@@ -60,7 +60,6 @@ int main(int argc, char *argv[])
     //========== Create cwipi coupling and control parameters ==========
     if (cwipiSwitch)
     {
-        if (cwipiVerbose == 1) Info << "Here we are" << nl << endl;
         addControlParams(numberCwipiPhase, runTime.deltaTValue(), runTime.value(), nbParts, partsRepart[1]);
         cwipiCoupling(mesh, pointCoords, face_index, face_connectivity_index, cell_to_face_connectivity, face_connectivity, c2fconnec_size, fconnec_size, cwipiVerbose, geom_tol);
     }
@@ -137,7 +136,7 @@ int main(int argc, char *argv[])
         if (cwipiSwitch && cwipiTimestep == cwipiStep)
         {
             if (cwipiParamsObs == 0) UInterpolation(U, mesh, cwipiObsU, cwipiVerbose, globalRootPath);
-            else if (cwipiParamsObs == 1) pInterpolation(p, mesh, cwipiVerbose, globalRootPath);
+            else if (cwipiParamsObs == 1) pInterpolation(p, mesh, cwipiObsp, cwipiVerbose, globalRootPath);
             else if (cwipiParamsObs == 2) UpInterpolation(U, p, mesh, cwipiObsU, cwipiObsp, cwipiVerbose, globalRootPath);
             
             cwipiSend(mesh, U, runTime, cwipiIteration, cwipiVerbose);
@@ -160,7 +159,7 @@ int main(int argc, char *argv[])
             //(solve a Poisson equation for the approximate pressure taking into account the
             //updated source term)==========
             
-            Info<< "Out of the receive parameters function" << endl;
+            if (cwipiVerbose) Info<< "Out of the receive parameters function" << endl;
             volScalarField magSqrU_DA(magSqr(U));
             volSymmTensorField FF(sqr(U)/(magSqrU_DA + small*average(magSqrU_DA)));
             volScalarField divDivUU_DA
@@ -178,7 +177,7 @@ int main(int argc, char *argv[])
             pEqn_DA.setReference(pRefCell, pRefValue);
             pEqn_DA.solve();
 
-            if (cwipiVerbose == 1) Info<< "Pressure updated after DA analysis" << endl;
+            if (cwipiVerbose) Info<< "Pressure updated after DA analysis" << endl;
 
             cwipiPhaseCheck = 0;
             cwipiIteration = cwipiIteration + 1;

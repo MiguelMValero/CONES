@@ -25,7 +25,7 @@ std::fstream& GotoLine(std::fstream& file, unsigned int num){
     return file;
 }
 
-void cwipiSendParamsChannel_IBM(const fvMesh& mesh, int cwipiParams, int nbParts, int partsReparty, int cwipiVerbose, std::string globalRootPath)
+void cwipiSendParamsChannel_IBM(const fvMesh& mesh, int cwipiParams, int nbParts, int partsReparty, float cwipiVerbose, std::string globalRootPath)
 {
     //========== Send the Fourier coefficients to be optimized =============
 
@@ -40,7 +40,7 @@ void cwipiSendParamsChannel_IBM(const fvMesh& mesh, int cwipiParams, int nbParts
 	std::ifstream file;
 	char ensemble[50];
 	std::string varOpt;
-	sprintf(ensemble, "processor%i/UpdatedVariables", myGlobalRank-1);
+	sprintf(ensemble, "processor%i/UpdatedVariables.txt", myGlobalRank-1);
 	varOpt += simOF;    // Append the first character
     varOpt += ensemble; // Append the second character
     file.open(varOpt);
@@ -63,13 +63,13 @@ void cwipiSendParamsChannel_IBM(const fvMesh& mesh, int cwipiParams, int nbParts
     }
 
     MPI_Send(ParamsToSend, cwipiParams, MPI_DOUBLE, 0, sendTag_params, MPI_COMM_WORLD);
-    if (cwipiVerbose == 1) Info<< "After sending the parameters to KF" << endl;
+    if (cwipiVerbose) Info<< "After sending the parameters to KF" << endl;
 
     delete[] ParamsToSend;
 }
 
 void cwipiRecvParamsChannel_IBM(const fvMesh& mesh, volVectorField& U, volScalarField& viscosity, volVectorField& F, volVectorField& D, int cwipiParams, int Fourier_m, int Fourier_n, int Fourier_o, 
-double lambdaX, double lambdaY, double lambdaZ, double deltaChannel, int DarcyForchheimer, int nbParts, int partsReparty, int cwipiVerbose, std::string globalRootPath)
+double lambdaX, double lambdaY, double lambdaZ, double deltaChannel, int DarcyForchheimer, int nbParts, int partsReparty, float cwipiVerbose, std::string globalRootPath)
 {
     //========== Receive coefficients of Fourier expansion ==========
     
@@ -79,7 +79,7 @@ double lambdaX, double lambdaY, double lambdaZ, double deltaChannel, int DarcyFo
     MPI_Status status4;
     MPI_Recv(paramsToRecv, cwipiParams, MPI_DOUBLE, 0, recvTag_params, MPI_COMM_WORLD, &status4);
 
-    if (cwipiVerbose == 1) Info<< "After receiving the parameters from KF" << endl;
+    if (cwipiVerbose) Info<< "After receiving the parameters from KF" << endl;
 
     //========== Here we should read the already optimized coefficients 
     //(alpha, beta, gamma, delta) from cwipiParams ==========
@@ -114,7 +114,7 @@ double lambdaX, double lambdaY, double lambdaZ, double deltaChannel, int DarcyFo
     std::string simOF = globalRootPath + "/";
     char ensemble[50];
 	std::string varOpt;
-	sprintf(ensemble, "processor%i/UpdatedVariables", myGlobalRank-1);
+	sprintf(ensemble, "processor%i/UpdatedVariables.txt", myGlobalRank-1);
 	varOpt += simOF;    // Append the first character
     varOpt += ensemble; // Append the second character
 
@@ -123,9 +123,9 @@ double lambdaX, double lambdaY, double lambdaZ, double deltaChannel, int DarcyFo
     strcpy(UpdatedVariables, varOpt.c_str());
 
     if (remove(UpdatedVariables) != 0)
-         if (cwipiVerbose == 1) perror( "Error deleting file with updated model's parameters" );
+         if (cwipiVerbose) perror( "Error deleting file with updated model's parameters" );
     else
-         if (cwipiVerbose == 1) Info<< "File successfully deleted with my processor " << rankChar << nl << endl;
+         if (cwipiVerbose) Info<< "File successfully deleted with my processor " << rankChar << nl << endl;
 
     if (DarcyForchheimer == 0 || DarcyForchheimer == 1){
 	    for (int i = 0; i < alpha_sep; ++i){
@@ -208,7 +208,7 @@ double lambdaX, double lambdaY, double lambdaZ, double deltaChannel, int DarcyFo
     int bottomCellsnumber;
     file1 >> bottomCellsnumber;
 
-    if (cwipiVerbose == 1) Info<< "The number of cells at the bottom wall is " << bottomCellsnumber << nl << endl;
+    if (cwipiVerbose) Info<< "The number of cells at the bottom wall is " << bottomCellsnumber << nl << endl;
 
     int bottomCellID[bottomCellsnumber];
     double Xbot[bottomCellsnumber], Ybot[bottomCellsnumber], Zbot[bottomCellsnumber];
@@ -243,7 +243,7 @@ double lambdaX, double lambdaY, double lambdaZ, double deltaChannel, int DarcyFo
     std::ifstream topCells;
     topCells.open(topCells_file);
 
-    if (cwipiVerbose == 1) Info<< "The path with my file containing the cell IDs of the top wall is: " << topCells_file << nl << endl;
+    if (cwipiVerbose) Info<< "The path with my file containing the cell IDs of the top wall is: " << topCells_file << nl << endl;
 
     // Read the size of the topCells.txt from the file created by topoSet
     std::string topCells_topoSet = globalRootPath + "/constant/polyMesh/sets/topCells";
@@ -253,7 +253,7 @@ double lambdaX, double lambdaY, double lambdaZ, double deltaChannel, int DarcyFo
     int topCellsnumber;
     file2 >> topCellsnumber;
 
-    if (cwipiVerbose == 1) Info<< "The number of cells at the top wall is " << topCellsnumber << nl << endl;
+    if (cwipiVerbose) Info<< "The number of cells at the top wall is " << topCellsnumber << nl << endl;
 
     int topCellID[topCellsnumber];
     double Xtop[topCellsnumber], Ytop[topCellsnumber], Ztop[topCellsnumber];
@@ -587,11 +587,11 @@ double lambdaX, double lambdaY, double lambdaZ, double deltaChannel, int DarcyFo
     free(beta);
     free(gamma);
     free(delta);
-    if (cwipiVerbose == 1) Info<< "Updated Force term in Fourier expansion " << endl;
+    if (cwipiVerbose) Info<< "Updated Force term in Fourier expansion " << endl;
 }
 
 void cwipiRecvParamsChannelNOFourier(const fvMesh& mesh, volVectorField& U, volScalarField& viscosity, volScalarField& nu, volVectorField& F, volVectorField& D, int cwipiParams, double deltaChannel, int DarcyForchheimer, 
-int nbParts, int partsReparty, int cwipiVerbose, std::string globalRootPath)
+int nbParts, int partsReparty, float cwipiVerbose, std::string globalRootPath)
 {
     //========== Receive coefficients of Fourier expansion ==========
     
@@ -601,7 +601,7 @@ int nbParts, int partsReparty, int cwipiVerbose, std::string globalRootPath)
     MPI_Status status4;
     MPI_Recv(paramsToRecv, cwipiParams, MPI_DOUBLE, 0, recvTag_params, MPI_COMM_WORLD, &status4);
 
-    if (cwipiVerbose == 1) Info<< "After receiving the parameters from KF" << endl;
+    if (cwipiVerbose) Info<< "After receiving the parameters from KF" << endl;
 
     //========== We are imposing the coefficients of D to be positive ==========
     const double mean = 0;
@@ -634,7 +634,7 @@ int nbParts, int partsReparty, int cwipiVerbose, std::string globalRootPath)
     std::string simOF = globalRootPath + "/";
     char ensemble[50];
 	std::string varOpt;
-	sprintf(ensemble, "processor%i/UpdatedVariables", myGlobalRank-1);
+	sprintf(ensemble, "processor%i/UpdatedVariables.txt", myGlobalRank-1);
 	varOpt += simOF;    // Append the first character
     varOpt += ensemble; // Append the second character
 
@@ -643,9 +643,9 @@ int nbParts, int partsReparty, int cwipiVerbose, std::string globalRootPath)
     strcpy(UpdatedVariables, varOpt.c_str());
 
     if (remove(UpdatedVariables) != 0)
-         if (cwipiVerbose == 1) perror( "Error deleting file with updated model's parameters" );
+         if (cwipiVerbose) perror( "Error deleting file with updated model's parameters" );
     else
-         if (cwipiVerbose == 1) Info<< "File successfully deleted with my processor " << rankChar << nl << endl;
+         if (cwipiVerbose) Info<< "File successfully deleted with my processor " << rankChar << nl << endl;
 
     double *DD = NULL;
     DD = (double*) malloc(sizeof(double) * 9);
@@ -677,7 +677,7 @@ int nbParts, int partsReparty, int cwipiVerbose, std::string globalRootPath)
     int bottomCellsnumber;
     file1 >> bottomCellsnumber;
 
-    if (cwipiVerbose == 1) Info<< "The number of cells at the bottom wall is " << bottomCellsnumber << nl << endl;
+    if (cwipiVerbose) Info<< "The number of cells at the bottom wall is " << bottomCellsnumber << nl << endl;
 
     int bottomCellID[bottomCellsnumber];
     double Xbot[bottomCellsnumber], Ybot[bottomCellsnumber], Zbot[bottomCellsnumber];
@@ -712,7 +712,7 @@ int nbParts, int partsReparty, int cwipiVerbose, std::string globalRootPath)
     std::ifstream belowbottomCells;
     belowbottomCells.open(belowbottomCells_file);
 
-    if (cwipiVerbose == 1) Info<< "The path with my file containing the cell IDs below the bottom wall is: " << belowbottomCells_file << nl << endl;
+    if (cwipiVerbose) Info<< "The path with my file containing the cell IDs below the bottom wall is: " << belowbottomCells_file << nl << endl;
 
     // Read the size of the belowbottomCells.txt from the file created by topoSet
     std::string belowbottomCells_topoSet = globalRootPath + "/constant/polyMesh/sets/belowbottomCells";
@@ -722,7 +722,7 @@ int nbParts, int partsReparty, int cwipiVerbose, std::string globalRootPath)
     int belowbottomCellsnumber;
     file2 >> belowbottomCellsnumber;
 
-    if (cwipiVerbose == 1) Info<< "The number of cells below my bottom wall is " << belowbottomCellsnumber << nl << endl;
+    if (cwipiVerbose) Info<< "The number of cells below my bottom wall is " << belowbottomCellsnumber << nl << endl;
 
     int belowbottomCellID[belowbottomCellsnumber];
     double Xbelowbottom[belowbottomCellsnumber], Ybelowbottom[belowbottomCellsnumber], Zbelowbottom[belowbottomCellsnumber];
@@ -757,7 +757,7 @@ int nbParts, int partsReparty, int cwipiVerbose, std::string globalRootPath)
     std::ifstream abovebottomCells;
     abovebottomCells.open(abovebottomCells_file);
 
-    if (cwipiVerbose == 1) Info<< "The path with my file containing the cell IDs above the bottom wall is: " << abovebottomCells_file << nl << endl;
+    if (cwipiVerbose) Info<< "The path with my file containing the cell IDs above the bottom wall is: " << abovebottomCells_file << nl << endl;
 
     // Read the size of the abovebottomCells.txt from the file created by topoSet
     std::string abovebottomCells_topoSet = globalRootPath + "/constant/polyMesh/sets/abovebottomCells";
@@ -767,7 +767,7 @@ int nbParts, int partsReparty, int cwipiVerbose, std::string globalRootPath)
     int abovebottomCellsnumber;
     file3 >> abovebottomCellsnumber;
 
-    if (cwipiVerbose == 1) Info<< "The number of cells above my bottom wall is " << abovebottomCellsnumber << nl << endl;
+    if (cwipiVerbose) Info<< "The number of cells above my bottom wall is " << abovebottomCellsnumber << nl << endl;
 
     int abovebottomCellID[abovebottomCellsnumber];
     double Xabovebottom[abovebottomCellsnumber], Yabovebottom[abovebottomCellsnumber], Zabovebottom[abovebottomCellsnumber];
@@ -796,7 +796,7 @@ int nbParts, int partsReparty, int cwipiVerbose, std::string globalRootPath)
     }
     abovebottomCells.close();
 
-    if (cwipiVerbose == 1)Info<< "Before initialization of the force" << endl;
+    if (cwipiVerbose)Info<< "Before initialization of the force" << endl;
 
     //========== We initialise the force F with a value equal to 0 everywhere ==========//
     forAll(mesh.cells(), cellID)
@@ -882,6 +882,6 @@ int nbParts, int partsReparty, int cwipiVerbose, std::string globalRootPath)
     delete[] paramsToRecv;
     free(DD);
 
-    if (cwipiVerbose == 1) Info<< "Coefficients of Darcy-Forchheimer defined" << nl << endl;
+    if (cwipiVerbose) Info<< "Coefficients of Darcy-Forchheimer defined" << nl << endl;
 }
 }

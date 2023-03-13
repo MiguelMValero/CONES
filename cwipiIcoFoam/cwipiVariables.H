@@ -2,7 +2,7 @@ Switch cwipiSwitch = runTime.controlDict().lookup("cwipiSwitch");
 
 std::ifstream cFile ("cwipiConfig");
 
-int values[12]={0};
+int values[28]={0};
 int k = 0;
 
 if (cFile.is_open())
@@ -30,12 +30,12 @@ else
 }
 
 int cwipiStep = values[0];
-int cwipiMembers = values[1];
+//int cwipiMembers = values[1];
 int cwipiObsU = values[2];
 int cwipiObsp = values[3];
-int cwipiParams = values[4];
-double geom_tol = values[5];
-int cwipiVerbose = values[12];
+int cwipiParams = values[5];
+double geom_tol = values[6];
+float cwipiVerbose = values[11];
 int cwipiParamsObs = values[14];
 
 IOdictionary decomposeParDict

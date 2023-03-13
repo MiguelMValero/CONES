@@ -31,4 +31,4 @@ KF_coupling_functions.o:
 	$(C++) $(C++FLAGS) -c KF_coupling_functions.C -I$(CWIPI_INC) $(C++EXTINC) $(C++EXTLIB) $(CWIPI_LINK) -lm 
 
 allclean:
-	rm -f -r KF_coupling.exe KF_coupling_functions.o cwipi log cellIDs UMat*
+	rm -f -r KF_coupling.exe KF_coupling_functions.o

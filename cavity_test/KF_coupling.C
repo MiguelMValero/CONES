@@ -30,56 +30,115 @@ int main(int argc, char *argv[])
 {
     //========== Parameters from config file ==========
 
-    std::cout << "Beginning of the file" << std::endl << "\n";
+    std::cout << "Beginning of the configuration file" << std::endl << "\n";
 
-    std::ifstream cFile ("cwipiConfig");
+    double *configValues = NULL;
+    configValues = (double*) malloc(sizeof(double) * 32);
+    configuration(configValues);
 
-    double configValues[12]={0};
-    int k = 0;
-
-    if (cFile.is_open())
-    {
-        std::string line;
-        while(std::getline(cFile, line))
-        {
-            line.erase(std::remove_if(line.begin(), line.end(), ::isspace),line.end());
-            if( line.empty() || line[0] == '#' )
-            {
-                continue;
-            }
-            auto delimiterPos = line.find("=");
-            // auto name = line.substr(0, delimiterPos);
-            auto value = line.substr(delimiterPos + 1);
-
-            configValues[k] = stod(value);
-            // std::cout << values[k] << '\n';
-            k = k+1;
-        }
-    }
-    else 
-    {
-        std::cerr << "Couldn't open config file for reading.\n";
-    }
-
-    int cwipiStep = configValues[0];       // Number of time step between each DA phase
-    int cwipiMembers = configValues[1];    // Number of members in the ensemble
+    int cwipiStep = configValues[0];        // Number of time step between each DA phase
+    int cwipiMembers = configValues[1];     // Number of members in the ensemble
     int cwipiObsU = configValues[2];        // Number of observation probes for velocity
     int cwipiObsp = configValues[3];        // Number of observation probes for pressure
-    int cwipiParams = configValues[4];     // Number of parameters to optimize with the DA
-    double geom_tol = configValues[5];     // Geometric tolerance of the cwipi coupling meshes
-    int cwipiOutputNb = configValues[6];   // Number of txt file written beginning from the last one
-    double sigmaUserU = configValues[7];    // sigma of the EnKF (pertubation of the obs and diagonal of R matrix for velocity)
-    double sigmaUserp = configValues[8];    // sigma of the EnKF (pertubation of the obs and diagonal of R matrix for pressure)
-    int cwipiVerbose = configValues[9];    // Print all the debuging messages or not, 1 printed 0 nothing
-    int cwipiTimedObs = configValues[10];   // Switch to for the obs : 1 = obs depends on time
-    int cwipiParamsObs = configValues[11];   // Definition of observation parameter : 0 = vel, 1 = pres, 2 = both
+    int cwipiObsCf = configValues[4];       // Number of observation probes for friction coefficient
+    int cwipiParams = configValues[5];      // Number of parameters to optimize with the DA
+    double geom_tol = configValues[6];      // Geometric tolerance of the cwipi coupling meshes
+    int cwipiOutputNb = configValues[7];    // Number of txt file written beginning from the last one
+    double sigmaUserU = configValues[8];    // sigma of the EnKF (pertubation of the obs and diagonal of R matrix for velocity)
+    double sigmaUserp = configValues[9];    // sigma of the EnKF (pertubation of the obs and diagonal of R matrix for pressure)
+    double sigmaUserCf = configValues[10];  // sigma of the EnKF (pertubation of the obs and diagonal of R matrix for friction coefficient)
+    float cwipiVerbose = configValues[11];  // Print all the debuging messages or not: 1 = printed, 0 = nothing
+    int cwipiTimedObs = configValues[12];   // Switch to for the obs: 1 = obs depends on time, 0 = obs does not depend on time
+    double obsTimeStep = configValues[13];  // The time step of the observations if the case is unsteady
+    int cwipiParamsObs = configValues[14];  // Definition of observation parameter : 0 = vel, 1 = pres, 2 = both, 3 = vel+cf
+    double stateInfl = configValues[15];    // State inflation (default = 1)
+    double paramsInfl = configValues[16];   // Parameters inflation (default = 1)
+    float typeInfl =  configValues[17];     // Definition of inflation (0 = stochastic, 1 = deterministic)
+    float clippingSwitch = configValues[18];// Switch for the clipping
+    float localSwitch = configValues[19];   // Switch for the localisation (clippingSwitch == 1)
+    float paramEstSwitch = configValues[20];// Switch for parameter estimation
+    float Ux = configValues[21];            // Specification if Ux is read or not (cwipiParamsObs needs to be either 0, 2 or 3)
+    float Uy = configValues[22];            // Specification if Uy is read or not (cwipiParamsObs needs to be either 0, 2 or 3)
+    float Uz = configValues[23];            // Specification if Uz is read or not (cwipiParamsObs needs to be either 0, 2 or 3)
+    int typeInputs = configValues[24];      // Inputs for R are given in absolute values (0), percentage (1) or potential function (2) (default = 0) 
+    double sigmaLocX = configValues[25];    // eta of the EnKF (pertubation of the Kalman gain to take into consideration the localization in X direction)
+    double sigmaLocY = configValues[26];    // eta of the EnKF (pertubation of the Kalman gain to take into consideration the localization in Y direction)
+    double sigmaLocZ = configValues[27];    // eta of the EnKF (pertubation of the Kalman gain to take into consideration the localization in Z direction)
+    double epsilon = configValues[28];      // Value used to calculate the NSRMD
+    double sigmaUserUa =  configValues[29]; // sigma of the EnKF given by a+by^c
+    double sigmaUserUb =  configValues[30]; // sigma of the EnKF given by a+by^c
+    double sigmaUserUc =  configValues[31]; // sigma of the EnKF given by a+by^c
 
+    //========== We define the 7 possibilities in case we are dealing with some components of the velocity =========//
+   
+    int velocityCase = 0;
+    if (cwipiParamsObs != 1){
+      if (Ux == 1 && Uy == 0 && Uz == 0) velocityCase = 1;
+      else if (Ux == 0 && Uy == 1 && Uz == 0) velocityCase = 2;
+      else if (Ux == 0 && Uy == 0 && Uz == 1) velocityCase = 3;
+      else if (Ux == 1 && Uy == 1 && Uz == 0) velocityCase = 4;
+      else if (Ux == 1 && Uy == 0 && Uz == 1) velocityCase = 5;
+      else if (Ux == 0 && Uy == 1 && Uz == 1) velocityCase = 6;
+      else if (Ux == 1 && Uy == 1 && Uz == 1) velocityCase = 7;
+      else{
+        std::cerr<< "Check your inputs. Either cwipiParamsObs or the components of the velocity are not properly defined.\n";
+      }
+    }
+
+    if (cwipiVerbose) std::cout << "Your case is velocityCase " << velocityCase << ".\n";
     int cwipiObs = 0;
-    if (cwipiParamsObs == 0) cwipiObs = 3*cwipiObsU;
+    if (cwipiParamsObs == 0) {
+      switch (velocityCase) {
+        case 1 :
+        case 2 :
+        case 3 :
+          cwipiObs = cwipiObsU;
+          break;
+        case 4 :
+        case 5 :
+        case 6 :
+          cwipiObs = 2*cwipiObsU;
+          break;
+        case 7 :
+          cwipiObs = 3*cwipiObsU;
+          break;
+      }
+    }
     else if (cwipiParamsObs == 1) cwipiObs = cwipiObsp;
-    else if (cwipiParamsObs == 2) cwipiObs = 3*cwipiObsU + cwipiObsp;
-
-    if (cwipiVerbose == 1) std::cout << "End of config" << cwipiTimedObs << std::endl << "\n";
+    else if (cwipiParamsObs == 2) {
+      switch (velocityCase) {
+        case 1 :
+        case 2 :
+        case 3 :
+          cwipiObs = cwipiObsU + cwipiObsp;
+          break;
+        case 4 :
+        case 5 :
+        case 6 :
+          cwipiObs = 2*cwipiObsU + cwipiObsp;
+          break;
+        case 7 :
+          cwipiObs = 3*cwipiObsU + cwipiObsp;
+          break;
+      }
+    }
+    else if (cwipiParamsObs == 3) {
+      switch (velocityCase) {
+        case 1 :
+        case 2 :
+        case 3 :
+          cwipiObs = cwipiObsU + cwipiObsCf;
+          break;
+        case 4 :
+        case 5 :
+        case 6 :
+          cwipiObs = 2*cwipiObsU + cwipiObsCf;
+          break;
+        case 7 :
+          cwipiObs = 3*cwipiObsU + cwipiObsCf;
+          break;
+      }
+    }
 
     //========== OpenFOAM environment for mesh definition ==========
 
@@ -91,17 +150,11 @@ int main(int argc, char *argv[])
     }
     
     std::string stringRootPath = path;
-
-    if (cwipiVerbose == 1) std::cout << "stringRootPath = " << stringRootPath << std::endl << "\n";
-
-    // char casePath[250] = {path};
-    //char RunCase[250] = "";
-
     char RunCase[250] = {"/processor0"};
-      //-- Declaration des variables openFoam --
+
     Foam::Time runTime(Foam::Time::controlDictName, path, RunCase);
     
-    if (cwipiVerbose == 1) std::cout << "Runtime created" << std::endl << "\n";
+    if (cwipiVerbose) std::cout << "Runtime created" << std::endl << "\n";
     
     Foam::fvMesh mesh
     (
@@ -115,24 +168,19 @@ int main(int argc, char *argv[])
     );
 
     int nb_cells = mesh.nCells();
-    if (cwipiVerbose == 1) std::cout << "nombre de cellules côté KF " << mesh.nCells() << std::endl << "\n";
-
+    if (cwipiVerbose) std::cout << "The number of cells from EnKF is " << mesh.nCells() << std::endl << "\n";
 
     //========== Declaration of variables ==========
 
-    char cl_sending_field_name[20], cl_receiving_field_name[20];
-    char cl_coupling_name[20], cl_exchange_name[20];
+    char cl_coupling_name[20];
     char output_format[20], output_format_option[20];
     char codeName[20]={"KF"}; 
     char codeCoupledName[20];
     char recv_field_name[20]={"U,V,W"};
-    char recv_field_name_params[20]={"params"};
     char indexChar[20];
-    int il_error = 0;
 
     static int recvTag = 1;
     static int recvTag_params = 3;
-    static int stride;
 
     static int status;
     static int sendTag = 2;
@@ -143,20 +191,20 @@ int main(int argc, char *argv[])
     int grank;
     int rank;
     int commWorldSize;
-    int coord_id;
-    int nNotLocatedPoints = 0;
+    //int nNotLocatedPoints = 0;
 
-    double *values = NULL;
-    values = (double*) malloc(sizeof(double) * 3*nb_cells);
+    // double *values = NULL;
+    // values = (double*) malloc(sizeof(double) * 3*nb_cells);
+    double *values = (double*) calloc(sizeof(double), 3*nb_cells);
 
-    double *sendValues = NULL;
-    sendValues = (double*) malloc(sizeof(double) * 3*nb_cells);
+    //double *sendValues = NULL;
+    double *sendValues = (double*) calloc(sizeof(double), 3*nb_cells);
 
-    double *paramsValues = NULL;
-    paramsValues = (double*) malloc(sizeof(double) * cwipiParams);
+    //double *paramsValues = NULL;
+    double *paramsValues = (double*) calloc(sizeof(double), cwipiParams);
 
-    double *paramsSendValues = NULL;
-    paramsSendValues = (double*) malloc(sizeof(double) * cwipiParams);
+    //double *paramsSendValues = NULL;
+    double *paramsSendValues = (double*) calloc(sizeof(double), cwipiParams);
 
     double* pointCoords = new double[3*mesh.nPoints()];
     // int* connecIdx = new int[mesh.nCells()+1];
@@ -176,8 +224,6 @@ int main(int argc, char *argv[])
     }
     int* face_connectivity = new int[fconnec_size];
 
-    MatrixXf stateVector = MatrixXf::Zero(nb_cells*3+cwipiParams,cwipiMembers);
-
     //========== MPI Initilization ==========
 
     MPI_Comm localcomm;
@@ -185,13 +231,10 @@ int main(int argc, char *argv[])
     MPI_Comm_rank(MPI_COMM_WORLD, &grank);
     MPI_Comm_size(MPI_COMM_WORLD, &commWorldSize);
 
-
     //========== CWIPI Initialization ==========
 
     cwipi_init(MPI_COMM_WORLD, codeName, &localcomm);
-
     MPI_Comm_rank(localcomm, &rank);
-
 
     //========== Create coupling ==========
 
@@ -200,7 +243,6 @@ int main(int argc, char *argv[])
     solver_type = CWIPI_SOLVER_CELL_CENTER;
     sprintf(output_format,"EnSight Gold");
     sprintf(output_format_option,"text");
-
 
     //* Coupling declaration in a loop in order to have a coupling with each OF instance *
     for (int j = 1; j < cwipiMembers+1; j++)
@@ -224,14 +266,11 @@ int main(int argc, char *argv[])
 
       cwipi_synchronize_control_parameter(codeCoupledName);   
 
-
       //========== Mesh definition ============
 
       if (rank == 0) printf("Create mesh\n");
-
       define_mesh(pointCoords, face_index, cell_to_face_connectivity, face_connectivity_index, face_connectivity, c2fconnec_size, fconnec_size, mesh, cl_coupling_name, cwipiVerbose);
     }
-
 
     //========== Receive values ==========  
 
@@ -239,17 +278,36 @@ int main(int argc, char *argv[])
     double time = cwipi_get_distant_double_control_parameter("cwipiFoam1","currentTime");
     int numberCwipiPhase = cwipi_get_distant_int_control_parameter("cwipiFoam1","numberCwipiPhase");
     double deltaT = cwipi_get_distant_double_control_parameter("cwipiFoam1","deltaT");
-    int nbParts = cwipi_get_distant_int_control_parameter("cwipiFoam1", "nbParts");
-    int partsReparty = cwipi_get_distant_int_control_parameter("cwipiFoam1","partsReparty");
+    //int nbParts = cwipi_get_distant_int_control_parameter("cwipiFoam1", "nbParts");
+    //int partsReparty = cwipi_get_distant_int_control_parameter("cwipiFoam1","partsReparty");
 
-    if (cwipiVerbose == 1) std::cout << "numberCwipiPhase: " << numberCwipiPhase << "\n";
+    int firstCwipiPhase = (time/deltaT)/cwipiStep;
+    int inv_nb_cells = nb_cells;
+
+    if (cwipiVerbose) std::cout << "numberCwipiPhase: " << numberCwipiPhase << "\n";
 
     //* We receive and send back on a loop for the number of exchanges througout calculation, and another loop 
     // for all the members (Of instances) in the ensemble *
 
-    for(int i = 0 ; i < numberCwipiPhase; i++)
+    for(int i = firstCwipiPhase ; i < numberCwipiPhase; i++)
     {
+      configuration(configValues);
+
+      cwipiVerbose = configValues[11];         // Print all the debuging messages or not, 1 printed 0 nothing
+      stateInfl = configValues[15];         // Standard deviation for state inflation
+      paramsInfl = configValues[16];        // Standard deviation for parameters inflation
+      typeInfl = configValues[17];           // Definition of inflation (0 = stochastic, 1 = deterministic)
+      
       time = time + cwipiStep*deltaT;
+      
+      MatrixXf stateVector = MatrixXf::Zero(nb_cells*3+cwipiParams,cwipiMembers);
+      MatrixXf invStateVector;
+      if (clippingSwitch){
+          invStateVector = MatrixXf::Zero(nb_cells*3+cwipiParams,cwipiMembers);
+      }
+
+      if (cwipiVerbose) std::cout << "Phase " << i << " going from " << firstCwipiPhase << " to " << numberCwipiPhase-1 << std::endl << "\n";
+
       for (int j = 1; j < cwipiMembers+1; j++)
       {
         sprintf(cl_coupling_name,"cwipiFoamCoupling");
@@ -265,21 +323,21 @@ int main(int argc, char *argv[])
         switch(status)
         {
           case CWIPI_EXCHANGE_OK :
-          if (cwipiVerbose == 1) printf("Receive Ok\n");
+          if (cwipiVerbose) printf("Receive Ok\n");
           break;
           case CWIPI_EXCHANGE_BAD_RECEIVING :
-          if (cwipiVerbose == 1) printf("Bad receiving\n");
+          if (cwipiVerbose) printf("Bad receiving\n");
           break;
           default :
-          if (cwipiVerbose == 1) printf("Error : bad exchange status\n");
+          if (cwipiVerbose) printf("Error : bad exchange status\n");
         }
 
         //**** Receive parameters ****
-        if (cwipiVerbose == 1) printf("Before receive params \n");
+        if (cwipiVerbose) printf("Before receive params \n");
         MPI_Recv(paramsValues, cwipiParams, MPI_DOUBLE, j, recvTag_params, MPI_COMM_WORLD, &status3);
-        if (cwipiVerbose == 1) printf("After receive params \n");
+        if (cwipiVerbose) printf("After receive params \n");
 
-        if (cwipiVerbose == 1) std::cout << "==== Les parametres sont bien reçus ==== parametre 1 = " << paramsValues[0] << std::endl << "\n";
+        if (cwipiVerbose) std::cout << "==== Les parametres sont bien reçus ==== parametre 1 = " << paramsValues[0] << std::endl << "\n";
 
         for (int k = 0; k < nb_cells; k++)
         {
@@ -295,54 +353,69 @@ int main(int argc, char *argv[])
         }
       }
 
-
       //====== Writing values to a txt file =========
       print_matrix_on_txt(i, numberCwipiPhase, cwipiOutputNb, cwipiMembers, nb_cells, cwipiParams, time, stateVector, "UMat");
 
+      if (clippingSwitch == 1){
+        stateVector = doClipping(stateVector, invStateVector, nb_cells, cwipiParams, cwipiMembers, cwipiVerbose, stringRootPath);
 
+        //====== Writing values to a txt file =========
+        print_matrix_on_txt(i, numberCwipiPhase, cwipiOutputNb, cwipiMembers, nb_cells, cwipiParams, time, stateVector, "UMat_Clip");
+      }
       //======== Kalman filter code =======
 
-      //* The observation Matrix will be different depending on the high-fidelity data parameters
+      //========= The observation Matrix will be different depending on the high-fidelity data parameters
       ArrayXf obsMatrix(cwipiObs); // By default our parameter is the velocity
 
-      if (cwipiTimedObs == 1) obsMatrix = obs_Data_timed(cwipiMembers, nb_cells, cwipiObs, cwipiObsU, i, cwipiParamsObs, cwipiVerbose, stringRootPath);
-      else if (cwipiTimedObs == 0) obsMatrix = obs_Data(cwipiMembers, nb_cells, cwipiObs, cwipiObsU, cwipiParamsObs, cwipiVerbose, stringRootPath);
+      if (cwipiTimedObs) 
+      {
+          int obsIndex = time/obsTimeStep - 1;
+          obsMatrix = obs_Data_timed(cwipiMembers, nb_cells, cwipiObs, cwipiObsU, obsIndex, cwipiParamsObs, cwipiVerbose, stringRootPath);
+      }
+      else obsMatrix = obs_Data(cwipiMembers, nb_cells, cwipiObs, cwipiObsU, cwipiParamsObs, cwipiVerbose, stringRootPath);
      
-      MatrixXf sampMatrix = samp_Data(cwipiMembers, cwipiObs, cwipiObsU, cwipiParamsObs, cwipiVerbose, stringRootPath);
+      MatrixXf sampMatrix = samp_Data(cwipiMembers, cwipiObs, cwipiObsU, velocityCase, cwipiParamsObs, cwipiVerbose, stringRootPath);
 
-      MatrixXf UptMatrix = KF(stateVector, obsMatrix, sampMatrix, cwipiMembers, nb_cells, cwipiObs, cwipiObsU, sigmaUserU, sigmaUserp, cwipiParams, cwipiParamsObs, cwipiVerbose);
+      MatrixXf UptMatrix = KF(stateVector, obsMatrix, sampMatrix, cwipiMembers, nb_cells, cwipiObs, cwipiObsU, sigmaUserU, sigmaUserp, sigmaUserCf,
+                              sigmaLocX, sigmaLocY, sigmaLocZ, localSwitch, clippingSwitch, cwipiParams, cwipiParamsObs , stateInfl, paramsInfl, typeInfl, 
+                              typeInputs, velocityCase, sigmaUserUa, sigmaUserUb, sigmaUserUc, paramEstSwitch, mesh, cwipiVerbose, stringRootPath);
 
+      if (clippingSwitch){
 
-      //====== Writing updated values to a txt file =========
+	    //====== Writing updated values to a txt file =========
+        print_matrix_on_txt(i, numberCwipiPhase, cwipiOutputNb, cwipiMembers, nb_cells, cwipiParams, time, UptMatrix, "UMat_Clip_upt");
+        UptMatrix = undoClipping(UptMatrix, invStateVector, inv_nb_cells, nb_cells, cwipiParams, cwipiMembers, cwipiVerbose, stringRootPath);
+      }
+
       print_matrix_on_txt(i, numberCwipiPhase, cwipiOutputNb, cwipiMembers, nb_cells, cwipiParams, time, UptMatrix, "UMat_upt");
-
 
       //================== Send back ======================
 
       for (int j = 1; j < cwipiMembers+1; j++)
       {
-        KF_output(sendValues, paramsSendValues, UptMatrix, cwipiMembers, nb_cells, time, cwipiParams, j, cwipiVerbose);
-
+       
+        KF_output(sendValues, paramsSendValues, UptMatrix, sampMatrix, obsMatrix, cwipiMembers, nb_cells, time, cwipiParams, cwipiObsU, cwipiObs, cwipiParamsObs, velocityCase, 
+        j, epsilon, cwipiVerbose);
         sprintf(cl_coupling_name,"cwipiFoamCoupling");
         sprintf(indexChar, "%i", j);
         strcat(cl_coupling_name,indexChar);
 
-        if (cwipiVerbose == 1) printf("Before re-send \n");
+        if (cwipiVerbose) printf("Before re-send \n");
         cwipi_issend(cl_coupling_name, "ex2", sendTag, 3, i+1, time, recv_field_name, sendValues, &status2);
         cwipi_wait_issend(cl_coupling_name,status2);
 
         switch(status2)
         {
         case CWIPI_EXCHANGE_OK :
-        if (cwipiVerbose == 1) printf("Re-sent Ok\n");
+        if (cwipiVerbose) printf("Re-sent Ok\n");
         break;
         case CWIPI_EXCHANGE_BAD_RECEIVING :
-        if (cwipiVerbose == 1) printf("Bad receiving\n");
+        if (cwipiVerbose) printf("Bad receiving\n");
         break;
         default :
-        if (cwipiVerbose == 1) printf("Error : bad exchange status\n");
+        if (cwipiVerbose) printf("Error : bad exchange status\n");
         }
-        if (cwipiVerbose == 1) printf("After re-send \n");
+        if (cwipiVerbose) printf("After re-send \n");
 
         MPI_Send(paramsSendValues, cwipiParams, MPI_DOUBLE, j, sendTag_params, MPI_COMM_WORLD);
       }
@@ -361,7 +434,7 @@ int main(int argc, char *argv[])
       cwipi_delete_coupling(cl_coupling_name);
     }
 
-    if (cwipiVerbose == 1) printf("After cwipi delete coupling from c++ file");
+    if (cwipiVerbose) std::cout << "After cwipi delete coupling from c++ file" << std::endl;
 
     //========== Freeing memory ==========
 
@@ -377,11 +450,19 @@ int main(int argc, char *argv[])
     free(values);
     free(paramsValues);
     free(paramsSendValues);
+    free(configValues);
+
+    if (cwipiVerbose) std::cout << "Arrays deallocated in KF" << std::endl;
 
     //========== Finalize ==========
 
     cwipi_finalize();
+
+    if (cwipiVerbose) std::cout << "Cwipi environment finalized from KF " << std::endl;
+
     MPI_Finalize();
+
+    if (cwipiVerbose) std::cout << "MPI environment finalized from KF" << std::endl;
 
     return EXIT_SUCCESS;
 }
