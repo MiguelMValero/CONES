@@ -135,12 +135,17 @@ int main(int argc, char *argv[])
         //========= Sending Velocity Field and Parameters and creating sampled velocities ==========
         if (cwipiSwitch && cwipiTimestep == cwipiStep)
         {
-            if (cwipiParamsObs == 0) UInterpolation(U, mesh, cwipiObsU, cwipiVerbose, globalRootPath);
-            else if (cwipiParamsObs == 1) pInterpolation(p, mesh, cwipiObsp, cwipiVerbose, globalRootPath);
-            else if (cwipiParamsObs == 2) UpInterpolation(U, p, mesh, cwipiObsU, cwipiObsp, cwipiVerbose, globalRootPath);
-            
+            if (((myGlobalRank-1) & nbParts) == 0){
+                if (cwipiParamsObs == 0) UInterpolation(U, mesh, cwipiObsU, cwipiVerbose, globalRootPath);
+                else if (cwipiParamsObs == 1) pInterpolation(p, mesh, cwipiObsp, cwipiVerbose, globalRootPath);
+                else if (cwipiParamsObs == 2) UpInterpolation(U, p, mesh, cwipiObsU, cwipiObsp, cwipiVerbose, globalRootPath);
+            }
+
             cwipiSend(mesh, U, runTime, cwipiIteration, cwipiVerbose);
-            cwipiSendParams(mesh, U, runTime, cwipiIteration, cwipiParams, nbParts, partsRepart[1], cwipiVerbose);
+
+            if (((myGlobalRank-1) & nbParts) == 0){
+                cwipiSendParams(mesh, U, runTime, cwipiIteration, cwipiParams, nbParts, partsRepart[1], cwipiVerbose);
+            }
 
             cwipiTimestep = 0;
             cwipiPhaseCheck = 1;
@@ -153,7 +158,10 @@ int main(int argc, char *argv[])
         if (cwipiSwitch && cwipiPhaseCheck == 1)
         {
             cwipiRecv(mesh, U, runTime, cwipiIteration, cwipiVerbose);
-            cwipiRecvParams(mesh, U, cwipiParams, nbParts, partsRepart[1], cwipiVerbose);
+            
+            if (((myGlobalRank-1) & nbParts) == 0){
+                cwipiRecvParams(mesh, U, cwipiParams, nbParts, partsRepart[1], cwipiVerbose);
+            }
 
             // ========== We correct the pressure after the DA cycle 
             //(solve a Poisson equation for the approximate pressure taking into account the
@@ -185,7 +193,6 @@ int main(int argc, char *argv[])
         //=========================================================
 
         runTime.write();
-
     }
 
     //========== Delete Cwipi Coupling and allocated arrays ===========

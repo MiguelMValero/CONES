@@ -6,7 +6,7 @@ EXE_INC = $(PFLAGS) $(PINC) \
     -I$(LIB_SRC)/transportModels/lnInclude \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
     -I$(LIB_SRC)/meshTools/lnInclude \
-    -I/home/miguel/OpenFOAM/miguel-8/run/CWIPI_OpenFOAM/cwipiPstream \
+    -I/home/miguel/parallelizationCONES/cwipiPstreamPar \
 
 EXE_LIBS = $(PLIBS) \
     -lmomentumTransportModels \
@@ -14,4 +14,4 @@ EXE_LIBS = $(PLIBS) \
     -lincompressibleTransportModels \
     -lfiniteVolume \
     -lmeshTools \
-    -L$(FOAM_USER_LIBBIN) -lcwipiPstream
+    -L$(FOAM_USER_LIBBIN) -lcwipiPstreamPar

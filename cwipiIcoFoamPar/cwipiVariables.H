@@ -2,7 +2,7 @@ Switch cwipiSwitch = runTime.controlDict().lookup("cwipiSwitch");
 
 std::ifstream cFile ("cwipiConfig");
 
-int values[28]={0};
+int values[29]={0};
 int k = 0;
 
 if (cFile.is_open())
@@ -30,13 +30,12 @@ else
 }
 
 int cwipiStep = values[0];
-//int cwipiMembers = values[1];
-int cwipiObsU = values[2];
-int cwipiObsp = values[3];
-int cwipiParams = values[5];
-double geom_tol = values[6];
-float cwipiVerbose = values[11];
-int cwipiParamsObs = values[14];
+int cwipiObsU = values[3];
+int cwipiObsp = values[4];
+int cwipiParams = values[6];
+double geom_tol = values[7];
+float cwipiVerbose = values[12];
+int cwipiParamsObs = values[15];
 
 IOdictionary decomposeParDict
 (
@@ -50,10 +49,10 @@ IOdictionary decomposeParDict
     )
 );
 
-dictionary simpleCoeffs = decomposeParDict.subDict("simpleCoeffs");
+dictionary hierarchicalCoeffs = decomposeParDict.subDict("hierarchicalCoeffs");
 
 int nbParts = readScalar(decomposeParDict.lookup("numberOfSubdomains"));
-List<scalar> partsRepart =  simpleCoeffs.lookup("n");
+List<scalar> partsRepart =  hierarchicalCoeffs.lookup("n");
 
 scalar cwipiTimestep = 1;
 scalar numberCwipiPhaseDouble = (runTime.endTime().value()/runTime.deltaTValue())/cwipiStep;
@@ -62,8 +61,6 @@ int cwipiIteration = 1;
 scalar cwipiPhaseCheck = 0;
 
 double* pointCoords = new double[3*mesh.nPoints()];
-//int* connecIdx = new int[mesh.nCells()+1];
-//int* connec = new int[mesh.nCells()*8];
 
 int* face_index = new int[mesh.nCells()+1];
 int* face_connectivity_index = new int[mesh.nFaces()+1];

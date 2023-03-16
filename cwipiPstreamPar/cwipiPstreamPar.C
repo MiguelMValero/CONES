@@ -83,14 +83,6 @@ void cwipiCoupling(const fvMesh& mesh, double* pointCoords, int* face_index, int
         pointCoords[3*i+2]=mesh.points()[i].z();
     }
 
-    // if (cwipiVerbose){
-	// Info << "nCells = " << nCells << endl;
-	// Info << "nPoints = " << nPoints << endl;
-	// Info << "nFaces = " << nFaces << endl;
-	// Info << "c2fconnec_size = " << c2fconnec_size << endl;
-	// Info << "fconnec_size = " << fconnec_size << endl;
-    // }
-
     face_index[0]=0;
     face_connectivity_index[0]=0;
 
@@ -116,7 +108,6 @@ void cwipiCoupling(const fvMesh& mesh, double* pointCoords, int* face_index, int
     int faces_count = 0;
     for(int i = 0; i < nCells; i++){
         for (int j = 0; j < face_index_temp[i] ; j++) {
-            // Info << "The size of the cell " << i << " is : " <<  face_index_temp[i] << endl;
             faceID = mesh.cells()[face_index_temp_IDs[i]][j];
             if (mesh.isInternalFace(faceID)){
                 faceOwner = mesh.faceOwner()[faceID];
@@ -148,11 +139,9 @@ void cwipiCoupling(const fvMesh& mesh, double* pointCoords, int* face_index, int
             {
                 cell_to_face_connectivity[faces_count+j] = faceID + 1;
             }
-            //if (cell_to_face_connectivity[faces_count+j] < 0) std::cout << cell_to_face_connectivity[faces_count+j] << " ";
         }
         faces_count = faces_count + face_index_temp[i];
     }
-
 
 	//=========== Faces calculations ===========
 
@@ -184,7 +173,7 @@ void cwipiCoupling(const fvMesh& mesh, double* pointCoords, int* face_index, int
     char rankChar[50];
     sprintf(rankChar, "%i", myGlobalRank);
     char couplingName[250] = {"cwipiFoamCoupling"};
-    strcat(couplingName,rankChar);
+    strcat(couplingName, rankChar);
 
     /* Creation of the coupling and coupling mesh
     
@@ -209,7 +198,7 @@ void cwipiCoupling(const fvMesh& mesh, double* pointCoords, int* face_index, int
 
     cwipi_synchronize_control_parameter("KF");
     
-    if (cwipiVerbose == 2) cwipi_dump_application_properties();
+    //if (cwipiVerbose == 2) cwipi_dump_application_properties();
 
     int t[2];
     t[0] = 0;

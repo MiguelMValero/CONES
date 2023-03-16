@@ -33,41 +33,42 @@ int main(int argc, char *argv[])
     std::cout << "Beginning of the configuration file" << std::endl << "\n";
 
     double *configValues = NULL;
-    configValues = (double*) malloc(sizeof(double) * 32);
+    configValues = (double*) malloc(sizeof(double) * 33);
     configuration(configValues);
 
     int cwipiStep = configValues[0];        // Number of time step between each DA phase
     int cwipiMembers = configValues[1];     // Number of members in the ensemble
-    int cwipiObsU = configValues[2];        // Number of observation probes for velocity
-    int cwipiObsp = configValues[3];        // Number of observation probes for pressure
-    int cwipiObsCf = configValues[4];       // Number of observation probes for friction coefficient
-    int cwipiParams = configValues[5];      // Number of parameters to optimize with the DA
-    double geom_tol = configValues[6];      // Geometric tolerance of the cwipi coupling meshes
-    int cwipiOutputNb = configValues[7];    // Number of txt file written beginning from the last one
-    double sigmaUserU = configValues[8];    // sigma of the EnKF (pertubation of the obs and diagonal of R matrix for velocity)
-    double sigmaUserp = configValues[9];    // sigma of the EnKF (pertubation of the obs and diagonal of R matrix for pressure)
-    double sigmaUserCf = configValues[10];  // sigma of the EnKF (pertubation of the obs and diagonal of R matrix for friction coefficient)
-    float cwipiVerbose = configValues[11];  // Print all the debuging messages or not: 1 = printed, 0 = nothing
-    int cwipiTimedObs = configValues[12];   // Switch to for the obs: 1 = obs depends on time, 0 = obs does not depend on time
-    double obsTimeStep = configValues[13];  // The time step of the observations if the case is unsteady
-    int cwipiParamsObs = configValues[14];  // Definition of observation parameter : 0 = vel, 1 = pres, 2 = both, 3 = vel+cf
-    double stateInfl = configValues[15];    // State inflation (default = 1)
-    double paramsInfl = configValues[16];   // Parameters inflation (default = 1)
-    float typeInfl =  configValues[17];     // Definition of inflation (0 = stochastic, 1 = deterministic)
-    float clippingSwitch = configValues[18];// Switch for the clipping
-    float localSwitch = configValues[19];   // Switch for the localisation (clippingSwitch == 1)
-    float paramEstSwitch = configValues[20];// Switch for parameter estimation
-    float Ux = configValues[21];            // Specification if Ux is read or not (cwipiParamsObs needs to be either 0, 2 or 3)
-    float Uy = configValues[22];            // Specification if Uy is read or not (cwipiParamsObs needs to be either 0, 2 or 3)
-    float Uz = configValues[23];            // Specification if Uz is read or not (cwipiParamsObs needs to be either 0, 2 or 3)
-    int typeInputs = configValues[24];      // Inputs for R are given in absolute values (0), percentage (1) or potential function (2) (default = 0) 
-    double sigmaLocX = configValues[25];    // eta of the EnKF (pertubation of the Kalman gain to take into consideration the localization in X direction)
-    double sigmaLocY = configValues[26];    // eta of the EnKF (pertubation of the Kalman gain to take into consideration the localization in Y direction)
-    double sigmaLocZ = configValues[27];    // eta of the EnKF (pertubation of the Kalman gain to take into consideration the localization in Z direction)
-    double epsilon = configValues[28];      // Value used to calculate the NSRMD
-    double sigmaUserUa =  configValues[29]; // sigma of the EnKF given by a+by^c
-    double sigmaUserUb =  configValues[30]; // sigma of the EnKF given by a+by^c
-    double sigmaUserUc =  configValues[31]; // sigma of the EnKF given by a+by^c
+    int subdomains = configValues[2];       // Number of subdomains
+    int cwipiObsU = configValues[3];        // Number of observation probes for velocity
+    int cwipiObsp = configValues[4];        // Number of observation probes for pressure
+    int cwipiObsCf = configValues[5];       // Number of observation probes for friction coefficient
+    int cwipiParams = configValues[6];      // Number of parameters to optimize with the DA
+    double geom_tol = configValues[7];      // Geometric tolerance of the cwipi coupling meshes
+    int cwipiOutputNb = configValues[8];    // Number of txt file written beginning from the last one
+    double sigmaUserU = configValues[9];    // sigma of the EnKF (pertubation of the obs and diagonal of R matrix for velocity)
+    double sigmaUserp = configValues[10];    // sigma of the EnKF (pertubation of the obs and diagonal of R matrix for pressure)
+    double sigmaUserCf = configValues[11];  // sigma of the EnKF (pertubation of the obs and diagonal of R matrix for friction coefficient)
+    float cwipiVerbose = configValues[12];  // Print all the debuging messages or not: 1 = printed, 0 = nothing
+    int cwipiTimedObs = configValues[13];   // Switch to for the obs: 1 = obs depends on time, 0 = obs does not depend on time
+    double obsTimeStep = configValues[14];  // The time step of the observations if the case is unsteady
+    int cwipiParamsObs = configValues[15];  // Definition of observation parameter : 0 = vel, 1 = pres, 2 = both, 3 = vel+cf
+    double stateInfl = configValues[16];    // State inflation (default = 1)
+    double paramsInfl = configValues[17];   // Parameters inflation (default = 1)
+    float typeInfl =  configValues[18];     // Definition of inflation (0 = stochastic, 1 = deterministic)
+    float clippingSwitch = configValues[19];// Switch for the clipping
+    float localSwitch = configValues[20];   // Switch for the localisation (clippingSwitch == 1)
+    float paramEstSwitch = configValues[21];// Switch for parameter estimation
+    float Ux = configValues[22];            // Specification if Ux is read or not (cwipiParamsObs needs to be either 0, 2 or 3)
+    float Uy = configValues[23];            // Specification if Uy is read or not (cwipiParamsObs needs to be either 0, 2 or 3)
+    float Uz = configValues[24];            // Specification if Uz is read or not (cwipiParamsObs needs to be either 0, 2 or 3)
+    int typeInputs = configValues[25];      // Inputs for R are given in absolute values (0), percentage (1) or potential function (2) (default = 0) 
+    double sigmaLocX = configValues[26];    // eta of the EnKF (pertubation of the Kalman gain to take into consideration the localization in X direction)
+    double sigmaLocY = configValues[27];    // eta of the EnKF (pertubation of the Kalman gain to take into consideration the localization in Y direction)
+    double sigmaLocZ = configValues[28];    // eta of the EnKF (pertubation of the Kalman gain to take into consideration the localization in Z direction)
+    double epsilon = configValues[29];      // Value used to calculate the NSRMD
+    double sigmaUserUa =  configValues[30]; // sigma of the EnKF given by a+by^c
+    double sigmaUserUb =  configValues[31]; // sigma of the EnKF given by a+by^c
+    double sigmaUserUc =  configValues[32]; // sigma of the EnKF given by a+by^c
 
     //========== We define the 7 possibilities in case we are dealing with some components of the velocity =========//
    
@@ -193,22 +194,12 @@ int main(int argc, char *argv[])
     int commWorldSize;
     //int nNotLocatedPoints = 0;
 
-    // double *values = NULL;
-    // values = (double*) malloc(sizeof(double) * 3*nb_cells);
     double *values = (double*) calloc(sizeof(double), 3*nb_cells);
-
-    //double *sendValues = NULL;
     double *sendValues = (double*) calloc(sizeof(double), 3*nb_cells);
-
-    //double *paramsValues = NULL;
     double *paramsValues = (double*) calloc(sizeof(double), cwipiParams);
-
-    //double *paramsSendValues = NULL;
     double *paramsSendValues = (double*) calloc(sizeof(double), cwipiParams);
 
     double* pointCoords = new double[3*mesh.nPoints()];
-    // int* connecIdx = new int[mesh.nCells()+1];
-    // int* connec = new int[mesh.nCells()*8];
     int* face_index = new int[mesh.nCells()+1];
     int* face_connectivity_index = new int[mesh.nFaces()+1];
 
@@ -225,14 +216,14 @@ int main(int argc, char *argv[])
     int* face_connectivity = new int[fconnec_size];
 
     //========== MPI Initilization ==========
-
+    
     MPI_Comm localcomm;
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &grank);
     MPI_Comm_size(MPI_COMM_WORLD, &commWorldSize);
 
     //========== CWIPI Initialization ==========
-
+    
     cwipi_init(MPI_COMM_WORLD, codeName, &localcomm);
     MPI_Comm_rank(localcomm, &rank);
 
@@ -245,7 +236,7 @@ int main(int argc, char *argv[])
     sprintf(output_format_option,"text");
 
     //* Coupling declaration in a loop in order to have a coupling with each OF instance *
-    for (int j = 1; j < cwipiMembers+1; j++)
+    for (int j = 1; j < (subdomains*cwipiMembers)+1; j++)
     {
       sprintf(cl_coupling_name,"cwipiFoamCoupling");
       sprintf(codeCoupledName,"cwipiFoam");
