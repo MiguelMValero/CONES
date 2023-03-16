@@ -168,6 +168,7 @@ int main(int argc, char *argv[])
         )
     );
 
+    for (int i )
     int nb_cells = mesh.nCells();
     if (cwipiVerbose) std::cout << "The number of cells from EnKF is " << mesh.nCells() << std::endl << "\n";
 
@@ -284,10 +285,10 @@ int main(int argc, char *argv[])
     {
       configuration(configValues);
 
-      cwipiVerbose = configValues[11];         // Print all the debuging messages or not, 1 printed 0 nothing
-      stateInfl = configValues[15];         // Standard deviation for state inflation
-      paramsInfl = configValues[16];        // Standard deviation for parameters inflation
-      typeInfl = configValues[17];           // Definition of inflation (0 = stochastic, 1 = deterministic)
+      cwipiVerbose = configValues[12];         // Print all the debuging messages or not, 1 printed 0 nothing
+      stateInfl = configValues[16];            // Standard deviation for state inflation
+      paramsInfl = configValues[17];           // Standard deviation for parameters inflation
+      typeInfl = configValues[18];             // Definition of inflation (0 = stochastic, 1 = deterministic)
       
       time = time + cwipiStep*deltaT;
       
@@ -299,7 +300,7 @@ int main(int argc, char *argv[])
 
       if (cwipiVerbose) std::cout << "Phase " << i << " going from " << firstCwipiPhase << " to " << numberCwipiPhase-1 << std::endl << "\n";
 
-      for (int j = 1; j < cwipiMembers+1; j++)
+      for (int j = 1; j < (subdomains*cwipiMembers)+1; j++)
       {
         sprintf(cl_coupling_name,"cwipiFoamCoupling");
         sprintf(indexChar, "%i", j);

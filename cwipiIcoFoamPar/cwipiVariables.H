@@ -50,7 +50,6 @@ IOdictionary decomposeParDict
 );
 
 dictionary hierarchicalCoeffs = decomposeParDict.subDict("hierarchicalCoeffs");
-
 int nbParts = readScalar(decomposeParDict.lookup("numberOfSubdomains"));
 List<scalar> partsRepart =  hierarchicalCoeffs.lookup("n");
 
