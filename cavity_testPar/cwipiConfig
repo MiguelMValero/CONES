@@ -1,6 +1,7 @@
 cwipiStep = 20
 cwipiMembers = 4
 subDomains = 2
+mainsubDomain = 2
 cwipiObsU = 5
 cwipiObsp = 0
 cwipiObsCf = 0
@@ -15,7 +16,7 @@ timedObs = 0
 obsTimeStep = 0
 cwipiParamsObs = 0
 stateInf = 1
-paramsInf = 1
+paramsInf = 1.05
 typeInf = 1
 clippingSwitch = 0
 localisationSwitch = 0
