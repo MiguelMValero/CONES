@@ -1197,28 +1197,38 @@ double sigmaUserUc, float paramEstSwitch, const fvMesh& mesh, float cwipiVerbose
 
 //===========================================================================
 
-void KF_output(double *sendValues, double *paramsSendValues, const Eigen::Ref<const Eigen::MatrixXf>& UptMatrix, const Eigen::Ref<const Eigen::MatrixXf>& sampMatrix, const Eigen::Ref<const Eigen::ArrayXf>& obsMatrix, 
-int nb_e, int nb_cells, double time, int nb_p, int nb_oU, int nb_o, int cwipiParamsObs, int velocityCase, int index, double epsilon, float cwipiVerbose)
+void KF_output(double *sendValues, double *paramsSendValues, double *values, const Eigen::Ref<const Eigen::MatrixXf>& UptMatrix, const Eigen::Ref<const Eigen::MatrixXf>& sampMatrix, const Eigen::Ref<const Eigen::ArrayXf>& obsMatrix, 
+int nb_e, int nb_cells, double time, int nb_p, int nb_oU, int nb_o, int cwipiParamsObs, int velocityCase, int index, int subdomains, int mainsubdom, double epsilon, float cwipiVerbose)
 {
     //========== Take the right column with the good values to send to the corresponding OF instance ==========
 
     if (cwipiVerbose) std::cout << "Starting writing outputs from the EnKF..." << std::endl;
 
-    for (int i=0; i<nb_cells; i++)
-    {   
-        sendValues[3*i + 0] = UptMatrix(i, index-1);
-        sendValues[3*i + 1] = UptMatrix(i + nb_cells, index-1);    
-        sendValues[3*i + 2] = UptMatrix(i + 2*nb_cells, index-1);    
-    }
+    if (((index-1) & subdomains) == 0){
+        for (int i=0; i<nb_cells; i++)
+        {   
+            sendValues[3*i + 0] = UptMatrix(i, index/subdomains-1);
+            sendValues[3*i + 1] = UptMatrix(i + nb_cells, index/subdomains-1);    
+            sendValues[3*i + 2] = UptMatrix(i + 2*nb_cells, index/subdomains-1);    
+        }
 
-    for (int i = 0; i < nb_p; i++)
-    {
-        paramsSendValues[i] = UptMatrix(nb_cells*3+i, index-1);
+        for (int i = 0; i < nb_p; i++)
+        {
+            paramsSendValues[i] = UptMatrix(nb_cells*3+i, index-1);
+        }
+    }
+    else{
+        for (int i=0; i<nb_cells; i++)
+        {   
+            sendValues[3*i + 0] = values[i];
+            sendValues[3*i + 1] = values[i + nb_cells];    
+            sendValues[3*i + 2] = values[i + 2*nb_cells];    
+        }
     }
 
     //========== We do an output of all optimized coefficients to evaluate convergence ==========//
 
-    if (index == 1){
+    if (index == mainsubdom){
         std::fstream file_coeffs_out;
         std::string filename_coeffs = "results/UpdatedCoefficients";
         file_coeffs_out.open(filename_coeffs, std::ios_base::out | std::ios_base::app);

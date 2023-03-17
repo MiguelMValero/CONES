@@ -225,8 +225,7 @@ int main(int argc, char *argv[])
 
   int nb_cells = mesh.nCells();
   if (cwipiVerbose)
-    std::cout << "The number of cells from EnKF is " << mesh.nCells() << std::endl
-              << "\n";
+    std::cout << "The number of cells from EnKF is " << mesh.nCells() << std::endl << "\n";
 
   double *values = (double *)calloc(sizeof(double), 3 * nb_cells);
   double *sendValues = (double *)calloc(sizeof(double), 3 * nb_cells);
@@ -284,10 +283,11 @@ int main(int argc, char *argv[])
 
     //========== Mesh definition ============
 
-    if (rank == 0)
+    if (cwipiVerbose)
       printf("Create mesh\n");
+
     define_mesh(pointCoords, face_index, cell_to_face_connectivity, face_connectivity_index, face_connectivity, c2fconnec_size, fconnec_size, mesh, cl_coupling_name, cwipiVerbose);
-  }
+   }
 
   //========== Receive values ==========
 
@@ -362,7 +362,7 @@ int main(int argc, char *argv[])
       if (cwipiVerbose)
         printf("Before receive params \n");
       
-      if (grank & subdomains == 0){
+      if (((j-1) & subdomains) == 0){
         MPI_Recv(paramsValues, cwipiParams, MPI_DOUBLE, j, recvTag_params, MPI_COMM_WORLD, &status3);
 
         if (cwipiVerbose){
@@ -371,18 +371,17 @@ int main(int argc, char *argv[])
         }
 
         for (int k = 0; k < nb_cells; k++)
-          for (int l = 0; l < cwipiMembers; l++)
         {
-          stateVector(k, l) = values[3*k + 0];
-          stateVector(k + nb_cells, l) = values[3*k + 1];
-          stateVector(k + 2*nb_cells, l) = values[3*k + 2];
+          stateVector(k, j/subdomains-1) = values[3*k + 0];
+          stateVector(k + nb_cells, j/subdomains-1) = values[3*k + 1];
+          stateVector(k + 2*nb_cells, j/subdomains-1) = values[3*k + 2];
         }
-      }
 
-      //* The parameters are added at the end of the state vector *
-      for (int k = 0; k < cwipiParams; k++)
-      {
-        stateVector(3 * nb_cells + k, j - 1) = paramsValues[k];
+        //* The parameters are added at the end of the state vector *
+        for (int k = 0; k < cwipiParams; k++)
+        {
+          stateVector(3*nb_cells + k, j/subdomains-1) = paramsValues[k];
+        }
       }
     }
 
@@ -427,11 +426,10 @@ int main(int argc, char *argv[])
 
     //================== Send back ======================
 
-    for (int j = 1; j < cwipiMembers + 1; j++)
+    for (int j = 1; j < (cwipiMembers * subdomains) + 1; j++)
     {
-
-      KF_output(sendValues, paramsSendValues, UptMatrix, sampMatrix, obsMatrix, cwipiMembers, nb_cells, time, cwipiParams, cwipiObsU, cwipiObs, cwipiParamsObs, velocityCase,
-                j, epsilon, cwipiVerbose);
+      KF_output(sendValues, paramsSendValues, values, UptMatrix, sampMatrix, obsMatrix, cwipiMembers, nb_cells, time, cwipiParams, cwipiObsU, cwipiObs, cwipiParamsObs, velocityCase,
+                j, subdomains, mainsubdom, epsilon, cwipiVerbose);
       sprintf(cl_coupling_name, "cwipiFoamCoupling");
       sprintf(indexChar, "%i", j);
       strcat(cl_coupling_name, indexChar);
@@ -458,7 +456,9 @@ int main(int argc, char *argv[])
       if (cwipiVerbose)
         printf("After re-send \n");
 
-      MPI_Send(paramsSendValues, cwipiParams, MPI_DOUBLE, j, sendTag_params, MPI_COMM_WORLD);
+      if (((j-1) & subdomains) == 0){
+        MPI_Send(paramsSendValues, cwipiParams, MPI_DOUBLE, j, sendTag_params, MPI_COMM_WORLD);
+      }
     }
   }
 
@@ -467,7 +467,7 @@ int main(int argc, char *argv[])
   if (rank == 0)
     printf("Delete Cwipi coupling from c++ file\n");
 
-  for (int j = 1; j < cwipiMembers + 1; j++)
+  for (int j = 1; j < (cwipiMembers*subdomains) + 1; j++)
   {
     sprintf(cl_coupling_name, "cwipiFoamCoupling");
     sprintf(indexChar, "%i", j);

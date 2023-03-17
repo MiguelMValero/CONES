@@ -31,7 +31,7 @@ Eigen::MatrixXf samp_Data(int nb_e, int nb_o, int nb_oU, int velocityCase, int c
 Eigen::MatrixXf KF(const Eigen::Ref<const Eigen::MatrixXf>& velo_field_mat, const Eigen::Ref<const Eigen::ArrayXf>& obs_field, const Eigen::Ref<const Eigen::MatrixXf>& proj_field_mat, int nb_e, int nb_cells, int nb_o, int nb_oU, double sigma_userU, double sigma_userp, double sigma_userCf, double sigmaLocX, double sigmaLocY, double sigmaLocZ, float localSwitch, 
 float clippingSwitch, int nb_p, int cwipiParamsObs, double stateInfl, double paramsInfl, float typeInfl, int typeInputs, int velocityCase, double sigmaUserUa, double sigmaUserUb, double sigmaUserUc, float paramEstSwitch, const fvMesh& mesh, float cwipiVerbose, std::string stringRootPath);
 
-void KF_output(double *sendValues, double *paramsSendValues, const Eigen::Ref<const Eigen::MatrixXf>& UptMatrix, const Eigen::Ref<const Eigen::MatrixXf>& sampMatrix, const Eigen::Ref<const Eigen::ArrayXf>& obsMatrix, int nb_e, int nb_cells, double time, int nb_p, int nb_oU, int nb_o, int cwipiParamsObs, int velocityCase, int index, double epsilon, float cwipiVerbose);
+void KF_output(double *sendValues, double *paramsSendValues, double *values, const Eigen::Ref<const Eigen::MatrixXf>& UptMatrix, const Eigen::Ref<const Eigen::MatrixXf>& sampMatrix, const Eigen::Ref<const Eigen::ArrayXf>& obsMatrix, int nb_e, int nb_cells, double time, int nb_p, int nb_oU, int nb_o, int cwipiParamsObs, int velocityCase, int index, int subdomains, int mainsubdom, double epsilon, float cwipiVerbose);
 
 void print_matrix_on_txt(int phaseIndex, int numberCwipiPhase, int cwipiOutputNb, int cwipiMembers, int nb_cells, int cwipiParams, double time, const Eigen::Ref<const Eigen::MatrixXf>& stateVector, std::string name);
 
