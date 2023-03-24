@@ -2,7 +2,7 @@ Switch cwipiSwitch = runTime.controlDict().lookup("cwipiSwitch");
 
 std::ifstream cFile ("cwipiConfig");
 
-int values[32]={0};
+int values[17]={0};
 int k = 0;
 
 if (cFile.is_open())
@@ -30,12 +30,12 @@ else
 }
 
 int cwipiStep = values[0];
-//int cwipiMembers = values[1];
+int cwipiMembers = values[1];
 int cwipiObsU = values[2];
 int cwipiObsp = values[3];
-int cwipiParams = values[5];
-double geom_tol = values[6];
-float cwipiVerbose = values[11];
+int cwipiParams = values[4];
+double geom_tol = values[5];
+int cwipiVerbose = values[12];
 int cwipiParamsObs = values[14];
 
 IOdictionary decomposeParDict
@@ -57,7 +57,7 @@ List<scalar> partsRepart =  simpleCoeffs.lookup("n");
 
 scalar cwipiTimestep = 1;
 scalar numberCwipiPhaseDouble = (runTime.endTime().value()/runTime.deltaTValue())/cwipiStep;
-int numberCwipiPhase = round(numberCwipiPhaseDouble);
+int numberCwipiPhase = floor(numberCwipiPhaseDouble);
 int cwipiIteration = 1;
 scalar cwipiPhaseCheck = 0;
 
@@ -79,3 +79,5 @@ forAll(mesh.faces(),i){
     fconnec_size = fconnec_size + mesh.faces()[i].size();
 }
 int* face_connectivity = new int[fconnec_size];
+
+if (cwipiVerbose == 1) Info<< "All the parameters from the configuration file have already been defined" << nl << endl;

@@ -18,7 +18,8 @@ cwipiMembers=$(printf "%s" "$ensembles" |sed 's/= //')
 # We run the mesh
 # blockMesh
 
-mkdir results
+rm -rf results postProcessing log
+mkdir -p $(pwd)/results
 # We create the "processor" folders with all information they need
 for ((i=0; i<cwipiMembers; i++));
 do 
