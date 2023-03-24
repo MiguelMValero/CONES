@@ -30,12 +30,12 @@ else
 }
 
 int cwipiStep = values[0];
-int cwipiMembers = values[1];
+//int cwipiMembers = values[1];
 int cwipiObsU = values[2];
 int cwipiObsp = values[3];
 int cwipiParams = values[4];
 double geom_tol = values[5];
-int cwipiVerbose = values[12];
+float cwipiVerbose = values[11];
 int cwipiParamsObs = values[14];
 
 IOdictionary decomposeParDict

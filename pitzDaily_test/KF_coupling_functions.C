@@ -1336,7 +1336,7 @@ int nb_e, int nb_cells, double time, int nb_p, int nb_oU, int nb_o, int cwipiPar
                         MSvals2(i) = std::pow(sampMatrix.row(i+nb_oU).mean() - obsMatrix(i+nb_oU), 2);
                         MSvobs2(i) = std::pow(obsMatrix(i+nb_oU), 2) + epsilon;
                     }
-                    for (int i = 0; i < (nb_o-nb_oU); ++i){
+                    for (int i = 0; i < (nb_o-2*nb_oU); ++i){
                         MSvals4(i) = std::pow(sampMatrix.row(i+2*nb_oU).mean() - obsMatrix(i+2*nb_oU), 2);
                         MSvobs4(i) = std::pow(obsMatrix(i+2*nb_oU), 2) + epsilon;
                     }
@@ -1360,7 +1360,7 @@ int nb_e, int nb_cells, double time, int nb_p, int nb_oU, int nb_o, int cwipiPar
                         MSvals3(i) = std::pow(sampMatrix.row(i+2*nb_oU).mean() - obsMatrix(i+2*nb_oU), 2);
                         MSvobs3(i) = std::pow(obsMatrix(i+2*nb_oU), 2) + epsilon;
                     }
-                    for (int i = 0; i < (nb_o-nb_oU); ++i){
+                    for (int i = 0; i < (nb_o-3*nb_oU); ++i){
                         MSvals4(i) = std::pow(sampMatrix.row(i+3*nb_oU).mean() - obsMatrix(i+3*nb_oU), 2);
                         MSvobs4(i) = std::pow(obsMatrix(i+3*nb_oU), 2) + epsilon;
                     }

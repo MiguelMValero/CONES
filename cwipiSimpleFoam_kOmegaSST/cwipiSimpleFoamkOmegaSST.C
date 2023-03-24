@@ -101,9 +101,8 @@ int main(int argc, char *argv[])
             else if (cwipiParamsObs == 1) pInterpolation(p, mesh, cwipiVerbose, globalRootPath);
             else if (cwipiParamsObs == 2) UpInterpolation(U, p, mesh, cwipiObsU, cwipiObsp, cwipiVerbose, globalRootPath);
 
-            cwipiSend(mesh, U, runTime, cwipiIteration, cwipiVerbose);
-            cwipiSendParamsKEps(mesh, turbulence(), runTime, cwipiIteration, cwipiParams, nbParts, partsRepart[1], cwipiVerbose);
-            //cwipiSendParamsKOmegaSST(mesh, turbulence(), runTime, cwipiIteration, cwipiParams, nbParts, partsRepart[1], cwipiVerbose);
+            cwipiSend(mesh, U, runTime, cwipiIteration, cwipiVerbose); 
+            cwipiSendParamsKOmegaSST(mesh, turbulence(), runTime, cwipiIteration, cwipiParams, nbParts, partsRepart[1], cwipiVerbose);
 
             cwipiTimestep = 0;
             cwipiPhaseCheck = 1;
@@ -116,8 +115,7 @@ int main(int argc, char *argv[])
         if (cwipiSwitch && cwipiPhaseCheck == 1)
         {
             cwipiRecv(mesh, U, runTime, cwipiIteration, cwipiVerbose);
-            cwipiRecvParamsKEps(mesh, turbulence(), cwipiParams, nbParts, partsRepart[1], cwipiVerbose, globalRootPath);
-            //cwipiRecvParamsKOmegaSST(mesh, turbulence(), cwipiParams, nbParts, partsRepart[1], cwipiVerbose, globalRootPath);
+            cwipiRecvParamsKOmegaSST(mesh, turbulence(), cwipiParams, nbParts, partsRepart[1], cwipiVerbose, globalRootPath);
 
             // We correct the pressure after the DA cycle
 
