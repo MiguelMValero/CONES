@@ -1,0 +1,21 @@
+-include $(GENERAL_RULES)/mplibType
+
+EXE_INC = $(PFLAGS) $(PINC) \
+    -I$(LIB_SRC)/MomentumTransportModels/momentumTransportModels/lnInclude \
+    -I$(LIB_SRC)/MomentumTransportModels/incompressible/lnInclude \
+    -I$(LIB_SRC)/transportModels/lnInclude \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/meshTools/lnInclude \
+    -I$(LIB_SRC)/sampling/lnInclude \
+    -I/home/miguel/OpenFOAM/miguel-8/run/CWIPI_OpenFOAM/cwipiPstream \
+
+
+EXE_LIBS = $(PLIBS) \
+    -lmomentumTransportModels \
+    -lincompressibleMomentumTransportModels \
+    -lincompressibleTransportModels \
+    -lfiniteVolume \
+    -lmeshTools \
+    -lfvOptions \
+    -lsampling \
+    -L$(FOAM_USER_LIBBIN) -lcwipiPstream
