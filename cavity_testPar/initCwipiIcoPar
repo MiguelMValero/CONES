@@ -56,10 +56,10 @@ do
     let odd=2*i+3
     echo $even
     echo $odd
-    sed -i -e "s/procBoundary0/procBoundary$even/g" processor$even/0/U
-    sed -i -e "s/to1/to$odd/g" processor$even/0/U
-    sed -i -e "s/procBoundary1/procBoundary$odd/g" processor$odd/0/U
-    sed -i -e "s/to0/to$even/g" processor$odd/0/U
+    #sed -i -e "s/procBoundary0/procBoundary$even/g" processor$even/0/U
+    #sed -i -e "s/to1/to$odd/g" processor$even/0/U
+    #sed -i -e "s/procBoundary1/procBoundary$odd/g" processor$odd/0/U
+    #sed -i -e "s/to0/to$even/g" processor$odd/0/U
 done
 
 for ((i=0; i<cwipiMembers; ++i));
@@ -73,5 +73,10 @@ do
     done
 done
 
+sed -i -e "s/numberOfSubdomains  $cwipiDec/numberOfSubdomains  1/g" system/decomposeParDict
+
 # We run in parallel with the number of ensembles wished
-# mpirun -np 1 ./KF_coupling.exe : -np $cwipiMembers cwipiIcoFoam -parallel | tee log
+let processors=cwipiMembers*cwipiDec
+
+mpirun -np 1 ./KF_coupling.exe : -np $processors cwipiIcoFoamPar -parallel | tee log
+#mpirun -np $processors cwipiIcoFoam -parallel : -np 1 ./KF_coupling.exe : | tee log

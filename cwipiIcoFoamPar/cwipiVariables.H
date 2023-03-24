@@ -2,7 +2,7 @@ Switch cwipiSwitch = runTime.controlDict().lookup("cwipiSwitch");
 
 std::ifstream cFile ("cwipiConfig");
 
-int values[29]={0};
+int values[34]={0};
 int k = 0;
 
 if (cFile.is_open())
@@ -30,12 +30,12 @@ else
 }
 
 int cwipiStep = values[0];
-int cwipiObsU = values[3];
-int cwipiObsp = values[4];
-int cwipiParams = values[6];
-double geom_tol = values[7];
-float cwipiVerbose = values[12];
-int cwipiParamsObs = values[15];
+int cwipiObsU = values[4];
+int cwipiObsp = values[5];
+int cwipiParams = values[7];
+double geom_tol = values[8];
+float cwipiVerbose = values[13];
+int cwipiParamsObs = values[16];
 
 IOdictionary decomposeParDict
 (
@@ -49,9 +49,11 @@ IOdictionary decomposeParDict
     )
 );
 
-dictionary hierarchicalCoeffs = decomposeParDict.subDict("hierarchicalCoeffs");
+dictionary simpleCoeffs = decomposeParDict.subDict("simpleCoeffs");
 int nbParts = readScalar(decomposeParDict.lookup("numberOfSubdomains"));
-List<scalar> partsRepart =  hierarchicalCoeffs.lookup("n");
+List<scalar> partsRepart =  simpleCoeffs.lookup("n");
+
+if (cwipiVerbose) Info<< "Information about decomposition read" << endl;
 
 scalar cwipiTimestep = 1;
 scalar numberCwipiPhaseDouble = (runTime.endTime().value()/runTime.deltaTValue())/cwipiStep;

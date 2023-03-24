@@ -55,6 +55,7 @@ int main(int argc, char *argv[])
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
     //========== Declaration of cwipi variables ==========
+    Info<< "Entering to read some variables" << endl;
     #include "cwipiVariables.H"
 
     //========== Create cwipi coupling and control parameters ==========
