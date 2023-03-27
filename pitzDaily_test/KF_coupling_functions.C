@@ -1001,7 +1001,8 @@ double sigmaUserUc, float paramEstSwitch, const fvMesh& mesh, float cwipiVerbose
     
     // std::cout << "obs_field_mat :" << std::endl;
     // std::cout << obs_field_mat << std::endl << "\n";
-    obs_field_mat = obs_field_mat + err_mat;
+    if (typeInputs == 0) obs_field_mat = obs_field_mat + err_mat;
+    else if (typeInputs == 1) obs_field_mat = obs_field_mat + obs_field_mat.cwiseProduct(err_mat);
 
     if (cwipiVerbose) std::cout << "Perturbations added" << std::endl;
 
