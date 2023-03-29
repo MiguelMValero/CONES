@@ -60,6 +60,7 @@ int main(int argc, char *argv[])
     //========== Create cwipi coupling and control parameters ==========
     if (cwipiSwitch)
     {
+        if (cwipiVerbose) Info << "Here we are" << nl << endl;
         addControlParams(numberCwipiPhase, runTime.deltaTValue(), runTime.value(), nbParts, partsRepart[1]);
         cwipiCoupling(mesh, pointCoords, face_index, face_connectivity_index, cell_to_face_connectivity, face_connectivity, c2fconnec_size, fconnec_size, cwipiVerbose, geom_tol);
     }

@@ -360,7 +360,7 @@ int main(int argc, char *argv[])
         stateVector = doClipping(stateVector, invStateVector, nb_cells, cwipiParams, cwipiMembers, cwipiVerbose, stringRootPath);
 
         //====== Writing values to a txt file =========
-        print_matrix_on_txt(i, numberCwipiPhase, cwipiOutputNb, cwipiMembers, nb_cells, cwipiParams, time, stateVector, "UMat_Clip");
+        // print_matrix_on_txt(i, numberCwipiPhase, cwipiOutputNb, cwipiMembers, nb_cells, cwipiParams, time, stateVector, "UMat_Clip");
       }
       //======== Kalman filter code =======
 
@@ -383,7 +383,7 @@ int main(int argc, char *argv[])
       if (clippingSwitch){
 
 	    //====== Writing updated values to a txt file =========
-        print_matrix_on_txt(i, numberCwipiPhase, cwipiOutputNb, cwipiMembers, nb_cells, cwipiParams, time, UptMatrix, "UMat_Clip_upt");
+        // print_matrix_on_txt(i, numberCwipiPhase, cwipiOutputNb, cwipiMembers, nb_cells, cwipiParams, time, UptMatrix, "UMat_Clip_upt");
         UptMatrix = undoClipping(UptMatrix, invStateVector, inv_nb_cells, nb_cells, cwipiParams, cwipiMembers, cwipiVerbose, stringRootPath);
       }
 

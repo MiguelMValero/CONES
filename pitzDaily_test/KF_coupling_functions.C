@@ -1002,7 +1002,7 @@ double sigmaUserUc, float paramEstSwitch, const fvMesh& mesh, float cwipiVerbose
     // std::cout << "obs_field_mat :" << std::endl;
     // std::cout << obs_field_mat << std::endl << "\n";
     if (typeInputs == 0) obs_field_mat = obs_field_mat + err_mat;
-    else if (typeInputs == 1) obs_field_mat = obs_field_mat + obs_field_mat.cwiseProduct(err_mat);
+    else if (typeInputs == 1) obs_field_mat = obs_field_mat + obs_field_mat.cwiseProduct(err_mat);
 
     if (cwipiVerbose) std::cout << "Perturbations added" << std::endl;
 
@@ -1109,10 +1109,10 @@ double sigmaUserUc, float paramEstSwitch, const fvMesh& mesh, float cwipiVerbose
     // ========== Update of velocities Ue_mat + K_mat*(Uo_mat-H_mat*(Ue_mat)) ==========
 
     // ========== Define random generator with Gaussian distribution ==========
-    const double mean_state = stateInfl;
-    const double mean_params = paramsInfl;
-    const double stddev_state = (stateInfl-1)*0.1;
-    const double stddev_params = (paramsInfl-1)*0.1;
+    const double mean_state = 0;
+    const double mean_params = 0;
+    const double stddev_state = stateInfl;
+    const double stddev_params = paramsInfl;
     std::normal_distribution<double> dist_state(mean_state, stddev_state);
     std::normal_distribution<double> dist_params(mean_params, stddev_params);
 
@@ -1122,29 +1122,31 @@ double sigmaUserUc, float paramEstSwitch, const fvMesh& mesh, float cwipiVerbose
 
     for (int j=0;j<nb_e;j++)
     {
-        do
-        {
-            gaussample=dist_state(generator);
-        }while (gaussample<(mean_state-2*stddev_state) || gaussample>(mean_state+2*stddev_state));
 
         for (int i = 0; i < nb_cells_cmpnt; i++)
         {
+            do
+            {
+                gaussample=dist_state(generator);
+            }while (gaussample<(mean_state-2*stddev_state) || gaussample>(mean_state+2*stddev_state));
+
             if (typeInfl){
-                velo_field_mat_upt(i,j) = velo_field_mat_upt.row(i).mean() + gaussample*(velo_field_mat_upt(i,j) - velo_field_mat_upt.row(i).mean());  //Deterministic
+                velo_field_mat_upt(i,j) = velo_field_mat_upt.row(i).mean() + (1+stddev_state+(0.1*gaussample))*(velo_field_mat_upt(i,j) - velo_field_mat_upt.row(i).mean());  //Deterministic
             }
             else velo_field_mat_upt(i,j) = velo_field_mat_upt(i,j) + gaussample*velo_field_mat_upt(i,j);     //Stochastic
         }
 
         if (paramEstSwitch){
-            do
-            {
-                gaussample=dist_params(generator);
-            }while (gaussample<(mean_params-2*stddev_params) || gaussample>(mean_params+2*stddev_params));
 
             for (int i = 0; i < nb_p; i++)
             {
+                do
+                {
+                    gaussample=dist_params(generator);
+                }while (gaussample<(mean_params-2*stddev_params) || gaussample>(mean_params+2*stddev_params));
+                
                 if (typeInfl){
-                    velo_field_mat_upt(i + nb_cells_cmpnt, j) = velo_field_mat_upt.row(i + nb_cells_cmpnt).mean() + gaussample*(velo_field_mat_upt(i + nb_cells_cmpnt, j) - velo_field_mat_upt.row(i + nb_cells_cmpnt).mean());
+                    velo_field_mat_upt(i + nb_cells_cmpnt, j) = velo_field_mat_upt.row(i + nb_cells_cmpnt).mean() + (1+stddev_params+(0.1*gaussample))*(velo_field_mat_upt(i + nb_cells_cmpnt, j) - velo_field_mat_upt.row(i + nb_cells_cmpnt).mean());
                 }
                 else velo_field_mat_upt(i + nb_cells_cmpnt, j) = velo_field_mat_upt(i + nb_cells_cmpnt, j) + gaussample*velo_field_mat_upt(i + nb_cells_cmpnt, j);  //Stochastic
             }
@@ -1255,6 +1257,7 @@ int nb_e, int nb_cells, double time, int nb_p, int nb_oU, int nb_o, int cwipiPar
                     }
                     RMSD1 = std::sqrt(MSvals1.sum())/nb_oU; //Root Mean Square Deviation
                     NRMSD1 = std::sqrt(MSvals1.sum()/MSvobs1.sum())/nb_oU; //Normalized Root Mean Square Deviation
+                    // NRMSD1 = std::sqrt(MSvals1.sum()/nb_oU)/obsMatrix.mean(); //Normalized Root Mean Square Deviation
                     file_RMS_out << RMSD1 << ' ' << NRMSD1 << ' ';
                     file_RMS_out << "\n";
                     break;

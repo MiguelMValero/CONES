@@ -2,7 +2,7 @@ Switch cwipiSwitch = runTime.controlDict().lookup("cwipiSwitch");
 
 std::ifstream cFile ("cwipiConfig");
 
-int values[32]={0};
+double values[32]={0};
 int k = 0;
 
 if (cFile.is_open())

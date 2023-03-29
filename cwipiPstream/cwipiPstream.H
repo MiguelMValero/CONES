@@ -68,14 +68,13 @@ void cwipiRecvParamsChannel(const fvMesh& mesh, volScalarField& Ck, int cwipiPar
 
 std::fstream& GotoLine(std::fstream& file, unsigned int num);
 
-void cwipiRecvParamsChannelFourrier(const fvMesh& mesh, volScalarField& Ck, int cwipiParams, int cwipiVerbose, std::string stringRootPath, int m, int n, int o);
+void cwipiRecvParamsChannelFourrier(const fvMesh& mesh, volScalarField& Ck, int cwipiParams, float cwipiVerbose, std::string stringRootPath, int m, int n, int o);
 
-void cwipiRecvParamsChannelGaussian(const fvMesh& mesh, volScalarField& Ck, int cwipiParams, int cwipiVerbose, std::string stringRootPath);
+void cwipiRecvParamsChannelGaussian(const fvMesh& mesh, volScalarField& Ck, int cwipiParams, float cwipiVerbose, std::string stringRootPath);
 
 void cwipiSendParamsChannel_IBM(const fvMesh& mesh, int cwipiParams, int nbParts, int partsReparty, float cwipiVerbose, std::string globalRootPath);
 
-void cwipiRecvParamsChannel_IBM(const fvMesh& mesh, volVectorField& U, volScalarField& viscosity, volVectorField& F, volVectorField& D, int cwipiParams, int Fourier_m, int Fourier_n, int Fourier_o, 
-double lambdaX, double lambdaY, double lambdaZ, double deltaChannel, int DarcyForchheimer, int nbParts, int partsReparty, float cwipiVerbose, std::string globalRootPath);
+void cwipiRecvParamsChannel_IBM(const fvMesh& mesh, volVectorField& U, volScalarField& viscosity, volVectorField& F, volVectorField& D, int cwipiParams, int Fourier_m, int Fourier_n, int Fourier_o, double lambdaX, double lambdaY, double lambdaZ, double deltaChannel, int DarcyForchheimer, int nbParts, int partsReparty, float cwipiVerbose, std::string globalRootPath);
 
 void cwipiRecvParamsChannelNOFourier(const fvMesh& mesh, volVectorField& U, volScalarField& viscosity, volScalarField& nu, volVectorField& F, volVectorField& D, int cwipiParams, double deltaChannel, int DarcyForchheimer, int nbParts, int partsReparty, float cwipiVerbose, std::string globalRootPath);
 

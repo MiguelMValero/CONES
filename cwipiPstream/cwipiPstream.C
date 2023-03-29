@@ -76,12 +76,15 @@ void cwipiCoupling(const fvMesh& mesh, double* pointCoords, int* face_index, int
     int nFaces = mesh.nFaces();
     int nPoints = mesh.nPoints();
 
+    // double* pointCoords = new double[3*mesh.nPoints()];
     forAll(mesh.points(),i)
     {
         pointCoords[3*i+0]=mesh.points()[i].x();
         pointCoords[3*i+1]=mesh.points()[i].y();
         pointCoords[3*i+2]=mesh.points()[i].z();
     }
+    
+    Info << "Here we are 3" << nl << endl;
 
     // if (cwipiVerbose){
 	// Info << "nCells = " << nCells << endl;
@@ -206,6 +209,7 @@ void cwipiCoupling(const fvMesh& mesh, double* pointCoords, int* face_index, int
                           0,
                           "Ensight Gold",
                           "text");
+    Info << "Here we are 8" << nl << endl;
 
     cwipi_synchronize_control_parameter("KF");
     
@@ -684,7 +688,7 @@ void UCfInterpolation(volVectorField& U, double deltaChannel, volScalarField& nu
     //========= Calculate the friction coefficient Cf from uTau ==========//
     double Cf = 2*pow(uTauGlobal,2);
 
-    if (cwipiVerbose == 1) Info<< "The Cf is equal to " << Cf << nl << endl;
+    if (cwipiVerbose) Info<< "The Cf is equal to " << Cf << nl << endl;
 
     /* WE WRITE THE NEW VALUES IN A TXT FILE */
     
@@ -772,6 +776,7 @@ void cwipiSendParams(const fvMesh& mesh, const volVectorField& vf, const Time& r
     if (cwipiVerbose) Info << "Here we are 11" << endl;
     // double* ParamsToSend = new double[mesh.nCells()];
     double* ParamsToSend = new double[cwipiParams];
+    // Info << "number of cells: " << mesh.nCells() << endl;
 
     if (cwipiVerbose) std::cout << "Before sending params to KF" << std::endl; 
     label top = mesh.boundaryMesh().findPatchID("movingWall");
@@ -783,7 +788,7 @@ void cwipiSendParams(const fvMesh& mesh, const volVectorField& vf, const Time& r
     //the cwipi primitive, the destination rank is always 0 because KF_coupling is supposed
     // to always be 0 when we launch a calculation (first in the command line)*
     MPI_Send(ParamsToSend,1,MPI_DOUBLE,0,sendTag_params,MPI_COMM_WORLD);
-    if (cwipiVerbose == 1) std::cout << "After sending params to KF" << std::endl;
+    if (cwipiVerbose) std::cout << "After sending params to KF" << std::endl;
 
     delete[] ParamsToSend;
 }
@@ -857,6 +862,56 @@ void cwipiSendParamsChannelFourrier(int cwipiParams, float cwipiVerbose, std::st
     delete[] ParamsToSend;
 }
 
+void cwipiSendParamsChannelGaussian(int cwipiParams, float cwipiVerbose, std::string stringRootPath)
+{
+    //=== Send the parameter to optimize for a non uniform field ===
+
+    if (cwipiVerbose) Info << "Here we are 11" << endl;
+
+    double* ParamsToSend = new double[cwipiParams];
+
+    int myGlobalRank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &myGlobalRank);
+
+    std::string file_path= stringRootPath + "/processor" + std::to_string(myGlobalRank-1) + "/gCoeffs.txt";
+    if (cwipiVerbose) std::cout << "gCoeffs path = " << file_path << std::endl;
+ 
+	std::vector<std::vector<string>> file_content;
+	std::vector<string> file_row;
+	std::string file_line, file_word;
+ 
+	std::fstream file_stream (file_path, std::ios::in);
+	if(file_stream.is_open())
+	{
+		while(getline(file_stream, file_line))
+		{
+			file_row.clear();
+ 
+			std::stringstream file_str(file_line);
+ 
+			while(getline(file_str, file_word, ','))
+				file_row.push_back(file_word);
+			file_content.push_back(file_row);
+		}
+	}
+	else
+		std::cout << "Could not open the file" << std::endl << "\n";
+
+    if (cwipiVerbose) std::cout << "Before sending params to KF" << std::endl; 
+
+    for (int i=0; i < cwipiParams; i++)
+    {
+        ParamsToSend[i]=std::stod(file_content[i][0]);
+        if (cwipiVerbose) std::cout << "ParamsToSend[i]" << ParamsToSend[i] << std::endl; 
+    }
+
+    MPI_Send(ParamsToSend,cwipiParams,MPI_DOUBLE,0,sendTag_params,MPI_COMM_WORLD);
+
+    if (cwipiVerbose) std::cout << "After sending params to KF" << std::endl;
+
+    delete[] ParamsToSend;
+}
+
 void cwipiSendParamsKEps(const fvMesh& mesh, incompressible::momentumTransportModel& turbulence, const Time& runTime, int cwipiIteration, int cwipiParams, int nbParts, int partsReparty, float cwipiVerbose)
 {
     //=== Send the parameters the optimize, in this case model coefficients ===
@@ -890,7 +945,7 @@ void cwipiSendParamsKOmegaSST(const fvMesh& mesh, incompressible::momentumTransp
     double* ParamsToSend = new double[cwipiParams];
     // Info << "number of cells: " << mesh.nCells() << endl;
 
-    if (cwipiVerbose == 1) std::cout << "Before sending params to KF" << std::endl; 
+    if (cwipiVerbose) std::cout << "Before sending params to KF" << std::endl; 
 
     //* We can read the coefficient of a turbulence model from the object turbulence. Be careful,
     // here "turbulence" is the object "turbulence()" and not the pointer "turbulence->" , because we 
@@ -1112,7 +1167,7 @@ void cwipiRecvParamsChannelFourrier(const fvMesh& mesh, volScalarField& Ck, int 
         y = mesh.C()[cellI][1];
         z = mesh.C()[cellI][2];
 
-        // if (cwipiVerbose == 1) Info << "x = " << x << " and " << "y = " << y << " and " << "z = " << z << endl;
+        // if (cwipiVerbose) Info << "x = " << x << " and " << "y = " << y << " and " << "z = " << z << endl;
         
         for (int i=0; i<=m; i++){
             for (int j=1; j<=n; j++){
@@ -1120,7 +1175,7 @@ void cwipiRecvParamsChannelFourrier(const fvMesh& mesh, volScalarField& Ck, int 
                     alphaTot = alphaTot + paramsToRecv[fourrierindex]*Foam::cos(2*Foam::constant::mathematical::pi*i*x/lambdax)*Foam::sin(2*Foam::constant::mathematical::pi*j*y/lambday)*Foam::cos(2*Foam::constant::mathematical::pi*k*z/lambdaz);
                     // alphaTot = alphaTot + paramsToRecv[fourrierindex]*Foam::cos(2*Foam::constant::mathematical::pi*i*x/lambdax)*Foam::sin(2*Foam::constant::mathematical::pi*j*1/lambday)*Foam::cos(2*Foam::constant::mathematical::pi*k*z/lambdaz);
                     // alphaTot = alphaTot + paramsToRecv[fourrierindex];
-                    // if (cwipiVerbose == 1) Info << "paramsToRecv " << paramsToRecv[fourrierindex] << endl;
+                    // if (cwipiVerbose) Info << "paramsToRecv " << paramsToRecv[fourrierindex] << endl;
                     fourrierindex = fourrierindex +1;
                 }
             }
@@ -1153,7 +1208,7 @@ void cwipiRecvParamsChannelFourrier(const fvMesh& mesh, volScalarField& Ck, int 
             }
         }
 
-        // if (cwipiVerbose == 1) Info << "alphaTot = " << alphaTot << " and " << "betaTot = " << betaTot << " and " << "gammaTot = " << gammaTot << " and " << "deltaTot = " << deltaTot << endl;
+        // if (cwipiVerbose) Info << "alphaTot = " << alphaTot << " and " << "betaTot = " << betaTot << " and " << "gammaTot = " << gammaTot << " and " << "deltaTot = " << deltaTot << endl;
 
         Ck[cellI] = alphaTot + betaTot + gammaTot + deltaTot;
         // Ck[cellI]=5;
@@ -1172,12 +1227,12 @@ void cwipiRecvParamsChannelFourrier(const fvMesh& mesh, volScalarField& Ck, int 
 
     // std::ofstream myfile;
     // myfile.open(file_path.c_str(), std::ios::out | std::ios::app);
-    // if (cwipiVerbose == 1) std::cout << "fCoeffs = "; 
+    // if (cwipiVerbose) std::cout << "fCoeffs = "; 
     // for (int i = 0; i < cwipiParams; ++i){
     //     myfile << Ck[10] << "\n";
-    //     if (cwipiVerbose == 1) std::cout << Ck[10];
+    //     if (cwipiVerbose) std::cout << Ck[10];
     // }
-    // if (cwipiVerbose == 1) std::cout << std::endl;
+    // if (cwipiVerbose) std::cout << std::endl;
     // myfile.close();
     
     if (cwipiVerbose) Info << "After Re-receive params" << endl << "\n";
@@ -1227,10 +1282,10 @@ void cwipiRecvParamsChannelGaussian(const fvMesh& mesh, volScalarField& Ck, int 
     //*** Calculation of the new Ck field ***
 
     //== We fisrt open the y distribution file for the gaussian function ==
-    // if (cwipiVerbose == 1) std::cout << "Opening y distribution file " << std::endl;
+    // if (cwipiVerbose) std::cout << "Opening y distribution file " << std::endl;
     
     // std::string yDistrib_file= stringRootPath + "/yDistrib.txt";
-    // if (cwipiVerbose == 1) std::cout << "yDistrib path = " << stringRootPath << std::endl;
+    // if (cwipiVerbose) std::cout << "yDistrib path = " << stringRootPath << std::endl;
  
 	// std::vector<std::vector<string>> yDistrib_content;
 	// std::vector<string> yDistrib_row;
@@ -1253,18 +1308,18 @@ void cwipiRecvParamsChannelGaussian(const fvMesh& mesh, volScalarField& Ck, int 
 	// else
 	// 	std::cout << "Could not open the file" << std::endl << "\n";
 
-    // if (cwipiVerbose == 1) std::cout << "yDistrib file is open, begin to fill array" << std::endl;
+    // if (cwipiVerbose) std::cout << "yDistrib file is open, begin to fill array" << std::endl;
  
     // for(int i = 0; i < cwipiParams/2; i++)
     // {
     //     yDistrib[i]=std::stod(yDistrib_content[i][0]);
     // }
-    // // if (cwipiVerbose == 1) std::cout << "yDistrib[i] = " << yDistrib[0] << std::endl;
+    // // if (cwipiVerbose) std::cout << "yDistrib[i] = " << yDistrib[0] << std::endl;
 
     // for(int i = 0; i < cwipiParams/2; i++)
     // {
     //     yDistrib[cwipiParams/2+i]=2-std::stod(yDistrib_content[cwipiParams/2-i-1][0]);
-    //     // if (cwipiVerbose == 1) std::cout << "yDistrib[i] = " << yDistrib[cwipiParams/2+i] << std::endl;
+    //     // if (cwipiVerbose) std::cout << "yDistrib[i] = " << yDistrib[cwipiParams/2+i] << std::endl;
     // }
 
     // //== Then we create a randomazier in case Ck values are negatives ==
@@ -1288,7 +1343,7 @@ void cwipiRecvParamsChannelGaussian(const fvMesh& mesh, volScalarField& Ck, int 
     forAll(mesh.cells(), cellI)
     {
         y = mesh.C()[cellI][1];
-        // if (cwipiVerbose == 1) Info << "y = " << y << endl;
+        // if (cwipiVerbose) Info << "y = " << y << endl;
         
         for (int i=0; i<cwipiParams/3; i++){
             // CkTemp = CkTemp + Foam::exp(paramsToRecv[2*i]-Foam::pow((y-yDistrib[i]),2)/pow(paramsToRecv[2*i+1],2));
@@ -1346,8 +1401,10 @@ void cwipiRecvParamsKEps(const fvMesh& mesh, incompressible::momentumTransportMo
         {
             gaussample=dist(generator);
         }while (gaussample<(mean-3*stddev) || gaussample>(mean+3*stddev));
+
         paramsToRecv[0] = 0.01 + 0.01*gaussample;
     }
+
     for (int i=1; i<cwipiParams; i++)
     {
         if (paramsToRecv[i] < 0.05)
@@ -1356,6 +1413,7 @@ void cwipiRecvParamsKEps(const fvMesh& mesh, incompressible::momentumTransportMo
             {
                 gaussample=dist(generator);
             }while (gaussample<(mean-3*stddev) || gaussample>(mean+3*stddev));
+
             paramsToRecv[i] = 0.1 + 0.1*gaussample;
         }
     }
