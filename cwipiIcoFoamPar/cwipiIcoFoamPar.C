@@ -43,6 +43,7 @@ Description
 
 int main(int argc, char *argv[])
 {
+
     #include "setRootCase.H"
     #include "cwipiCreateTime.H"
     #include "createMesh.H"
@@ -52,11 +53,11 @@ int main(int argc, char *argv[])
     #include "createFields.H"
     #include "initContinuityErrs.H"
 
-    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
     //========== Declaration of cwipi variables ==========
     Info<< "Entering to read some variables" << endl;
     #include "cwipiVariables.H"
+
+    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
     //========== Create cwipi coupling and control parameters ==========
     if (cwipiSwitch)

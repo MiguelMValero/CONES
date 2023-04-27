@@ -54,8 +54,6 @@ do
     
     let even=2*i+2
     let odd=2*i+3
-    echo $even
-    echo $odd
     #sed -i -e "s/procBoundary0/procBoundary$even/g" processor$even/0/U
     #sed -i -e "s/to1/to$odd/g" processor$even/0/U
     #sed -i -e "s/procBoundary1/procBoundary$odd/g" processor$odd/0/U

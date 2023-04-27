@@ -19,7 +19,7 @@ C++EXTLIB =  /usr/lib64/libstdc++.so.6 -lc -lgcc_s
 C++EXTLIB = /lib/gcc/x86_64-linux-gnu/9 -lgfortran
 C++EXTLIB = -lutil -lstdc++ -lmpi -lmpi_mpifh -lmpi_cxx -fuse-ld=bfd -Xlinker --add-needed -L$(FOAM_LIBBIN) -lOpenFOAM -lmomentumTransportModels -lincompressibleMomentumTransportModels -lincompressibleTransportModels -lfiniteVolume -lfvOptions -lsampling -ldynamicFvMesh -ltopoChangerFvMesh -ldynamicMesh -lmeshTools -ldl -lm
 
-CWIPI_DIR  = /home/miguel/cwipi-0.12.0
+CWIPI_DIR  = /home/miguel/cwipi_installation
 CWIPI_INC  = $(CWIPI_DIR)/include
 CWIPI_LIB  = $(CWIPI_DIR)/lib
 CWIPI_LINK =  -Wl,-rpath=$(CWIPI_LIB) -L$(CWIPI_LIB) -lcwpf -lcwp

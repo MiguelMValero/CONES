@@ -15,3 +15,4 @@ strcat(RunCase,"/processor");
 strcat(RunCase,rankChar);
 
 Foam::Time runTime(Foam::Time::controlDictName, args.rootPath(), RunCase);
+
