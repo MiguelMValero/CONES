@@ -1,0 +1,85 @@
+Current rank is 1
+cwipi 0.12.0 initializing
+------------------------
+
+Current rank is 0
+cwipi 0.12.0 initializing
+------------------------
+
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  9
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+Build  : 9-b456138dc4bc
+Exec   : cwipiIcoFoamPar -parallel -case cavity_testPar1
+Date   : May 03 2023
+Time   : 13:09:58
+Host   : "miguel-Precision-7920-Tower"
+PID    : 670197
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  9
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+Build  : 9-b456138dc4bc
+Exec   : cwipiIcoFoamPar -parallel -case cavity_testPar1
+Date   : May 03 2023
+Time   : 13:09:58
+Host   : "miguel-Precision-7920-Tower"
+PID    : 670198
+I/O    : uncollated
+I/O    : uncollated
+[0] [0] 
+
+[0] 
+[0] --> FOAM FATAL ERROR: 
+[0] "./cavity_testPar1/system/decomposeParDict" specifies 2 processors but job was started with 1 processors.
+[0] 
+FOAM parallel run exiting
+[0] 
+[0] 
+[0] --> FOAM FATAL ERROR: 
+[0] "./cavity_testPar1/system/decomposeParDict" specifies 2 processors but job was started with 1 processors.
+[0] 
+FOAM parallel run exiting
+[0] 
+[miguel-Precision-7920-Tower:670198] *** Process received signal ***
+[miguel-Precision-7920-Tower:670197] *** Process received signal ***
+[miguel-Precision-7920-Tower:670197] Signal: Segmentation fault (11)
+[miguel-Precision-7920-Tower:670197] Signal code: Address not mapped (1)
+[miguel-Precision-7920-Tower:670197] Failing at address: 0xa0
+[miguel-Precision-7920-Tower:670198] Signal: Segmentation fault (11)
+[miguel-Precision-7920-Tower:670198] Signal code: Address not mapped (1)
+[miguel-Precision-7920-Tower:670198] Failing at address: 0xa0
+[miguel-Precision-7920-Tower:670197] [ 0] [miguel-Precision-7920-Tower:670198] [ 0] /lib/x86_64-linux-gnu/libpthread.so.0(+0x14420)[0x7f456253f420]
+[miguel-Precision-7920-Tower:670197] [ 1] /lib/x86_64-linux-gnu/libpthread.so.0(+0x14420)[0x7f241efe8420]
+[miguel-Precision-7920-Tower:670198] [ 1] /lib/x86_64-linux-gnu/libmpi.so.40(MPI_Abort+0x35)[0x7f4565208d95]
+[miguel-Precision-7920-Tower:670197] [ 2] /lib/x86_64-linux-gnu/libmpi.so.40(MPI_Abort+0x35)[0x7f2421cb1d95]
+[miguel-Precision-7920-Tower:670198] [ 2] /home/miguel/OpenFOAM/miguel-9/platforms/linux64GccDPInt32Opt/lib/libcwipiPstreamPar.so(_ZN4Foam8UPstream4exitEi+0xc7)[0x7f4563201a37]
+[miguel-Precision-7920-Tower:670197] [ 3] /home/miguel/OpenFOAM/miguel-9/platforms/linux64GccDPInt32Opt/lib/libcwipiPstreamPar.so(_ZN4Foam8UPstream4exitEi+0xc7)[0x7f241fcaaa37]
+[miguel-Precision-7920-Tower:670198] [ 3] /opt/openfoam9/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZN4Foam5error4exitEi+0x11c)[0x7f4562b69b4c]
+[miguel-Precision-7920-Tower:670197] /opt/openfoam9/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZN4Foam5error4exitEi+0x11c)[0x7f241f612b4c]
+[miguel-Precision-7920-Tower:670198] [ 4] [ 4] /opt/openfoam9/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZN4Foam7argList5parseEbbb+0x22e8)[0x7f241f626cf8]
+[miguel-Precision-7920-Tower:670198] [ 5] /opt/openfoam9/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZN4Foam7argList5parseEbbb+0x22e8)[0x7f4562b7dcf8]
+[miguel-Precision-7920-Tower:670197] [ 5] /opt/openfoam9/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZN4Foam7argListC1ERiRPPcbbb+0x7f5)[0x7f241f628365]
+[miguel-Precision-7920-Tower:670198] [ 6] /opt/openfoam9/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZN4Foam7argListC1ERiRPPcbbb+0x7f5)[0x7f4562b7f365]
+[miguel-Precision-7920-Tower:670197] [ 6] cwipiIcoFoamPar(+0x2ce90)[0x55adc6433e90]
+[miguel-Precision-7920-Tower:670198] [ 7] cwipiIcoFoamPar(+0x2ce90)[0x564fa66b3e90]
+[miguel-Precision-7920-Tower:670197] [ 7] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0xf3)[0x7f456235d083]
+[miguel-Precision-7920-Tower:670197] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0xf3)[0x7f241ee06083]
+[miguel-Precision-7920-Tower:670198] [ 8] cwipiIcoFoamPar(+0x319ce)[0x55adc64389ce]
+cwipiIcoFoamPar(+0x319ce)[0x564fa66b89ce]
+[miguel-Precision-7920-Tower:670197] *** End of error message ***
+[miguel-Precision-7920-Tower:670198] *** End of error message ***
+--------------------------------------------------------------------------
+Primary job  terminated normally, but 1 process returned
+a non-zero exit code. Per user-direction, the job has been aborted.
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+mpirun noticed that process rank 0 with PID 0 on node miguel-Precision-7920-Tower exited on signal 11 (Segmentation fault).
+--------------------------------------------------------------------------
