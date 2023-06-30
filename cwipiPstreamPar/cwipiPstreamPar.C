@@ -1,30 +1,7 @@
-/*---------------------------------------------------------------------------*\
-  =========                 |
-  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2013-2015 OpenFOAM Foundation
-     \\/     M anipulation  |
--------------------------------------------------------------------------------
-License
-    This file is part of OpenFOAM.
-
-    OpenFOAM is free software: you can redistribute it and/or modify it
-    under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-    for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
-
-    Functions for cwipi coupling for OpenFOAM. Some functions are specific
-    to some solvers and type of parameters to optimize. Use with caution 
-
-\*---------------------------------------------------------------------------*/
+/**
+ * @file cwipiPstreamPar.C
+ * @brief Defines all functions needed to employ CWIPI routines
+ */
 
 #include "argList.H"
 #include "fvMesh.H"
@@ -46,7 +23,7 @@ License
 namespace Foam
 {
 
-// Declaration of variables for tags and status of the exchanges
+/// Declaration of variables for tags and status of the exchanges
 static int sendTag = 1;
 static int sendTag_params = 3;
 static int recvTag = 2;
