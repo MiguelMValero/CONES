@@ -24,8 +24,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "volFields.H"
-#include "singlePhaseTransportModel.H"
-#include "kinematicMomentumTransportModel.H"
 #include "interpolationCellPointWallModified.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -33,13 +31,11 @@ License
 namespace Foam
 {
 
-//class fvMesh;
-
 void addControlParams(int numberCwipiPhase, double deltaT, double currentTime);
 
 void cwipiCoupling(const fvMesh& mesh, double* pointCoords, int* face_index, int* face_connectivity_index, int* cell_to_face_connectivity, int* face_connectivity, int c2fconnec_size, int fconnec_size, float cwipiVerbose, double geom_tol);
 
-void UInterpolation(Foam::volVectorField& U, Foam::fvMesh& mesh, Foam::Time& runTime, int cwipiObsU, int mainsubDomain, interpolationCellPointWallModified<vector> triangulateCellsU,
+void UInterpolation(volVectorField& U, fvMesh& mesh, Time& runTime, int cwipiObsU, int mainsubDomain, interpolationCellPointWallModified<vector> triangulateCellsU,
 float cwipiVerbose, std::string globalPath, std::string UIntPath);
 
 void cwipiSend(const fvMesh& mesh, const volVectorField& vf, const Time& runTime, int cwipiIteration, float cwipiVerbose);
