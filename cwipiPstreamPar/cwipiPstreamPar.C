@@ -212,7 +212,8 @@ void cwipiCoupling(const fvMesh& mesh, double* pointCoords, int* face_index, int
                         nFaces,
                         face_connectivity_index,
                         face_connectivity);
-    if (cwipiVerbose) Foam::Pout << "Mesh Defined on OF solver" << nl << endl;
+    
+    printf("%s: Create mesh in OF \n", __func__);
     cwipi_locate(couplingName);
 
     if (cwipiVerbose) Foam::Pout << "Cwipi locate passed" << nl << endl;
@@ -222,13 +223,14 @@ void cwipiCoupling(const fvMesh& mesh, double* pointCoords, int* face_index, int
 	delete[] face_connectivity_index_temp_IDs;
 }
 
-void UInterpolation(volVectorField& U, fvMesh& mesh, Time& runTime, int cwipiObsU, int mainsubDomain, float cwipiVerbose, std::string globalPath, std::string UIntPath)
+void UInterpolation(volVectorField& U, fvMesh& mesh, Time& runTime, int cwipiObsU, int mainsubDomain, interpolationCellPointWallModified<vector> triangulateCellsU,
+float cwipiVerbose, std::string globalPath, std::string UIntPath)
 {
     //========== Produce a file for each OF instance containing the sampled velocities 
     //(H.x term in the kalman gain calculation) ========== 
     
     //========== Path of the correct OF instance ==========
-    std::string proj_file = "obs_coordinates.txt";
+    std::string proj_file = "/home/miguel/parallelizationCavity2/obs_coordinates.txt";
     if (cwipiVerbose) Pout << "The path where I have my observation coordinates is " << proj_file << endl;
     char UIntGen[500];
     strcpy(UIntGen, UIntPath.c_str());
@@ -254,14 +256,13 @@ void UInterpolation(volVectorField& U, fvMesh& mesh, Time& runTime, int cwipiObs
 
     if (cwipiVerbose) Foam::Pout<< "Creating the sampling files..." << endl;
 
-    interpolationCellPointWallModified<vector> triangulateCellsU(U);
     point pointCoord;
     double Ux[cwipiObsU], Uy[cwipiObsU], Uz[cwipiObsU];
     int cellID[cwipiObsU];
 
     //remove(UInt);
 
-    if (file)
+    if (file.is_open())
     {
         // printing the success message
         std::cout << "File exists" << std::endl;
@@ -271,6 +272,8 @@ void UInterpolation(volVectorField& U, fvMesh& mesh, Time& runTime, int cwipiObs
         // printing the error message
         fprintf(stderr, "File does not exist\n");
     }
+
+    if (cwipiVerbose) Foam::Pout<< "Creating the sampling files 2..." << endl;
 
     if (file.is_open())
     {
@@ -297,13 +300,13 @@ void UInterpolation(volVectorField& U, fvMesh& mesh, Time& runTime, int cwipiObs
             UatSP = triangulateCellsU.interpolate(pointCoord, ownCell, -1);
 
             Ux[countProbes] = UatSP.x();
-            std::cout << "The value of Ux for observation " << countProbes << " is " << Ux[countProbes] << std::endl;
+            //std::cout << "The value of Ux for observation " << countProbes << " is " << Ux[countProbes] << std::endl;
             Uy[countProbes] = UatSP.y();
-            std::cout << "The value of Uy for observation " << countProbes << " is " << Uy[countProbes] << std::endl;
+            //std::cout << "The value of Uy for observation " << countProbes << " is " << Uy[countProbes] << std::endl;
             Uz[countProbes] = UatSP.z();
-            std::cout << "The value of Uz for observation " << countProbes << " is " << Uz[countProbes] << std::endl;
+            //std::cout << "The value of Uz for observation " << countProbes << " is " << Uz[countProbes] << std::endl;
             cellID[countProbes] = ownCell;
-            std::cout << "The value of the cellID for observation " << countProbes << " is " << cellID[countProbes] << std::endl;
+            //std::cout << "The value of the cellID for observation " << countProbes << " is " << cellID[countProbes] << std::endl;
 
             ++columns;
             if (columns == parameters){
@@ -322,6 +325,7 @@ void UInterpolation(volVectorField& U, fvMesh& mesh, Time& runTime, int cwipiObs
     std::ofstream myfile;
     myfile.open(UInt, std::ios::out | std::ios::app);
 
+    Pout << "I am about to write the sampling file" << endl;
     if (myfile.is_open()){
         for (int i = 0; i < cwipiObsU; ++i){
             myfile << Ux[i] << "\n";
@@ -735,7 +739,7 @@ void cwipiSend(const fvMesh& mesh, const volVectorField& vf, const Time& runTime
 
     //* Retrieve the velocity field *
     double* fieldsToSend = new double[3*mesh.nCells()];
-    if (cwipiVerbose) Info << "number of cells: " << mesh.nCells() << endl;
+    if (cwipiVerbose) Pout << "number of cells: " << mesh.nCells() << endl;
     forAll(mesh.cellCentres(),i)
     {
         fieldsToSend[3*i+0]=vf[i].component(0);
@@ -756,21 +760,21 @@ void cwipiSend(const fvMesh& mesh, const volVectorField& vf, const Time& runTime
     strcat(couplingName,appSuffixChar);
 
     //* Send and wait for the receive *
-    if (cwipiVerbose) Info<< "Before sending to KF" << endl;  
+    if (cwipiVerbose) Pout<< "Before sending to KF in ensemble "<< appSuffix << endl;  
     cwipi_issend(couplingName,"ex1",sendTag,3,cwipiIteration,t,"u0,v0,w0",fieldsToSend,&status);
     cwipi_wait_issend(couplingName,status);
-    if (cwipiVerbose) Info<< "After sending to KF" << endl;
+    //if (cwipiVerbose) Pout<< "After sending to KF in ensemble "<< appSuffix << endl;
 
     switch(status)
     {
         case CWIPI_EXCHANGE_OK :
-        if (cwipiVerbose) Info << "Sent Ok" << endl << "\n";
+        if (cwipiVerbose) Info << "Sent Ok in ensemble " << appSuffix << endl << "\n";
         break;
         case CWIPI_EXCHANGE_BAD_RECEIVING :
-        if (cwipiVerbose) printf("Bad receiving\n");
+        if (cwipiVerbose) Info << "Bad receiving in ensemble " << appSuffix << endl << "\n";
         break;
         default :
-        if (cwipiVerbose) printf("Error : bad exchange status\n");
+        if (cwipiVerbose) Info << "Error: bad exchange status in ensemble " << appSuffix << endl << "\n";
     }
     
     delete[] fieldsToSend;
@@ -784,17 +788,20 @@ void cwipiSendParams(const fvMesh& mesh, const volVectorField& vf, const Time& r
     // double* ParamsToSend = new double[mesh.nCells()];
     double* ParamsToSend = new double[cwipiParams];
 
-    if (cwipiVerbose) std::cout << "Before sending params to KF" << std::endl; 
+    int myGlobalRank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &myGlobalRank);
+    int appSuffix = round((myGlobalRank+1)/2); // Change 2 by the number of subdomains
+    if (cwipiVerbose == 1) Pout << "Before sending params to KF from ensemble " << appSuffix << endl; 
     label top = mesh.boundaryMesh().findPatchID("movingWall");
     double movingWallU = vf.boundaryField()[top][0].component(0);
     
-    ParamsToSend[0]=movingWallU;
+    ParamsToSend[0] = movingWallU;
 
     //* We use a basic MPI primitive because we don't want any interpolation performed by
     //the cwipi primitive, the destination rank is always 0 because KF_coupling is supposed
     // to always be 0 when we launch a calculation (first in the command line)*
-    MPI_Send(ParamsToSend,1,MPI_DOUBLE,0,sendTag_params,MPI_COMM_WORLD);
-    if (cwipiVerbose == 1) std::cout << "After sending params to KF" << std::endl;
+    MPI_Send(ParamsToSend, cwipiParams, MPI_DOUBLE, 0, sendTag_params, MPI_COMM_WORLD);
+    if (cwipiVerbose == 1) Pout << "After sending params to KF from ensemble " << appSuffix << endl;
 
     delete[] ParamsToSend;
 }

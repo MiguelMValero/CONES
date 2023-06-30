@@ -552,8 +552,10 @@ MatrixXf samp_Data(int nb_e, int nb_o, int nb_oU, int velocityCase, int cwipiPar
     if (cwipiVerbose) std::cout << "Opening sampled data function " << std::endl;
     
     MatrixXf sampMatrix = MatrixXf::Zero(nb_o, nb_e); // By default our parameter is the velocity
-    std::string IntGen = stringRootPath + "/processor";
+    std::string IntGen = stringRootPath + "/cavity_testPar";
     std::ifstream file;
+    char* IntGenChar = new char[1000];
+    strcpy(IntGenChar, IntGen.c_str());
 
     for (int i = 0; i < nb_e; ++i)
     {
@@ -561,8 +563,9 @@ MatrixXf samp_Data(int nb_e, int nb_o, int nb_oU, int velocityCase, int cwipiPar
         char member[50];
         if (cwipiParamsObs == 0){
             std::string UInt;
-            sprintf(ensemble, "/UInt%i", i);
-            sprintf(member, "%i", i);
+            sprintf(IntGenChar, "%i", i+1);
+            sprintf(ensemble, "/UInt%i", i+1);
+            sprintf(member, "%i", i+1);
             UInt += IntGen; // Append the path
             UInt += member; // Append the member index
             UInt += ensemble; // Append file name
@@ -1204,31 +1207,21 @@ int nb_e, int nb_cells, double time, int nb_p, int nb_oU, int nb_o, int cwipiPar
 
     if (cwipiVerbose) std::cout << "Starting writing outputs from the EnKF..." << std::endl;
 
-    if (((index-1) & subdomains) == 0){
-        for (int i=0; i<nb_cells; i++)
-        {   
-            sendValues[3*i + 0] = UptMatrix(i, index/subdomains-1);
-            sendValues[3*i + 1] = UptMatrix(i + nb_cells, index/subdomains-1);    
-            sendValues[3*i + 2] = UptMatrix(i + 2*nb_cells, index/subdomains-1);    
-        }
-
-        for (int i = 0; i < nb_p; i++)
-        {
-            paramsSendValues[i] = UptMatrix(nb_cells*3+i, index-1);
-        }
+    for (int i=0; i<nb_cells; i++)
+    {   
+        sendValues[3*i + 0] = UptMatrix(i, index-1);
+        sendValues[3*i + 1] = UptMatrix(i + nb_cells, index-1);    
+        sendValues[3*i + 2] = UptMatrix(i + 2*nb_cells, index-1);    
     }
-    else{
-        for (int i=0; i<nb_cells; i++)
-        {   
-            sendValues[3*i + 0] = values[i];
-            sendValues[3*i + 1] = values[i + nb_cells];    
-            sendValues[3*i + 2] = values[i + 2*nb_cells];    
-        }
+
+    for (int i = 0; i < nb_p; i++)
+    {
+        paramsSendValues[i] = UptMatrix(nb_cells*3+i, index-1);
     }
 
     //========== We do an output of all optimized coefficients to evaluate convergence ==========//
 
-    if (index == mainsubdom){
+    if (index == 1){
         std::fstream file_coeffs_out;
         std::string filename_coeffs = "results/UpdatedCoefficients";
         file_coeffs_out.open(filename_coeffs, std::ios_base::out | std::ios_base::app);

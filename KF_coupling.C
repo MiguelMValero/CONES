@@ -289,10 +289,10 @@ int main(int argc, char *argv[])
     //========== Mesh definition ============
 
     if (cwipiVerbose)
-      printf("Create mesh\n");
+      printf("%s: Create mesh \n", __func__);
 
     define_mesh(pointCoords, face_index, cell_to_face_connectivity, face_connectivity_index, face_connectivity, c2fconnec_size, fconnec_size, mesh, cl_coupling_name, cwipiVerbose);
-   }
+  }
 
   //========== Receive values ==========
 
@@ -342,51 +342,53 @@ int main(int argc, char *argv[])
 
       //**** Receive velocity field ****
       if (cwipiVerbose == 1)
-        printf("Before receive \n");
+        std::cout << "Before receive in ensemble " << j << "\n";
       cwipi_irecv(cl_coupling_name, "ex1", recvTag, 3, i + 1, time, recv_field_name, values, &status);
       cwipi_wait_irecv(cl_coupling_name, status);
       if (cwipiVerbose == 1)
-        printf("After receive \n");
+        std::cout << "After receive in ensemble " << j << "\n";
 
       switch (status)
       {
       case CWIPI_EXCHANGE_OK:
         if (cwipiVerbose)
-          printf("Receive Ok\n");
+          std::cout << "Receive OK in ensemble " << j << "\n";
         break;
       case CWIPI_EXCHANGE_BAD_RECEIVING:
         if (cwipiVerbose)
-          printf("Bad receiving\n");
+          std::cout << "Bad receiving in ensemble " << j << "\n";
         break;
       default:
         if (cwipiVerbose)
-          printf("Error : bad exchange status\n");
+          std::cout << "Error: bad exchange status in ensemble " << j << "\n";
       }
 
       //**** Receive parameters ****
       if (cwipiVerbose)
-        printf("Before receive params \n");
+        std::cout << "Before receive the parameters in ensemble " << j << "\n";
       
-      if (((j-1) & subdomains) == 0){
-        MPI_Recv(paramsValues, cwipiParams, MPI_DOUBLE, j, recvTag_params, MPI_COMM_WORLD, &status3);
+      //========= For the cavity testcase, the rank from where the parameters come is j*subdomains  + (mainsubDomain - 1) (we need
+      // to find a generic formula for this) =========//
+      int coming_rank = j*subdomains + (mainsubdom - 1);
+      MPI_Recv(paramsValues, cwipiParams, MPI_DOUBLE, coming_rank, recvTag_params, MPI_COMM_WORLD, &status3);
 
-        if (cwipiVerbose){
-          printf("After receive params \n");
-          std::cout << "==== Parameters well received ==== Parameter 1 = " << paramsValues[0] << std::endl << "\n";
-        }
+      if (cwipiVerbose){
+        std::cout << "After receive the parameters in ensemble " << j << "\n";
+        std::cout << "==== Parameters well received ==== Parameter 1 = " << paramsValues[0] << std::endl << "\n";
+        std::cout << "The number of cells in the side of EnKF is " << nb_cells << std::endl;
+      }
 
-        for (int k = 0; k < nb_cells; k++)
-        {
-          stateVector(k, j/subdomains-1) = values[3*k + 0];
-          stateVector(k + nb_cells, j/subdomains-1) = values[3*k + 1];
-          stateVector(k + 2*nb_cells, j/subdomains-1) = values[3*k + 2];
-        }
+      for (int k = 0; k < nb_cells; k++)
+      {
+        stateVector(k, j-1) = values[3*k + 0];
+        stateVector(k + nb_cells, j-1) = values[3*k + 1];
+        stateVector(k + 2*nb_cells, j-1) = values[3*k + 2];
+      }
 
-        //* The parameters are added at the end of the state vector *
-        for (int k = 0; k < cwipiParams; k++)
-        {
-          stateVector(3*nb_cells + k, j/subdomains-1) = paramsValues[k];
-        }
+      //* The parameters are added at the end of the state vector *
+      for (int k = 0; k < cwipiParams; k++)
+      {
+        stateVector(3*nb_cells + k, j-1) = paramsValues[k];
       }
     }
 
@@ -402,7 +404,7 @@ int main(int argc, char *argv[])
     }
     //======== Kalman filter code =======
 
-    //========= The observation Matrix will be different depending on the high-fidelity data parameters
+    //========= The observation Matrix will be different depending on the high-fidelity observations
     ArrayXf obsMatrix(cwipiObs); // By default our parameter is the velocity
 
     if (cwipiTimedObs)
@@ -431,7 +433,7 @@ int main(int argc, char *argv[])
 
     //================== Send back ======================
 
-    for (int j = 1; j < (cwipiMembers * subdomains) + 1; j++)
+    for (int j = 1; j < cwipiMembers + 1; j++)
     {
       KF_output(sendValues, paramsSendValues, values, UptMatrix, sampMatrix, obsMatrix, cwipiMembers, nb_cells, time, cwipiParams, cwipiObsU, cwipiObs, cwipiParamsObs, velocityCase,
                 j, subdomains, mainsubdom, epsilon, cwipiVerbose);
@@ -440,30 +442,30 @@ int main(int argc, char *argv[])
       strcat(cl_coupling_name, indexChar);
 
       if (cwipiVerbose)
-        printf("Before re-send \n");
+        std::cout << "Before re-receive the parameters in ensemble " << j << "\n";
+
       cwipi_issend(cl_coupling_name, "ex2", sendTag, 3, i + 1, time, recv_field_name, sendValues, &status2);
       cwipi_wait_issend(cl_coupling_name, status2);
 
       switch (status2)
       {
-      case CWIPI_EXCHANGE_OK:
-        if (cwipiVerbose)
-          printf("Re-sent Ok\n");
-        break;
-      case CWIPI_EXCHANGE_BAD_RECEIVING:
-        if (cwipiVerbose)
-          printf("Bad receiving\n");
-        break;
-      default:
-        if (cwipiVerbose)
-          printf("Error : bad exchange status\n");
+        case CWIPI_EXCHANGE_OK:
+          if (cwipiVerbose)
+            std::cout << "Re-sent Ok in ensemble " << j << "\n";
+          break;
+        case CWIPI_EXCHANGE_BAD_RECEIVING:
+          if (cwipiVerbose)
+            std::cout << "Bad re-sent in ensemble " << j << "\n";
+          break;
+        default:
+          if (cwipiVerbose)
+            std::cout << "Error: bad re-sent status in ensemble " << j << "\n";
       }
-      if (cwipiVerbose)
-        printf("After re-send \n");
+      // if (cwipiVerbose)
+      //   printf("After re-send \n");
 
-      if (((j-1) & subdomains) == 0){
-        MPI_Send(paramsSendValues, cwipiParams, MPI_DOUBLE, j, sendTag_params, MPI_COMM_WORLD);
-      }
+      int going_rank = j*subdomains + (mainsubdom - 1);
+      MPI_Send(paramsSendValues, cwipiParams, MPI_DOUBLE, going_rank, sendTag_params, MPI_COMM_WORLD);
     }
   }
 

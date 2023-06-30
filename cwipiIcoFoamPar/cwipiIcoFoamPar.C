@@ -138,17 +138,18 @@ int main(int argc, char *argv[])
         //========= Sending Velocity Field and Parameters and creating sampled velocities ==========
         if (cwipiSwitch && cwipiTimestep == cwipiStep)
         {
-            if (cwipiVerbose) Foam::Pout<< "The remainder between the rank and the number of partitions by simulation " << myGlobalRank << " is " << myGlobalRank % nbParts << endl;
+            if (cwipiVerbose) Foam::Pout<< "The remainder between the rank and the number of partitions by simulation " << myGlobalRank << " is " << myGlobalRank % nbParts << nl << endl;
+            interpolationCellPointWallModified<vector> triangulateCellsU(U);
             if ((myGlobalRank % nbParts) < 1e-4){
                 if (cwipiVerbose) Foam::Pout<< "Here I am with global rank equal to " << myGlobalRank << endl;
-                if (cwipiParamsObs == 0) UInterpolation(U, mesh, runTime, cwipiObsU, mainsubDomain, cwipiVerbose, globalRootPath, globalCasePath);
+                if (cwipiParamsObs == 0) UInterpolation(U, mesh, runTime, cwipiObsU, mainsubDomain, triangulateCellsU, cwipiVerbose, globalRootPath, globalCasePath);
                 else if (cwipiParamsObs == 1) pInterpolation(p, mesh, cwipiObsp, cwipiVerbose, globalRootPath);
                 else if (cwipiParamsObs == 2) UpInterpolation(U, p, mesh, cwipiObsU, cwipiObsp, cwipiVerbose, globalRootPath);
             }
 
             cwipiSend(mesh, U, runTime, cwipiIteration, cwipiVerbose);
 
-            if ((myGlobalRank & nbParts) == 0){
+            if ((myGlobalRank % nbParts) < 1e-4){
                 cwipiSendParams(mesh, U, runTime, cwipiIteration, cwipiParams, nbParts, cwipiVerbose);
             }
 
@@ -164,7 +165,7 @@ int main(int argc, char *argv[])
         {
             cwipiRecv(mesh, U, runTime, cwipiIteration, cwipiVerbose);
             
-            if (((myGlobalRank-1) & nbParts) == 0){
+            if ((myGlobalRank % nbParts) < 1e-4){
                 cwipiRecvParams(mesh, U, cwipiParams, nbParts, cwipiVerbose);
             }
 
