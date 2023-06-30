@@ -2,7 +2,6 @@ UOPwrite.C
 UIPread.C
 UPstream.C
 PstreamGlobals.C
-IBM_planeChannel.C
 cwipiPstreamPar.C
 
 LIB = $(FOAM_USER_LIBBIN)/libcwipiPstreamPar

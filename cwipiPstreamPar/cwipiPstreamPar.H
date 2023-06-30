@@ -42,48 +42,13 @@ void cwipiCoupling(const fvMesh& mesh, double* pointCoords, int* face_index, int
 void UInterpolation(Foam::volVectorField& U, Foam::fvMesh& mesh, Foam::Time& runTime, int cwipiObsU, int mainsubDomain, interpolationCellPointWallModified<vector> triangulateCellsU,
 float cwipiVerbose, std::string globalPath, std::string UIntPath);
 
-void pInterpolation(Foam::volScalarField& p, Foam::fvMesh& mesh, int cwipiObsp, float cwipiVerbose, std::string pIntPath);
-
-void UpInterpolation(Foam::volVectorField& U, Foam::volScalarField& p, Foam::fvMesh& mesh, int cwipiObsU, int cwipiObsp, float cwipiVerbose, std::string UpIntPath);
-
-void UCfInterpolation(Foam::volVectorField& U, double deltaChannel, volScalarField& nu, Foam::fvMesh& mesh, int cwipiObsU, float cwipiVerbose, std::string UpIntPath);
-
 void cwipiSend(const fvMesh& mesh, const volVectorField& vf, const Time& runTime, int cwipiIteration, float cwipiVerbose);
 
 void cwipiSendParams(const fvMesh& mesh, const volVectorField& vf, const Time& runTime, int cwipiIteration, int cwipiParams, int nbParts, float cwipiVerbose);
 
-void cwipiSendParamsChannel(const fvMesh& mesh, const volScalarField& Ck, const Time& runTime, int cwipiIteration, int cwipiParams, int nbParts, int partsReparty, float cwipiVerbose);
-
-void cwipiSendParamsChannelFourrier(int cwipiParams, float cwipiVerbose, std::string stringRootPath);
-
-void cwipiSendParamsChannelGaussian(int cwipiParams, float cwipiVerbose, std::string stringRootPath);
-
-void cwipiSendParamsKEps(const fvMesh& mesh, incompressible::momentumTransportModel& turbulence, const Time& runTime, int cwipiIteration, int cwipiParams, int nbParts, int partsReparty, float cwipiVerbose);
-
-void cwipiSendParamsKOmegaSST(const fvMesh& mesh, incompressible::momentumTransportModel& turbulence, const Time& runTime, int cwipiIteration, int cwipiParams, int nbParts, int partsReparty, float cwipiVerbose);
-
 void cwipiRecv(const fvMesh& mesh, volVectorField& U, const Time& runTime, int cwipiIteration, float cwipiVerbose);
 
 void cwipiRecvParams(const fvMesh& mesh, volVectorField& U, int cwipiParams, int nbParts, float cwipiVerbose);
-
-void cwipiRecvParamsChannel(const fvMesh& mesh, volScalarField& Ck, int cwipiParams, int nbParts, int partsReparty, float cwipiVerbose);
-
-std::fstream& GotoLine(std::fstream& file, unsigned int num);
-
-void cwipiRecvParamsChannelFourrier(const fvMesh& mesh, volScalarField& Ck, int cwipiParams, int cwipiVerbose, std::string stringRootPath, int m, int n, int o);
-
-void cwipiRecvParamsChannelGaussian(const fvMesh& mesh, volScalarField& Ck, int cwipiParams, int cwipiVerbose, std::string stringRootPath);
-
-void cwipiSendParamsChannel_IBM(const fvMesh& mesh, int cwipiParams, int nbParts, int partsReparty, float cwipiVerbose, std::string globalRootPath);
-
-void cwipiRecvParamsChannel_IBM(const fvMesh& mesh, volVectorField& U, volScalarField& viscosity, volVectorField& F, volVectorField& D, int cwipiParams, int Fourier_m, int Fourier_n, int Fourier_o, 
-double lambdaX, double lambdaY, double lambdaZ, double deltaChannel, int DarcyForchheimer, int nbParts, int partsReparty, float cwipiVerbose, std::string globalRootPath);
-
-void cwipiRecvParamsChannelNOFourier(const fvMesh& mesh, volVectorField& U, volScalarField& viscosity, volScalarField& nu, volVectorField& F, volVectorField& D, int cwipiParams, double deltaChannel, int DarcyForchheimer, int nbParts, int partsReparty, float cwipiVerbose, std::string globalRootPath);
-
-void cwipiRecvParamsKEps(const fvMesh& mesh, incompressible::momentumTransportModel& turbulence, int cwipiParams, int nbParts, int partsReparty, float cwipiVerbose, std::string globalRootPath);
-
-void cwipiRecvParamsKOmegaSST(const fvMesh& mesh, incompressible::momentumTransportModel& turbulence, int cwipiParams, int nbParts, int partsReparty, float cwipiVerbose, std::string globalRootPath);
 
 void cwipideleteCoupling(double* pointCoords, int* face_index, int* face_connectivity_index, int* cell_to_face_connectivity, int* face_connectivity, float cwipiVerbose);
 }
