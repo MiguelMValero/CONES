@@ -435,9 +435,13 @@ void cwipiRecv(const fvMesh& mesh, volVectorField& U, const Time& runTime, int c
     char rankChar[50];
     sprintf(rankChar, "%i", myGlobalRank);
     char couplingName[250] = {"cwipiFoamCoupling"};
-    strcat(couplingName,rankChar);
+    int appSuffix = round((myGlobalRank+1)/2); // Change 2 by the number of subdomains
 
-    cwipi_irecv(couplingName,"ex2",recvTag,3,cwipiIteration,t, cl_receiving_field_name,fieldsToRecv,&status2);
+    char appSuffixChar[50];
+    sprintf(appSuffixChar, "%i", appSuffix);
+    strcat(couplingName, rankChar);
+
+    cwipi_irecv(couplingName,"ex2", recvTag, 3, cwipiIteration, t, cl_receiving_field_name, fieldsToRecv, &status2);
 
     cwipi_wait_irecv(couplingName, status2);
 

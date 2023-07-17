@@ -143,8 +143,8 @@ int main(int argc, char *argv[])
             if ((myGlobalRank % nbParts) < 1e-4){
                 if (cwipiVerbose) Foam::Pout<< "Here I am with global rank equal to " << myGlobalRank << endl;
                 if (cwipiParamsObs == 0) UInterpolation(U, mesh, runTime, cwipiObsU, mainsubDomain, triangulateCellsU, cwipiVerbose, globalRootPath, globalCasePath);
-                else if (cwipiParamsObs == 1) pInterpolation(p, mesh, cwipiObsp, cwipiVerbose, globalRootPath);
-                else if (cwipiParamsObs == 2) UpInterpolation(U, p, mesh, cwipiObsU, cwipiObsp, cwipiVerbose, globalRootPath);
+                //else if (cwipiParamsObs == 1) pInterpolation(p, mesh, cwipiObsp, cwipiVerbose, globalRootPath);
+                //else if (cwipiParamsObs == 2) UpInterpolation(U, p, mesh, cwipiObsU, cwipiObsp, cwipiVerbose, globalRootPath);
             }
 
             cwipiSend(mesh, U, runTime, cwipiIteration, cwipiVerbose);
