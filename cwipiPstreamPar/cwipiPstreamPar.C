@@ -1,6 +1,6 @@
 /**
- * @file cwipiPstreamPar.C
- * @brief Defines all functions needed to employ CWIPI routines
+ * \file cwipiPstreamPar.C
+ * \brief Defines all functions needed to employ CWIPI routines
  */
 
 #include "argList.H"
@@ -23,22 +23,31 @@
 namespace Foam
 {
 
-/// Declaration of variables for tags and status of the exchanges
-static int sendTag = 1;
-static int sendTag_params = 3;
-static int recvTag = 2;
-static int recvTag_params = 4;
-static int status;
+/**
+ * Declaration of variables for tags and status of the exchanges
+ */ 
+
+static int sendTag = 1; /*!< Tag for send field from OpenFOAM to EnKF */
+static int sendTag_params = 3; /*!< Tag for send parameters from OpenFOAM to EnKF */
+static int recvTag = 2; /*!< Tag for receive field from EnKF to OpenFOAM */
+static int recvTag_params = 4; /*!< Tag for receive parameters from EnKF to OpenFOAM */
+static int status; /*!< Status for send field from OpenFOAM to EnKF */
 static int status2;
 MPI_Status status4;
 
+/*! \fn void addControlParams(int numberCwipiPhase, double deltaT, double currentTime)
+    \brief Add control parameters that must be sent to KF_coupling code
+    \param numberCwipiPhase Number of DA phases
+    \param deltaT Time step of CFD loop
+    \param currentTime Start time of CFD simulation
+*/
+
 void addControlParams(int numberCwipiPhase, double deltaT, double currentTime)
 {
-    // Add control paramaters that must be sent to KF_coupling code
 
-    cwipi_add_local_int_control_parameter("numberCwipiPhase", numberCwipiPhase); // Number of DA phases
-    cwipi_add_local_double_control_parameter("deltaT", deltaT); // DeltaT of CFD loop
-    cwipi_add_local_double_control_parameter("currentTime", currentTime); // Start time of CFD simulation
+    cwipi_add_local_int_control_parameter("numberCwipiPhase", numberCwipiPhase);
+    cwipi_add_local_double_control_parameter("deltaT", deltaT);
+    cwipi_add_local_double_control_parameter("currentTime", currentTime);
 }
 
 void cwipiCoupling(const fvMesh& mesh, double* pointCoords, int* face_index, int* face_connectivity_index, int* cell_to_face_connectivity, int* face_connectivity, int c2fconnec_size, int fconnec_size, float cwipiVerbose, double geom_tol)

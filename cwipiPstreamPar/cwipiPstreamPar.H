@@ -1,6 +1,6 @@
 /**
- * @file cwipiPstreamPar.H
- * @brief Declares all functions needed to employ CWIPI routines
+ * \file cwipiPstreamPar.H
+ * \brief Declares all functions needed to employ CWIPI routines
  */
 
 #include "volFields.H"
@@ -10,14 +10,6 @@
 
 namespace Foam
 {
-
-/**
- * Set the scalars to be sent to the EnKF from OpenFOAM \n
- * 
- * 1) numberCwipiPhase: number of DA phases to be performed \n
- * 2) deltaT: time step of simulations \n
- * 3) currentTime: initial time of the simulations \n
- */
 
 void addControlParams(int numberCwipiPhase, double deltaT, double currentTime);
 
