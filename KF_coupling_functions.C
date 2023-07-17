@@ -1216,9 +1216,9 @@ int nb_e, int nb_cells, double time, int nb_p, int nb_oU, int nb_o, int cwipiPar
 
     for (int i = 0; i < nb_p; i++)
     {
-        paramsSendValues[i] = UptMatrix(nb_cells*3+i, index-1);
+        paramsSendValues[i] = UptMatrix(i + 3*nb_cells, index-1);
     }
-
+    
     //========== We do an output of all optimized coefficients to evaluate convergence ==========//
 
     if (index == 1){

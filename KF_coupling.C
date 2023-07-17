@@ -438,13 +438,23 @@ int main(int argc, char *argv[])
       KF_output(sendValues, paramsSendValues, values, UptMatrix, sampMatrix, obsMatrix, cwipiMembers, nb_cells, time, cwipiParams, cwipiObsU, cwipiObs, cwipiParamsObs, velocityCase,
                 j, subdomains, mainsubdom, epsilon, cwipiVerbose);
       sprintf(cl_coupling_name, "cwipiFoamCoupling");
+
+      char couplingName[250] = {"cwipiFoamCoupling"};
+      int appSuffix = round((j+1)/2); // Change 2 by the number of subdomains
+
+      char appSuffixChar[50];
+      sprintf(appSuffixChar, "%i", appSuffix);
+      strcat(couplingName, appSuffixChar);
+
       sprintf(indexChar, "%i", j);
       strcat(cl_coupling_name, indexChar);
 
-      if (cwipiVerbose)
+      if (cwipiVerbose){
         std::cout << "Before re-receive the parameters in ensemble " << j << "\n";
+        std::cout << "The name of the coupling is " << cl_coupling_name << "\n";
+      }
 
-      cwipi_issend(cl_coupling_name, "ex2", sendTag, 3, i + 1, time, recv_field_name, sendValues, &status2);
+      cwipi_issend(cl_coupling_name, "ex2", sendTag, 3, i+1, time, recv_field_name, sendValues, &status2);
       cwipi_wait_issend(cl_coupling_name, status2);
 
       switch (status2)
@@ -474,7 +484,7 @@ int main(int argc, char *argv[])
   if (rank == 0)
     printf("Delete Cwipi coupling from c++ file\n");
 
-  for (int j = 1; j < (cwipiMembers*subdomains) + 1; j++)
+  for (int j = 1; j < cwipiMembers + 1; j++)
   {
     sprintf(cl_coupling_name, "cwipiFoamCoupling");
     sprintf(indexChar, "%i", j);
