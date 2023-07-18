@@ -70,8 +70,8 @@ do
 done
 
 # Run the application from the specification in the appConfig file
-#mpirun --app appConfig
-mpirun -np 1 ./KF_coupling.exe : -np 2 cwipiIcoFoamPar -case cavity_testPar1 -parallel : -np 2 cwipiIcoFoamPar -case cavity_testPar2 -parallel : -np 2 cwipiIcoFoamPar -case cavity_testPar3 -parallel : -np 2 cwipiIcoFoamPar -case cavity_testPar4 -parallel
+mpirun --app appConfig
+#mpirun -np 1 ./KF_coupling.exe : -np 2 cwipiIcoFoamPar -case cavity_testPar1 -parallel : -np 2 cwipiIcoFoamPar -case cavity_testPar2 -parallel : -np 2 cwipiIcoFoamPar -case cavity_testPar3 -parallel : -np 2 cwipiIcoFoamPar -case cavity_testPar4 -parallel
 
 #mpirun -np 1 ./KF_coupling.exe : -np $processors valgrind cwipiIcoFoamPar -parallel | tee log
 #mpirun -np $processors cwipiIcoFoam -parallel : -np 1 ./KF_coupling.exe : | tee log
