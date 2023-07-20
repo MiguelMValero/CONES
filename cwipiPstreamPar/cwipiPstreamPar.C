@@ -156,7 +156,7 @@ int c2fconnec_size, int fconnec_size, int nbParts, float cwipiVerbose, double ge
     int myGlobalRank;
     MPI_Comm_rank(MPI_COMM_WORLD, &myGlobalRank);
     char couplingName[250] = {"cwipiFoamCoupling"};
-    int appSuffix = floor((myGlobalRank + 1)/nbParts);
+    int appSuffix = floor((myGlobalRank + nbParts - 1)/nbParts);
 
     char appSuffixChar[50];
     sprintf(appSuffixChar, "%i", appSuffix);
@@ -168,6 +168,7 @@ int c2fconnec_size, int fconnec_size, int nbParts, float cwipiVerbose, double ge
     CWIPI_COUPLING_SEQUENTIAL
     CWIPI_COUPLING_PARALLEL_WITHOUT_PARTITIONING
     CWIPI_COUPLING_PARALLEL_WITH_PARTITIONING
+
     */
 
    if (cwipiVerbose) Foam::Pout<< "The name of my coupling is " << couplingName <<endl;   
@@ -217,7 +218,7 @@ interpolationCellPointWallModified<vector> triangulateCellsU, float cwipiVerbose
     //(H.x term in the kalman gain calculation) ========== 
     
     //========== Path of the correct OF instance ==========
-    std::string proj_file = "/home/miguel/parallelizationCavity2/obs_coordinates.txt";
+    std::string proj_file = globalPath + "/obs_coordinates.txt";
     if (cwipiVerbose) Pout << "The path where I have my observation coordinates is " << proj_file << endl;
     char UIntGen[500];
     strcpy(UIntGen, UIntPath.c_str());
@@ -226,7 +227,7 @@ interpolationCellPointWallModified<vector> triangulateCellsU, float cwipiVerbose
     MPI_Comm_rank(MPI_COMM_WORLD, &myGlobalRank);
     strcat(UIntGen, "/UInt");
 
-    int appSuffix = floor((myGlobalRank + 1)/nbParts); // Change 2 by the number of subdomains
+    int appSuffix = floor((myGlobalRank + nbParts - 1)/nbParts);
 
     char appSuffixChar[50];
     sprintf(appSuffixChar, "%i", appSuffix);
@@ -239,7 +240,7 @@ interpolationCellPointWallModified<vector> triangulateCellsU, float cwipiVerbose
     file.open(proj_file);
     string data = "";
     int columns = 0;
-    int parameters = 3; // 3 coordinates of the probes (only velocity field)
+    int parameters = 3;
 
     if (cwipiVerbose) Foam::Pout<< "Creating the sampling files..." << endl;
 
@@ -259,8 +260,6 @@ interpolationCellPointWallModified<vector> triangulateCellsU, float cwipiVerbose
         // printing the error message
         fprintf(stderr, "File does not exist\n");
     }
-
-    if (cwipiVerbose) Foam::Pout<< "Creating the sampling files 2..." << endl;
 
     if (file.is_open())
     {
@@ -312,7 +311,7 @@ interpolationCellPointWallModified<vector> triangulateCellsU, float cwipiVerbose
     std::ofstream myfile;
     myfile.open(UInt, std::ios::out | std::ios::app);
 
-    Pout << "I am about to write the sampling file" << endl;
+    if (cwipiVerbose) Foam::Pout << "I am about to write the sampling file" << endl;
     if (myfile.is_open()){
         for (int i = 0; i < cwipiObsU; ++i){
             myfile << Ux[i] << "\n";
@@ -330,12 +329,11 @@ interpolationCellPointWallModified<vector> triangulateCellsU, float cwipiVerbose
     myfile.close();
 
     //========== Retrieve the cellIDs of my probes ==========//
-    // Change "0" by initTime
-    if (myGlobalRank == mainsubDomain && (runTime.value() - 0) < 1e-9){
+    if (myGlobalRank == 1 && (runTime.value() - runTime.deltaTValue()) == 0){
         std::ofstream myfile_2;
         std::string cellSensors = globalPath + "/results/cellIDs";
 
-        //remove(cellSensors.c_str());
+        remove(cellSensors.c_str());
         myfile_2.open(cellSensors, std::ios::out | std::ios::app);
         for (int i = 0; i < cwipiObsU; ++i){
             myfile_2 << cellID[i] << "\n";
@@ -344,7 +342,7 @@ interpolationCellPointWallModified<vector> triangulateCellsU, float cwipiVerbose
     }
 }
 
-void cwipiSend(const fvMesh& mesh, const volVectorField& vf, const Time& runTime, int cwipiIteration, float cwipiVerbose)
+void cwipiSend(const fvMesh& mesh, const volVectorField& vf, const Time& runTime, int cwipiIteration, int nbParts, float cwipiVerbose)
 {
     //=== Basic sent with the velocity field, can be automatically interpolated by cwipi if the coupling meshes are different
     //between the OF instance and the KF_coupling code === 
@@ -365,16 +363,16 @@ void cwipiSend(const fvMesh& mesh, const volVectorField& vf, const Time& runTime
     int myGlobalRank;
     MPI_Comm_rank(MPI_COMM_WORLD, &myGlobalRank);
     char couplingName[250] = {"cwipiFoamCoupling"};
-    int appSuffix = round((myGlobalRank+1)/2); // Change 2 by the number of subdomains
+    int appSuffix = floor((myGlobalRank + nbParts - 1)/nbParts); 
 
     char appSuffixChar[50];
     sprintf(appSuffixChar, "%i", appSuffix);
-    strcat(couplingName,appSuffixChar);
+    strcat(couplingName, appSuffixChar);
 
     //* Send and wait for the receive *
     if (cwipiVerbose) Pout<< "Before sending to KF in ensemble "<< appSuffix << endl;  
-    cwipi_issend(couplingName,"ex1",sendTag,3,cwipiIteration,t,"u0,v0,w0",fieldsToSend,&status);
-    cwipi_wait_issend(couplingName,status);
+    cwipi_issend(couplingName, "ex1", sendTag, 3, cwipiIteration, t, "u0,v0,w0", fieldsToSend, &status);
+    cwipi_wait_issend(couplingName, status);
     //if (cwipiVerbose) Pout<< "After sending to KF in ensemble "<< appSuffix << endl;
 
     switch(status)
@@ -396,13 +394,12 @@ void cwipiSendParams(const fvMesh& mesh, const volVectorField& vf, const Time& r
 {
     //=== Send the parameter to optimize if it is a velocity boundary condition ===
     
-    if (cwipiVerbose) Info << "Here we are 11" << endl;
     // double* ParamsToSend = new double[mesh.nCells()];
     double* ParamsToSend = new double[cwipiParams];
 
     int myGlobalRank;
     MPI_Comm_rank(MPI_COMM_WORLD, &myGlobalRank);
-    int appSuffix = round((myGlobalRank+1)/2); // Change 2 by the number of subdomains
+    int appSuffix = floor((myGlobalRank + 1)/nbParts); // Change 2 by the number of subdomains
     if (cwipiVerbose == 1) Pout << "Before sending params to KF from ensemble " << appSuffix << endl; 
     label top = mesh.boundaryMesh().findPatchID("movingWall");
     double movingWallU = vf.boundaryField()[top][0].component(0);
@@ -418,7 +415,7 @@ void cwipiSendParams(const fvMesh& mesh, const volVectorField& vf, const Time& r
     delete[] ParamsToSend;
 }
 
-void cwipiRecv(const fvMesh& mesh, volVectorField& U, const Time& runTime, int cwipiIteration, float cwipiVerbose)
+void cwipiRecv(const fvMesh& mesh, volVectorField& U, const Time& runTime, int cwipiIteration, int nbParts, float cwipiVerbose)
 {
     //=== Just as the send equivalent, that's the basic receive of the velocity field, can be automatically 
     // interpolated by cwipi if the coupling meshes are different between the OF instance and the KF_coupling code === 
@@ -436,7 +433,7 @@ void cwipiRecv(const fvMesh& mesh, volVectorField& U, const Time& runTime, int c
     char rankChar[50];
     sprintf(rankChar, "%i", myGlobalRank);
     char couplingName[250] = {"cwipiFoamCoupling"};
-    int appSuffix = round((myGlobalRank+1)/2); // Change 2 by the number of subdomains
+    int appSuffix = floor((myGlobalRank + nbParts - 1)/ nbParts);
 
     char appSuffixChar[50];
     sprintf(appSuffixChar, "%i", appSuffix);
@@ -501,7 +498,7 @@ void cwipiRecvParams(const fvMesh& mesh, volVectorField& U, int cwipiParams, int
     delete[] paramsToRecv;
 }
 
-void cwipideleteCoupling(double* pointCoords, int* face_index, int* face_connectivity_index, int* cell_to_face_connectivity, int* face_connectivity, float cwipiVerbose)
+void cwipideleteCoupling(double* pointCoords, int* face_index, int* face_connectivity_index, int* cell_to_face_connectivity, int* face_connectivity, int nbParts, float cwipiVerbose)
 {
     //=== Delete the coupling for each OF instance and delete the mesh arrays ===
     
@@ -509,10 +506,8 @@ void cwipideleteCoupling(double* pointCoords, int* face_index, int* face_connect
 
     int myGlobalRank;
     MPI_Comm_rank(MPI_COMM_WORLD, &myGlobalRank);
-    char rankChar[50];
-    sprintf(rankChar, "%i", myGlobalRank);
     char couplingName[250] = {"cwipiFoamCoupling"};
-    int appSuffix = round((myGlobalRank+1)/2); // Change 2 by the number of subdomains
+    int appSuffix = floor((myGlobalRank + nbParts - 1)/nbParts);
 
     char appSuffixChar[50];
     sprintf(appSuffixChar, "%i", appSuffix);

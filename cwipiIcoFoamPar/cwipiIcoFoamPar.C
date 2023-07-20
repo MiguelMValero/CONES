@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
                 //else if (cwipiParamsObs == 2) UpInterpolation(U, p, mesh, cwipiObsU, cwipiObsp, cwipiVerbose, globalRootPath);
             }
 
-            cwipiSend(mesh, U, runTime, cwipiIteration, cwipiVerbose);
+            cwipiSend(mesh, U, runTime, cwipiIteration, nbParts, cwipiVerbose);
 
             if ((myGlobalRank % nbParts) < 1e-4){
                 cwipiSendParams(mesh, U, runTime, cwipiIteration, cwipiParams, nbParts, cwipiVerbose);
@@ -164,7 +164,7 @@ int main(int argc, char *argv[])
         //========= Receiving back updated Velocity Field and parameters ==========
         if (cwipiSwitch && cwipiPhaseCheck == 1)
         {
-            cwipiRecv(mesh, U, runTime, cwipiIteration, cwipiVerbose);
+            cwipiRecv(mesh, U, runTime, cwipiIteration, nbParts, cwipiVerbose);
             
             if ((myGlobalRank % nbParts) < 1e-4){
                 cwipiRecvParams(mesh, U, cwipiParams, nbParts, cwipiVerbose);
@@ -205,8 +205,9 @@ int main(int argc, char *argv[])
     //========== Delete Cwipi Coupling and allocated arrays ===========
     if (cwipiSwitch)
     {
-        cwipideleteCoupling(pointCoords, face_index, face_connectivity_index, cell_to_face_connectivity, face_connectivity, cwipiVerbose);
+        cwipideleteCoupling(pointCoords, face_index, face_connectivity_index, cell_to_face_connectivity, face_connectivity, nbParts, cwipiVerbose);
     }
+
     Info<< "End\n" << endl;
 
     return 0;

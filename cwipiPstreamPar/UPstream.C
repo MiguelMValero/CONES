@@ -122,8 +122,7 @@ bool Foam::UPstream::init(int& argc, char**& argv, const bool needsThread)
     MPI_Comm_rank(MPI_COMM_WORLD, &myGlobalRank);
 
     char foamAppName[250] = {"cwipiFoam"};
-    int appSuffix = floor((myGlobalRank + 1)/nbParts); // Change 2 by the number of subdomains
-
+    int appSuffix = floor((myGlobalRank + nbParts - 1)/nbParts);
     char appSuffixChar[50];
     sprintf(appSuffixChar, "%i", appSuffix);
 

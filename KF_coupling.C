@@ -205,8 +205,8 @@ int main(int argc, char *argv[])
   }
 
   std::string stringRootPath = path;
-  // char RunCase[250]= {"/processor0"};
-  char RunCase[250] = "/cavity_testPar1";
+ char RunCase[250]= "/";
+  // char RunCase[250] = "/cavity_testPar1";
 
 
   // Foam::Time runTime(Foam::Time::controlDictName, path, RunCase);
@@ -369,7 +369,7 @@ int main(int argc, char *argv[])
       
       //========= For the cavity testcase, the rank from where the parameters come is j*subdomains  + (mainsubDomain - 1) (we need
       // to find a generic formula for this) =========//
-      int coming_rank = j*subdomains + (mainsubdom - 1);
+      int coming_rank = j*subdomains;
       MPI_Recv(paramsValues, cwipiParams, MPI_DOUBLE, coming_rank, recvTag_params, MPI_COMM_WORLD, &status3);
 
       if (cwipiVerbose){
@@ -439,12 +439,12 @@ int main(int argc, char *argv[])
                 j, subdomains, mainsubdom, epsilon, cwipiVerbose);
       sprintf(cl_coupling_name, "cwipiFoamCoupling");
 
-      char couplingName[250] = {"cwipiFoamCoupling"};
-      int appSuffix = round((j+1)/2); // Change 2 by the number of subdomains
+      // char couplingName[250] = {"cwipiFoamCoupling"};
+      // int appSuffix = floor((j + 1)/subdomains); // Change 2 by the number of subdomains
 
-      char appSuffixChar[50];
-      sprintf(appSuffixChar, "%i", appSuffix);
-      strcat(couplingName, appSuffixChar);
+      // char appSuffixChar[50];
+      // sprintf(appSuffixChar, "%i", appSuffix);
+      // strcat(couplingName, appSuffixChar);
 
       sprintf(indexChar, "%i", j);
       strcat(cl_coupling_name, indexChar);
@@ -474,7 +474,7 @@ int main(int argc, char *argv[])
       // if (cwipiVerbose)
       //   printf("After re-send \n");
 
-      int going_rank = j*subdomains + (mainsubdom - 1);
+      int going_rank = j*subdomains;
       MPI_Send(paramsSendValues, cwipiParams, MPI_DOUBLE, going_rank, sendTag_params, MPI_COMM_WORLD);
     }
   }
