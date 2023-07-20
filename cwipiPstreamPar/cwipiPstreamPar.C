@@ -224,14 +224,25 @@ interpolationCellPointWallModified<vector> triangulateCellsU, float cwipiVerbose
     strcpy(UIntGen, UIntPath.c_str());
 
     int myGlobalRank;
+    char procChar[50];
     MPI_Comm_rank(MPI_COMM_WORLD, &myGlobalRank);
+    int proc = (myGlobalRank - 1) % nbParts;
+    sprintf(procChar, "%i", proc);
+    strcat(UIntGen, "/processor");
+    strcat(UIntGen, procChar);
     strcat(UIntGen, "/UInt");
 
-    int appSuffix = floor((myGlobalRank + nbParts - 1)/nbParts);
+    std::string procString = std::to_string(proc);
+    int ens = floor((myGlobalRank + nbParts - 1) / nbParts);
+    std::string ensString = std::to_string(ens);
+    std::string sampString = ensString + procString;
+    char sampChar[500];
+    strcpy(sampChar, sampString.c_str());
+    // int appSuffix = floor((myGlobalRank + nbParts - 1)/nbParts);
 
-    char appSuffixChar[50];
-    sprintf(appSuffixChar, "%i", appSuffix);
-    char* UInt = strcat(UIntGen, appSuffixChar);
+    // char appSuffixChar[50];
+    // sprintf(appSuffixChar, "%i", appSuffix);
+    char* UInt = strcat(UIntGen, sampChar);
 
     if (cwipiVerbose) Foam::Pout<< "The file where UInt is created is " << UInt << endl;
 
@@ -280,7 +291,8 @@ interpolationCellPointWallModified<vector> triangulateCellsU, float cwipiVerbose
 
             label ownCell = mesh.findCell(pointCoord);
             if (ownCell == -1){
-                std::cerr<< "Some sensors are not located at the main subdomain" << endl;
+                std::cerr<< "Some sensors are not located at the main subdomain" << "\n";
+                continue;
             }
             vector UatSP(vector::zero);
             UatSP = triangulateCellsU.interpolate(pointCoord, ownCell, -1);

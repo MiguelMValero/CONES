@@ -141,18 +141,14 @@ int main(int argc, char *argv[])
         {
             if (cwipiVerbose) Foam::Pout<< "The remainder between the rank and the number of partitions by simulation " << myGlobalRank << " is " << myGlobalRank % nbParts << nl << endl;
             interpolationCellPointWallModified<vector> triangulateCellsU(U);
-            if ((myGlobalRank % nbParts) < 1e-4){
-                if (cwipiVerbose) Foam::Pout<< "Here I am with global rank equal to " << myGlobalRank << endl;
-                if (cwipiParamsObs == 0) UInterpolation(U, mesh, runTime, cwipiObsU, mainsubDomain, nbParts, triangulateCellsU, cwipiVerbose, globalRootPath, globalCasePath);
-                //else if (cwipiParamsObs == 1) pInterpolation(p, mesh, cwipiObsp, cwipiVerbose, globalRootPath);
-                //else if (cwipiParamsObs == 2) UpInterpolation(U, p, mesh, cwipiObsU, cwipiObsp, cwipiVerbose, globalRootPath);
-            }
+            if (cwipiVerbose) Foam::Pout<< "Here I am with global rank equal to " << myGlobalRank << endl;
+            if (cwipiParamsObs == 0) UInterpolation(U, mesh, runTime, cwipiObsU, mainsubDomain, nbParts, triangulateCellsU, cwipiVerbose, globalRootPath, globalCasePath);
+            //else if (cwipiParamsObs == 1) pInterpolation(p, mesh, cwipiObsp, cwipiVerbose, globalRootPath);
+            //else if (cwipiParamsObs == 2) UpInterpolation(U, p, mesh, cwipiObsU, cwipiObsp, cwipiVerbose, globalRootPath);
 
             cwipiSend(mesh, U, runTime, cwipiIteration, nbParts, cwipiVerbose);
 
-            if ((myGlobalRank % nbParts) < 1e-4){
-                cwipiSendParams(mesh, U, runTime, cwipiIteration, cwipiParams, nbParts, cwipiVerbose);
-            }
+            cwipiSendParams(mesh, U, runTime, cwipiIteration, cwipiParams, nbParts, cwipiVerbose); 
 
             cwipiTimestep = 0;
             cwipiPhaseCheck = 1;
@@ -166,9 +162,7 @@ int main(int argc, char *argv[])
         {
             cwipiRecv(mesh, U, runTime, cwipiIteration, nbParts, cwipiVerbose);
             
-            if ((myGlobalRank % nbParts) < 1e-4){
-                cwipiRecvParams(mesh, U, cwipiParams, nbParts, cwipiVerbose);
-            }
+            cwipiRecvParams(mesh, U, cwipiParams, nbParts, cwipiVerbose);
 
             // ========== We correct the pressure after the DA cycle 
             //(solve a Poisson equation for the approximate pressure taking into account the
