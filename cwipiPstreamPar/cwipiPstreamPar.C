@@ -50,7 +50,8 @@ void addControlParams(int numberCwipiPhase, double deltaT, double currentTime)
     cwipi_add_local_double_control_parameter("currentTime", currentTime);
 }
 
-void cwipiCoupling(const fvMesh& mesh, double* pointCoords, int* face_index, int* face_connectivity_index, int* cell_to_face_connectivity, int* face_connectivity, int c2fconnec_size, int fconnec_size, float cwipiVerbose, double geom_tol)
+void cwipiCoupling(const fvMesh& mesh, double* pointCoords, int* face_index, int* face_connectivity_index, int* cell_to_face_connectivity, int* face_connectivity, 
+int c2fconnec_size, int fconnec_size, int nbParts, float cwipiVerbose, double geom_tol)
 {
     //=== Function that deals with the coupling of each OF instance ===
     
@@ -155,7 +156,7 @@ void cwipiCoupling(const fvMesh& mesh, double* pointCoords, int* face_index, int
     int myGlobalRank;
     MPI_Comm_rank(MPI_COMM_WORLD, &myGlobalRank);
     char couplingName[250] = {"cwipiFoamCoupling"};
-    int appSuffix = round((myGlobalRank+1)/2); // Change 2 by the number of subdomains
+    int appSuffix = floor((myGlobalRank + 1)/nbParts);
 
     char appSuffixChar[50];
     sprintf(appSuffixChar, "%i", appSuffix);
@@ -209,8 +210,8 @@ void cwipiCoupling(const fvMesh& mesh, double* pointCoords, int* face_index, int
 	delete[] face_connectivity_index_temp_IDs;
 }
 
-void UInterpolation(volVectorField& U, fvMesh& mesh, Time& runTime, int cwipiObsU, int mainsubDomain, interpolationCellPointWallModified<vector> triangulateCellsU,
-float cwipiVerbose, std::string globalPath, std::string UIntPath)
+void UInterpolation(volVectorField& U, fvMesh& mesh, Time& runTime, int cwipiObsU, int mainsubDomain, int nbParts, 
+interpolationCellPointWallModified<vector> triangulateCellsU, float cwipiVerbose, std::string globalPath, std::string UIntPath)
 {
     //========== Produce a file for each OF instance containing the sampled velocities 
     //(H.x term in the kalman gain calculation) ========== 
@@ -225,7 +226,7 @@ float cwipiVerbose, std::string globalPath, std::string UIntPath)
     MPI_Comm_rank(MPI_COMM_WORLD, &myGlobalRank);
     strcat(UIntGen, "/UInt");
 
-    int appSuffix = round((myGlobalRank+1)/2); // Change 2 by the number of subdomains
+    int appSuffix = floor((myGlobalRank + 1)/nbParts); // Change 2 by the number of subdomains
 
     char appSuffixChar[50];
     sprintf(appSuffixChar, "%i", appSuffix);
@@ -246,7 +247,7 @@ float cwipiVerbose, std::string globalPath, std::string UIntPath)
     double Ux[cwipiObsU], Uy[cwipiObsU], Uz[cwipiObsU];
     int cellID[cwipiObsU];
 
-    //remove(UInt);
+    remove(UInt);
 
     if (file.is_open())
     {
@@ -439,7 +440,7 @@ void cwipiRecv(const fvMesh& mesh, volVectorField& U, const Time& runTime, int c
 
     char appSuffixChar[50];
     sprintf(appSuffixChar, "%i", appSuffix);
-    strcat(couplingName, rankChar);
+    strcat(couplingName, appSuffixChar);
 
     cwipi_irecv(couplingName,"ex2", recvTag, 3, cwipiIteration, t, cl_receiving_field_name, fieldsToRecv, &status2);
 
@@ -479,7 +480,7 @@ void cwipiRecvParams(const fvMesh& mesh, volVectorField& U, int cwipiParams, int
     
     if (cwipiVerbose) Info << "Before Re-receive params" << endl;
 
-    MPI_Recv(paramsToRecv,1, MPI_DOUBLE, 0, recvTag_params, MPI_COMM_WORLD, &status4);
+    MPI_Recv(paramsToRecv, cwipiParams, MPI_DOUBLE, 0, recvTag_params, MPI_COMM_WORLD, &status4);
 
     label top = mesh.boundaryMesh().findPatchID("movingWall");
     fvPatchVectorField& movingWallU = U.boundaryFieldRef()[top];
@@ -511,7 +512,11 @@ void cwipideleteCoupling(double* pointCoords, int* face_index, int* face_connect
     char rankChar[50];
     sprintf(rankChar, "%i", myGlobalRank);
     char couplingName[250] = {"cwipiFoamCoupling"};
-    strcat(couplingName,rankChar);
+    int appSuffix = round((myGlobalRank+1)/2); // Change 2 by the number of subdomains
+
+    char appSuffixChar[50];
+    sprintf(appSuffixChar, "%i", appSuffix);
+    strcat(couplingName, appSuffixChar);
 
     cwipi_delete_coupling(couplingName);
     delete[] pointCoords;

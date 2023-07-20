@@ -64,7 +64,8 @@ int main(int argc, char *argv[])
     if (cwipiSwitch)
     {
         addControlParams(numberCwipiPhase, runTime.deltaTValue(), runTime.value());
-        cwipiCoupling(mesh, pointCoords, face_index, face_connectivity_index, cell_to_face_connectivity, face_connectivity, c2fconnec_size, fconnec_size, cwipiVerbose, geom_tol);
+        cwipiCoupling(mesh, pointCoords, face_index, face_connectivity_index, cell_to_face_connectivity, face_connectivity, 
+        c2fconnec_size, fconnec_size, nbParts, cwipiVerbose, geom_tol);
     }
 
     Info<< "\nStarting time loop\n" << endl;
@@ -142,7 +143,7 @@ int main(int argc, char *argv[])
             interpolationCellPointWallModified<vector> triangulateCellsU(U);
             if ((myGlobalRank % nbParts) < 1e-4){
                 if (cwipiVerbose) Foam::Pout<< "Here I am with global rank equal to " << myGlobalRank << endl;
-                if (cwipiParamsObs == 0) UInterpolation(U, mesh, runTime, cwipiObsU, mainsubDomain, triangulateCellsU, cwipiVerbose, globalRootPath, globalCasePath);
+                if (cwipiParamsObs == 0) UInterpolation(U, mesh, runTime, cwipiObsU, mainsubDomain, nbParts, triangulateCellsU, cwipiVerbose, globalRootPath, globalCasePath);
                 //else if (cwipiParamsObs == 1) pInterpolation(p, mesh, cwipiObsp, cwipiVerbose, globalRootPath);
                 //else if (cwipiParamsObs == 2) UpInterpolation(U, p, mesh, cwipiObsU, cwipiObsp, cwipiVerbose, globalRootPath);
             }

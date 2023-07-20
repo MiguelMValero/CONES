@@ -35,6 +35,7 @@ Note
 #include "allReduce.H"
 #include "cwipiPstreamPar.H"
 
+#include <fstream>
 #include <mpi.h>
 #include <cwipi.h>
 
@@ -84,26 +85,57 @@ bool Foam::UPstream::init(int& argc, char**& argv, const bool needsThread)
         &provided_thread_support
     );
 
+    std::ifstream cFile ("cwipiConfig");
+
+    int values[34]={0};
+    int k = 0;
+
+    if (cFile.is_open())
+    {
+        std::string line;
+        while(std::getline(cFile, line))
+        {
+            line.erase(std::remove_if(line.begin(), line.end(), ::isspace),line.end());
+            if( line.empty() || line[0] == '#' )
+            {
+                continue;
+            }
+            auto delimiterPos = line.find("=");
+            // auto name = line.substr(0, delimiterPos);
+            auto value = line.substr(delimiterPos + 1);
+
+            values[k] = stod(value);
+            // std::cout << values[k] << '\n';
+            k = k+1;
+        }
+    }
+    else 
+    {
+        std::cerr << "Couldn't open config file for reading.\n";
+    }
+
+    int nbParts = values[2];
+    float cwipiVerbose = values[13];
     // int numprocs;
     // MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
     int myGlobalRank;
     MPI_Comm_rank(MPI_COMM_WORLD, &myGlobalRank);
 
     char foamAppName[250] = {"cwipiFoam"};
-    int appSuffix = round((myGlobalRank+1)/2); // Change 2 by the number of subdomains
+    int appSuffix = floor((myGlobalRank + 1)/nbParts); // Change 2 by the number of subdomains
 
     char appSuffixChar[50];
     sprintf(appSuffixChar, "%i", appSuffix);
 
     strcat(foamAppName, appSuffixChar);
 
-    Foam::Pout << "For current rank " << myGlobalRank << " the application is "
+    if (cwipiVerbose) Foam::Pout << "For current rank " << myGlobalRank << " the application is "
     << foamAppName << endl;
 
     cwipi_init(MPI_COMM_WORLD, foamAppName, &localComm);
     int numprocs;
     MPI_Comm_size(localComm, &numprocs);
-    Foam::Pout << "CWIPI initialised with " << numprocs << " processors" << endl;
+    if (cwipiVerbose) Foam::Pout << "CWIPI initialised with " << numprocs << " processors" << endl;
     int myRank;
     MPI_Comm_rank(localComm, &myRank);
 
