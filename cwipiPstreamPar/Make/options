@@ -7,7 +7,7 @@ EXE_INC  = $(PFLAGS) $(PINC) \
     -I$(LIB_SRC)/meshTools/lnInclude \
     -I$(LIB_SRC)/dynamicMesh/lnInclude \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
-    -I/home/miguel/cwipi_installation/include
+    -I/home/villanul/Documents/Travail/tools/cwipi/build/include
     
 LIB_LIBS = $(PLIBS) \
     -lmomentumTransportModels \
@@ -15,6 +15,6 @@ LIB_LIBS = $(PLIBS) \
     -lmeshTools \
     -ldynamicMesh \
     -lfiniteVolume \
-    -L/home/miguel/cwipi_installation/lib \
+    -L/home/villanul/Documents/Travail/tools/cwipi/build/lib \
     -lcwpf \
     -lcwp

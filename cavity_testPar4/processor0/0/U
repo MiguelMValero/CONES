@@ -23,7 +23,7 @@ boundaryField
     movingWall
     {
         type            fixedValue;
-        value           nonuniform List<vector> 0();
+        value           uniform (1 0 0);
     }
     fixedWalls
     {

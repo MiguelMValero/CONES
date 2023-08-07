@@ -55,7 +55,6 @@ int main(int argc, char *argv[])
     #include "initContinuityErrs.H"
 
     //========== Declaration of cwipi variables ==========
-    Info<< "Entering to read some variables" << endl;
     #include "cwipiVariables.H"
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -145,7 +144,8 @@ int main(int argc, char *argv[])
             if (cwipiParamsObs == 0) UInterpolation(U, mesh, runTime, cwipiObsU, mainsubDomain, nbParts, triangulateCellsU, cwipiVerbose, globalRootPath, globalCasePath);
             //else if (cwipiParamsObs == 1) pInterpolation(p, mesh, cwipiObsp, cwipiVerbose, globalRootPath);
             //else if (cwipiParamsObs == 2) UpInterpolation(U, p, mesh, cwipiObsU, cwipiObsp, cwipiVerbose, globalRootPath);
-
+           
+            // if (Foam::Pstream::master()) cwipiSend(mesh, U, runTime, cwipiIteration, nbParts, cwipiVerbose);
             cwipiSend(mesh, U, runTime, cwipiIteration, nbParts, cwipiVerbose);
 
             cwipiSendParams(mesh, U, runTime, cwipiIteration, cwipiParams, nbParts, cwipiVerbose); 
@@ -168,7 +168,7 @@ int main(int argc, char *argv[])
             //(solve a Poisson equation for the approximate pressure taking into account the
             //updated source term)==========
             
-            if (cwipiVerbose) Info<< "Out of the receive parameters function" << endl;
+            if (cwipiVerbose) Info << "Out of the receive parameters function" << endl;
             volScalarField magSqrU_DA(magSqr(U));
             volSymmTensorField FF(sqr(U)/(magSqrU_DA + small*average(magSqrU_DA)));
             volScalarField divDivUU_DA

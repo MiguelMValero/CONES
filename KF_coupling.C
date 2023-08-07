@@ -96,9 +96,10 @@ int main(int argc, char *argv[])
     }
   }
 
-  if (cwipiVerbose)
-    std::cout << "Your case is velocityCase " << velocityCase << ".\n";
+  if (cwipiVerbose) std::cout << "Your case is velocityCase " << velocityCase << "\n";
+  
   int cwipiObs = 0;
+  
   if (cwipiParamsObs == 0)
   {
     switch (velocityCase)
@@ -217,15 +218,17 @@ int main(int argc, char *argv[])
               << "\n";
 
   Foam::fvMesh mesh(
-      Foam::IOobject(
-          Foam::fvMesh::defaultRegion,
-          runTime.timeName(),
-          runTime,
-          Foam::IOobject::MUST_READ));
+      Foam::IOobject
+      (
+        Foam::fvMesh::defaultRegion,
+        runTime.timeName(),
+        runTime,
+        Foam::IOobject::MUST_READ
+      )
+  );
 
   int nb_cells = mesh.nCells();
-  if (cwipiVerbose)
-    std::cout << "The number of cells from EnKF is " << mesh.nCells() << std::endl << "\n";
+  if (cwipiVerbose) std::cout << "The number of cells from EnKF is " << mesh.nCells() << std::endl << "\n";
 
   double *values = (double *)calloc(sizeof(double), 3 * nb_cells);
   double *sendValues = (double *)calloc(sizeof(double), 3 * nb_cells);
@@ -288,8 +291,7 @@ int main(int argc, char *argv[])
 
     //========== Mesh definition ============
 
-    if (cwipiVerbose)
-      printf("%s: Create mesh \n", __func__);
+    if (cwipiVerbose) printf("%s: KF : Create mesh \n", __func__);
 
     define_mesh(pointCoords, face_index, cell_to_face_connectivity, face_connectivity_index, face_connectivity, c2fconnec_size, fconnec_size, mesh, cl_coupling_name, cwipiVerbose);
   }
@@ -306,8 +308,7 @@ int main(int argc, char *argv[])
   int firstCwipiPhase = (time / deltaT) / cwipiStep;
   int inv_nb_cells = nb_cells;
 
-  if (cwipiVerbose)
-    std::cout << "numberCwipiPhase: " << numberCwipiPhase << "\n";
+  if (cwipiVerbose) std::cout << "numberCwipiPhase: " << numberCwipiPhase << "\n";
 
   //* We receive and send back on a loop for the number of exchanges througout calculation, and another loop
   // for all the members (Of instances) in the ensemble *
@@ -341,31 +342,32 @@ int main(int argc, char *argv[])
       strcat(cl_coupling_name, indexChar);
 
       //**** Receive velocity field ****
-      if (cwipiVerbose == 1)
-        std::cout << "Before receive in ensemble " << j << "\n";
+      if (cwipiVerbose == 1) std::cout << "Before receive state from member " << j << " in EnKF \n";
+
       cwipi_irecv(cl_coupling_name, "ex1", recvTag, 3, i + 1, time, recv_field_name, values, &status);
       cwipi_wait_irecv(cl_coupling_name, status);
-      if (cwipiVerbose == 1)
-        std::cout << "After receive in ensemble " << j << "\n";
+
+      if (cwipiVerbose == 1) std::cout << "After receive state from member " << j << " in EnKF \n";
+      // if (cwipiVerbose == 1) std::cout << "The Length of the Array is : "<< sizeof(values)/sizeof(values[0]) << std::endl; //length
 
       switch (status)
       {
       case CWIPI_EXCHANGE_OK:
         if (cwipiVerbose)
-          std::cout << "Receive OK in ensemble " << j << "\n";
+          std::cout << "Receive state OK from member " << j << " in EnKF \n";
         break;
       case CWIPI_EXCHANGE_BAD_RECEIVING:
         if (cwipiVerbose)
-          std::cout << "Bad receiving in ensemble " << j << "\n";
+          std::cout << "Bad receiving state from member " << j << " in EnKF \n";
         break;
       default:
         if (cwipiVerbose)
-          std::cout << "Error: bad exchange status in ensemble " << j << "\n";
+          std::cout << "Error: bad exchange status receiving state from member" << j << " in EnKF \n";
       }
 
       //**** Receive parameters ****
       if (cwipiVerbose)
-        std::cout << "Before receive the parameters in ensemble " << j << "\n";
+        std::cout << "Before receive the parameters from member " << j << " in EnKF \n";
       
       //========= For the cavity testcase, the rank from where the parameters come is j*subdomains  + (mainsubDomain - 1) (we need
       // to find a generic formula for this) =========//
@@ -373,7 +375,7 @@ int main(int argc, char *argv[])
       MPI_Recv(paramsValues, cwipiParams, MPI_DOUBLE, coming_rank, recvTag_params, MPI_COMM_WORLD, &status3);
 
       if (cwipiVerbose){
-        std::cout << "After receive the parameters in ensemble " << j << "\n";
+        std::cout << "After receive the parameters from member " << j << " in EnKF \n";
         std::cout << "==== Parameters well received ==== Parameter 1 = " << paramsValues[0] << std::endl << "\n";
         std::cout << "The number of cells in the side of EnKF is " << nb_cells << std::endl;
       }
@@ -450,7 +452,7 @@ int main(int argc, char *argv[])
       strcat(cl_coupling_name, indexChar);
 
       if (cwipiVerbose){
-        std::cout << "Before re-receive the parameters in ensemble " << j << "\n";
+        std::cout << "Before re-sent the parameters from EnKF to member " << j << "\n";
         std::cout << "The name of the coupling is " << cl_coupling_name << "\n";
       }
 
@@ -461,15 +463,15 @@ int main(int argc, char *argv[])
       {
         case CWIPI_EXCHANGE_OK:
           if (cwipiVerbose)
-            std::cout << "Re-sent Ok in ensemble " << j << "\n";
+            std::cout << "Re-sent Ok from EnKF to member " << j << "\n";
           break;
         case CWIPI_EXCHANGE_BAD_RECEIVING:
           if (cwipiVerbose)
-            std::cout << "Bad re-sent in ensemble " << j << "\n";
+            std::cout << "Bad re-sent from EnKF to member " << j << "\n";
           break;
         default:
           if (cwipiVerbose)
-            std::cout << "Error: bad re-sent status in ensemble " << j << "\n";
+            std::cout << "Error: bad re-sent status from EnKF to member " << j << "\n";
       }
       // if (cwipiVerbose)
       //   printf("After re-send \n");

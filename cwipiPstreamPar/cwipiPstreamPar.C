@@ -204,7 +204,7 @@ int c2fconnec_size, int fconnec_size, int nbParts, float cwipiVerbose, double ge
     printf("%s: Create mesh in OF \n", __func__);
     cwipi_locate(couplingName);
 
-    if (cwipiVerbose) Foam::Pout << "Cwipi locate passed" << nl << endl;
+    if (cwipiVerbose) Foam::Pout << "Cwipi locate passed in member " << appSuffix << Foam::nl << Foam::endl;
     delete[] face_index_temp;
 	delete[] face_index_temp_IDs;
 	delete[] face_connectivity_index_temp;
@@ -218,8 +218,8 @@ interpolationCellPointWallModified<vector> triangulateCellsU, float cwipiVerbose
     //(H.x term in the kalman gain calculation) ========== 
     
     //========== Path of the correct OF instance ==========
-    std::string proj_file = globalPath + "/obs_coordinates.txt";
-    if (cwipiVerbose) Pout << "The path where I have my observation coordinates is " << proj_file << endl;
+    std::string obs_file_path = globalPath + "/obs_coordinates.txt";
+    if (cwipiVerbose) Pout << "The path where I have my observation coordinates is " << obs_file_path << endl;
     char UIntGen[500];
     strcpy(UIntGen, UIntPath.c_str());
 
@@ -228,56 +228,52 @@ interpolationCellPointWallModified<vector> triangulateCellsU, float cwipiVerbose
     MPI_Comm_rank(MPI_COMM_WORLD, &myGlobalRank);
     int proc = (myGlobalRank - 1) % nbParts;
     sprintf(procChar, "%i", proc);
-    strcat(UIntGen, "/processor");
-    strcat(UIntGen, procChar);
+    // strcat(UIntGen, "/processor");
+    // strcat(UIntGen, procChar);
     strcat(UIntGen, "/UInt");
 
     std::string procString = std::to_string(proc);
-    int ens = floor((myGlobalRank + nbParts - 1) / nbParts);
+    int ens = floor((myGlobalRank + nbParts - 1)/nbParts); 
     std::string ensString = std::to_string(ens);
     std::string sampString = ensString + procString;
     char sampChar[500];
     strcpy(sampChar, sampString.c_str());
-    // int appSuffix = floor((myGlobalRank + nbParts - 1)/nbParts);
+    char ensChar[500];
+    strcpy(ensChar, ensString.c_str());
 
-    // char appSuffixChar[50];
-    // sprintf(appSuffixChar, "%i", appSuffix);
-    char* UInt = strcat(UIntGen, sampChar);
+    // char* UIntPart_path = strcat(UIntGen, sampChar);
+    char* UIntEns_path = strcat(UIntGen, ensChar);
 
-    if (cwipiVerbose) Foam::Pout<< "The file where UInt is created is " << UInt << endl;
+    if (cwipiVerbose) Foam::Pout<< "The file where UInt is created is " << UIntEns_path << endl;
 
-    //* Open file to write inside the result of the velocities interpolation on the observation coordinates *
-    std::ifstream file;
-    file.open(proj_file);
-    string data = "";
-    int columns = 0;
-    int parameters = 3;
+    //* Configuration of streams to open the files : observation coordinates, sampling partioned file, member sampling file *
+    std::ifstream obs_file;
+    obs_file.open(obs_file_path);
+
+    // std::ofstream UintPart_file;
+    // UintPart_file.open(UIntPart_path, std::ios::out | std::ios::app);
+
+    // string data = "";
+    // int columns = 0;
+    // int parameters = 3;
 
     if (cwipiVerbose) Foam::Pout<< "Creating the sampling files..." << endl;
 
     point pointCoord;
-    double Ux[cwipiObsU], Uy[cwipiObsU], Uz[cwipiObsU];
-    int cellID[cwipiObsU];
+    double Ux[cwipiObsU] = {0}; 
+    double Uy[cwipiObsU] = {0};
+    double Uz[cwipiObsU] = {0};
+    // int cellID[cwipiObsU];
+    int cellIndex[cwipiObsU] = {0};
 
-    remove(UInt);
+    // remove(UIntPart_path);
 
-    if (file.is_open())
-    {
-        // printing the success message
-        std::cout << "File exists" << std::endl;
-    }
-    else
-    {
-        // printing the error message
-        fprintf(stderr, "File does not exist\n");
-    }
-
-    if (file.is_open())
+    if (obs_file.is_open())
     {
         if (cwipiVerbose) std::cout<< "Inside the observation coordinates file" << std::endl;
         std::string line;
         int countProbes = 0;
-        while( std::getline(file,line) )
+        while( std::getline(obs_file,line) )
         {
             std::stringstream ss(line);
 
@@ -290,68 +286,113 @@ interpolationCellPointWallModified<vector> triangulateCellsU, float cwipiVerbose
             pointCoord.z() = std::stod(coordZ);
 
             label ownCell = mesh.findCell(pointCoord);
-            if (ownCell == -1){
-                std::cerr<< "Some sensors are not located at the main subdomain" << "\n";
-                continue;
-            }
-            vector UatSP(vector::zero);
-            UatSP = triangulateCellsU.interpolate(pointCoord, ownCell, -1);
+            if (ownCell != -1){
+                vector UatSP(vector::zero);
+                UatSP = triangulateCellsU.interpolate(pointCoord, ownCell, -1);
 
-            Ux[countProbes] = UatSP.x();
-            //std::cout << "The value of Ux for observation " << countProbes << " is " << Ux[countProbes] << std::endl;
-            Uy[countProbes] = UatSP.y();
-            //std::cout << "The value of Uy for observation " << countProbes << " is " << Uy[countProbes] << std::endl;
-            Uz[countProbes] = UatSP.z();
-            //std::cout << "The value of Uz for observation " << countProbes << " is " << Uz[countProbes] << std::endl;
-            cellID[countProbes] = ownCell;
-            //std::cout << "The value of the cellID for observation " << countProbes << " is " << cellID[countProbes] << std::endl;
+                Ux[countProbes] = UatSP.x();
+                //std::cout << "The value of Ux for observation " << countProbes << " is " << Ux[countProbes] << std::endl;
+                Uy[countProbes] = UatSP.y();
+                //std::cout << "The value of Uy for observation " << countProbes << " is " << Uy[countProbes] << std::endl;
+                Uz[countProbes] = UatSP.z();
+                //std::cout << "The value of Uz for observation " << countProbes << " is " << Uz[countProbes] << std::endl;
+                // cellID[countProbes] = ownCell;
+                // //std::cout << "The value of the cellID for observation " << countProbes << " is " << cellID[countProbes] << std::endl;
+                cellIndex[countProbes] = countProbes+1; //index in the list of observations, we do not use 0 because it corresponds to no cell in the domain
 
-            ++columns;
-            if (columns == parameters){
-                columns = 0;
+                // ++columns;
+                // if (columns == parameters){
+                //     columns = 0;
+                // }
             }
-        ++countProbes;
+            ++countProbes;
         }
     }
     else{
-        Pout<< " Not able to open the obs_coordinates.txt file " << endl;
+        Foam::Pout << " Not able to open the obs_coordinates.txt file " << endl;
+        // printing the error message
+        fprintf(stderr, "File does not exist\n");
     }
-    file.close();
+    obs_file.close();
 
-                    /* WE WRITE THE NEW VALUES IN A TXT FILE */
-    
-    std::ofstream myfile;
-    myfile.open(UInt, std::ios::out | std::ios::app);
+    label n=Pstream::nProcs();
 
-    if (cwipiVerbose) Foam::Pout << "I am about to write the sampling file" << endl;
-    if (myfile.is_open()){
-        for (int i = 0; i < cwipiObsU; ++i){
-            myfile << Ux[i] << "\n";
+    /* Gather all the values from the procs and then write the new values in a txt file */
+    if (Pstream::master()){
+        /* Gather the values */
+        int tempCellIndex = 0;
+        double tempUx = 0; 
+        double tempUy = 0;
+        double tempUz = 0;
+
+        for(int i=1; i<n; i++)
+        {
+            Pout << "Receiving sampled data from proc " << i << endl;  
+                // create the input stream from processor i
+            IPstream streamFromMain(Pstream::commsTypes::blocking, i);
+            for (int i = 0; i < cwipiObsU; ++i){
+                streamFromMain >> tempCellIndex;
+                streamFromMain >> tempUx;
+                streamFromMain >> tempUy;
+                streamFromMain >> tempUz;
+                cellIndex[i] = cellIndex[i] + tempCellIndex;
+                Ux[i] = Ux[i] + tempUx;
+                Uy[i] = Uy[i] + tempUy;
+                Uz[i] = Uz[i] + tempUz;
+            }
         }
-        for (int i = 0; i < cwipiObsU; ++i){
-            myfile << Uy[i] << "\n";
+
+        /* Write them */
+        remove(UIntEns_path);
+        std::ofstream UintEns_file;
+        UintEns_file.open(UIntEns_path, std::ios::out | std::ios::app);
+        if (cwipiVerbose) Foam::Pout << "I am about to write the sampling file" << endl;
+        if (UintEns_file.is_open()){
+            // for (int i = 0; i < cwipiObsU; ++i){
+            //     UintEns_file << cellIndex[i] << "\n";
+            // }
+            for (int i = 0; i < cwipiObsU; ++i){
+                
+                UintEns_file << Ux[i] << "\n";
+            }
+            for (int i = 0; i < cwipiObsU; ++i){
+                
+                UintEns_file << Uy[i] << "\n";
+            }
+            for (int i = 0; i < cwipiObsU; ++i){
+                
+                UintEns_file << Uz[i] << "\n";
+            }
         }
-        for (int i = 0; i < cwipiObsU; ++i){
-            myfile << Uz[i] << "\n";
+        else{
+            std::cerr << "Not able to open the sampling file" << std::endl;
         }
+        UintEns_file.close();
     }
     else{
-        std::cerr << "Not able to open the sampling file" << std::endl;
+        // create the stream to send to the main proc
+        OPstream stream2Main(Pstream::commsTypes::blocking, 0);
+        for (int i = 0; i < cwipiObsU; ++i){
+            stream2Main << cellIndex[i];
+            stream2Main << Ux[i];
+            stream2Main << Uy[i];
+            stream2Main << Uz[i];
+        }
     }
-    myfile.close();
+
 
     //========== Retrieve the cellIDs of my probes ==========//
-    if (myGlobalRank == 1 && (runTime.value() - runTime.deltaTValue()) == 0){
-        std::ofstream myfile_2;
-        std::string cellSensors = globalPath + "/results/cellIDs";
+    // if (myGlobalRank == 1 && (runTime.value() - runTime.deltaTValue()) == 0){
+    //     std::ofstream myfile_2;
+    //     std::string cellSensors = globalPath + "/results/cellIDs";
 
-        remove(cellSensors.c_str());
-        myfile_2.open(cellSensors, std::ios::out | std::ios::app);
-        for (int i = 0; i < cwipiObsU; ++i){
-            myfile_2 << cellID[i] << "\n";
-        }
-        myfile_2.close();
-    }
+    //     remove(cellSensors.c_str());
+    //     myfile_2.open(cellSensors, std::ios::out | std::ios::app);
+    //     for (int i = 0; i < cwipiObsU; ++i){
+    //         myfile_2 << cellID[i] << "\n";
+    //     }
+    //     myfile_2.close();
+    // }
 }
 
 void cwipiSend(const fvMesh& mesh, const volVectorField& vf, const Time& runTime, int cwipiIteration, int nbParts, float cwipiVerbose)
@@ -361,7 +402,7 @@ void cwipiSend(const fvMesh& mesh, const volVectorField& vf, const Time& runTime
 
     //* Retrieve the velocity field *
     double* fieldsToSend = new double[3*mesh.nCells()];
-    if (cwipiVerbose) Pout << "number of cells: " << mesh.nCells() << endl;
+    if (cwipiVerbose) Pout << "Number of cells in the cwipiSend function: " << mesh.nCells() << endl;
     forAll(mesh.cellCentres(),i)
     {
         fieldsToSend[3*i+0]=vf[i].component(0);
@@ -382,21 +423,21 @@ void cwipiSend(const fvMesh& mesh, const volVectorField& vf, const Time& runTime
     strcat(couplingName, appSuffixChar);
 
     //* Send and wait for the receive *
-    if (cwipiVerbose) Pout<< "Before sending to KF in ensemble "<< appSuffix << endl;  
+    if (cwipiVerbose) Pout<< "Before sending to KF in member "<< appSuffix << endl;  
     cwipi_issend(couplingName, "ex1", sendTag, 3, cwipiIteration, t, "u0,v0,w0", fieldsToSend, &status);
     cwipi_wait_issend(couplingName, status);
-    //if (cwipiVerbose) Pout<< "After sending to KF in ensemble "<< appSuffix << endl;
+    //if (cwipiVerbose) Pout<< "After sending to KF in member "<< appSuffix << endl;
 
     switch(status)
     {
         case CWIPI_EXCHANGE_OK :
-        if (cwipiVerbose) Info << "Sent Ok in ensemble " << appSuffix << endl << "\n";
+        if (cwipiVerbose) Pout << "Sent Ok in member " << appSuffix << endl << "\n";
         break;
         case CWIPI_EXCHANGE_BAD_RECEIVING :
-        if (cwipiVerbose) Info << "Bad receiving in ensemble " << appSuffix << endl << "\n";
+        if (cwipiVerbose) Pout << "Bad receiving in member " << appSuffix << endl << "\n";
         break;
         default :
-        if (cwipiVerbose) Info << "Error: bad exchange status in ensemble " << appSuffix << endl << "\n";
+        if (cwipiVerbose) Pout << "Error: bad exchange status in member " << appSuffix << endl << "\n";
     }
     
     delete[] fieldsToSend;
@@ -411,8 +452,8 @@ void cwipiSendParams(const fvMesh& mesh, const volVectorField& vf, const Time& r
 
     int myGlobalRank;
     MPI_Comm_rank(MPI_COMM_WORLD, &myGlobalRank);
-    int appSuffix = floor((myGlobalRank + 1)/nbParts); // Change 2 by the number of subdomains
-    if (cwipiVerbose == 1) Pout << "Before sending params to KF from ensemble " << appSuffix << endl; 
+    int appSuffix = floor((myGlobalRank + nbParts - 1)/ nbParts); // Change 2 by the number of subdomains
+    if (cwipiVerbose == 1) Pout << "Before sending params to KF from member " << appSuffix << endl; 
     label top = mesh.boundaryMesh().findPatchID("movingWall");
     double movingWallU = vf.boundaryField()[top][0].component(0);
     
@@ -422,7 +463,7 @@ void cwipiSendParams(const fvMesh& mesh, const volVectorField& vf, const Time& r
     //the cwipi primitive, the destination rank is always 0 because KF_coupling is supposed
     // to always be 0 when we launch a calculation (first in the command line)*
     MPI_Send(ParamsToSend, cwipiParams, MPI_DOUBLE, 0, sendTag_params, MPI_COMM_WORLD);
-    if (cwipiVerbose == 1) Pout << "After sending params to KF from ensemble " << appSuffix << endl;
+    if (cwipiVerbose == 1) Pout << "After sending params to KF from member " << appSuffix << endl;
 
     delete[] ParamsToSend;
 }
@@ -435,8 +476,6 @@ void cwipiRecv(const fvMesh& mesh, volVectorField& U, const Time& runTime, int c
     double* fieldsToRecv = new double[3 * mesh.nCells()];
     char cl_receiving_field_name[20];
     sprintf(cl_receiving_field_name, "U_a, V_a, W_a");
-
-    if (cwipiVerbose) Info << "Before Re-receive" << endl;
 
     scalar t = runTime.value();
 
@@ -451,6 +490,9 @@ void cwipiRecv(const fvMesh& mesh, volVectorField& U, const Time& runTime, int c
     sprintf(appSuffixChar, "%i", appSuffix);
     strcat(couplingName, appSuffixChar);
 
+    if (cwipiVerbose) Pout << "Before receive back state in member " << appSuffix << " the coupling name for the receive is " << couplingName << endl;
+
+
     cwipi_irecv(couplingName,"ex2", recvTag, 3, cwipiIteration, t, cl_receiving_field_name, fieldsToRecv, &status2);
 
     cwipi_wait_irecv(couplingName, status2);
@@ -458,13 +500,13 @@ void cwipiRecv(const fvMesh& mesh, volVectorField& U, const Time& runTime, int c
     switch(status2)
     {
         case CWIPI_EXCHANGE_OK :
-        if (cwipiVerbose) Info << "Re-receive Ok" << endl;
+        if (cwipiVerbose) Pout << "Back-receive Ok in member " << appSuffix << endl;
         break;
         case CWIPI_EXCHANGE_BAD_RECEIVING :
-        if (cwipiVerbose) printf("Bad re-receiving\n");
+        if (cwipiVerbose) Pout << "Bad Back-receiving in member " << appSuffix << "\n";
         break;
         default :
-        if (cwipiVerbose) printf("Error : bad exchange status\n");
+        if (cwipiVerbose) Pout << "Error : bad exchange status in member " << appSuffix << "\n";
     }
 
     //* Here the we change the velocity field of the calculation, be careful not to a const volVectorField 
@@ -476,7 +518,7 @@ void cwipiRecv(const fvMesh& mesh, volVectorField& U, const Time& runTime, int c
         U[i].component(2) = fieldsToRecv[3*i+2];
     }
     
-    if (cwipiVerbose) Info << "After Re-receive" << endl << "\n";
+    if (cwipiVerbose) Pout << "After receive back state in member " << appSuffix << endl << "\n";
 
     delete[] fieldsToRecv;
 }
@@ -486,15 +528,19 @@ void cwipiRecvParams(const fvMesh& mesh, volVectorField& U, int cwipiParams, int
     //=== Receive equivalent of the boundary velocity send function ===
     
     double* paramsToRecv = new double[cwipiParams];
+
+    int myGlobalRank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &myGlobalRank);
+    int appSuffix = floor((myGlobalRank + nbParts - 1)/ nbParts); // Change 2 by the number of subdomains
     
-    if (cwipiVerbose) Info << "Before Re-receive params" << endl;
+    if (cwipiVerbose) Pout << "Before receive back params in member " << appSuffix << Foam::endl;
 
     MPI_Recv(paramsToRecv, cwipiParams, MPI_DOUBLE, 0, recvTag_params, MPI_COMM_WORLD, &status4);
 
     label top = mesh.boundaryMesh().findPatchID("movingWall");
     fvPatchVectorField& movingWallU = U.boundaryFieldRef()[top];
 
-    if (cwipiVerbose) Info << movingWallU[0].component(0) << endl;
+    if (cwipiVerbose) Pout << movingWallU[0].component(0) << endl;
     
     //* If all the velocities are the same througout the entire boundary, the U file in the timeStep resulting
     // folders indicate a uniform boundary condition automatically *
@@ -503,9 +549,9 @@ void cwipiRecvParams(const fvMesh& mesh, volVectorField& U, int cwipiParams, int
         movingWallU[faceI]=vector(paramsToRecv[0],0,0);
     }
 
-    if (cwipiVerbose) Info << movingWallU[0].component(0) << endl;
+    if (cwipiVerbose) Pout << movingWallU[0].component(0) << endl;
     
-    if (cwipiVerbose) Info << "After Re-receive params" << endl << "\n";
+    if (cwipiVerbose) Pout << "After receive back params in member " << appSuffix << Foam::endl << "\n";
 
     delete[] paramsToRecv;
 }

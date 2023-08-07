@@ -304,7 +304,7 @@ void define_mesh(double* pointCoords, int* face_index, int* cell_to_face_connect
 {
     //========== Coupling mesh definition ==========
     
-    if (cwipiVerbose) Info << "implementation of mesh EnKF" << nl << endl;
+    if (cwipiVerbose) Info << "Implementation of mesh in EnKF side" << nl << endl;
 
     int nCells = mesh.nCells();
     int nPoints = mesh.nPoints();
@@ -426,7 +426,7 @@ void define_mesh(double* pointCoords, int* face_index, int* cell_to_face_connect
                         face_connectivity_index,
                         face_connectivity);
  
-    if (cwipiVerbose) Info << "Definition of mesh from KF" << nl << endl;
+    if (cwipiVerbose) Info << "Mesh defined in EnKF side" << nl << endl;
 
     cwipi_locate(cl_coupling_name);    
 

@@ -1,3 +1,5 @@
+Foam::Pout << "Read cwipi variables" << endl;
+
 Switch cwipiSwitch = runTime.controlDict().lookup("cwipiSwitch");
 
 std::ifstream cFile ("cwipiConfig");
@@ -39,7 +41,7 @@ double geom_tol = values[8];
 float cwipiVerbose = values[13];
 int cwipiParamsObs = values[16];
 
-if (cwipiVerbose) Info<< "Information about decomposition read" << endl;
+if (cwipiVerbose) Foam::Pout << "Information about decomposition read" << endl;
 
 scalar cwipiTimestep = 1;
 scalar numberCwipiPhaseDouble = (runTime.endTime().value()/runTime.deltaTValue())/cwipiStep;
