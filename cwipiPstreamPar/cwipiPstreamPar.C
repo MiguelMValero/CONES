@@ -8,6 +8,7 @@
 #include "fvCFD.H"
 #include "volPointInterpolation.H"
 #include "interpolationCellPointWallModified.H"
+// #include "interpolationCellPointFace.H"
 #include "cwipiPstreamPar.H"
 #include <cwipi.h>
 #include <iostream>
@@ -213,7 +214,7 @@ int c2fconnec_size, int fconnec_size, int nbParts, float cwipiVerbose, double ge
 }
 
 void UInterpolation(volVectorField& U, fvMesh& mesh, Time& runTime, int cwipiObsU, int mainsubDomain, int nbParts, 
-interpolationCellPointWallModified<vector> triangulateCellsU, float cwipiVerbose, std::string globalPath, std::string UIntPath)
+interpolationCellPoint<vector> triangulateCellsU, float cwipiVerbose, std::string globalPath, std::string UIntPath)
 {
     //========== Produce a file for each OF instance containing the sampled velocities 
     //(H.x term in the kalman gain calculation) ========== 
@@ -306,6 +307,7 @@ interpolationCellPointWallModified<vector> triangulateCellsU, float cwipiVerbose
                 // if (columns == parameters){
                 //     columns = 0;
                 // }
+                Pout<< "probe number " << countProbes + 1 << " found here" << endl;
             }
             ++countProbes;
         }
