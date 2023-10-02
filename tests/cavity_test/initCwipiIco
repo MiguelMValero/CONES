@@ -1,0 +1,71 @@
+#! /bin/bash
+
+# Source tutorial run functions
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+# We read the number of ensembles and subdomains from the configuration file
+file=$(pwd)"/cwipiConfig"
+
+while read -r name num
+do
+    if
+        [[ $name == "cwipiMembers" ]]; then
+        printf -v ensembles "%s\n" "$num"
+    fi
+    if
+        [[ $name == "subDomains" ]]; then
+        printf -v subdomains "%s\n" "$num"
+    fi
+    if
+        [[ $name == "mainsubDomain" ]]; then
+        printf -v mainsubdomain "%s\n" "$num"
+    fi
+done < $file
+
+echo 'The number of ensembles we are dealing with is' $ensembles |sed 's/= //'
+cwipiMembers=$(printf "%s" "$ensembles" |sed 's/= //')
+echo 'The number of decompositions we are dealing with is' $subdomains |sed 's/= //'
+cwipiDec=$(printf "%s" "$subdomains" |sed 's/= //')
+echo 'The decomposition region where we change the top boundary condition is' $mainsubdomain |sed 's/= //'
+cwipiSubd=$(printf "%s" "$mainsubdomain" |sed 's/= //')
+
+for ((i=1; i<(cwipiMembers+1); i++));
+do
+    #We copy the information from the root directory
+    caseName=$(pwd)"/member$i"
+    rm -rf $caseName
+    mkdir $caseName
+    cp -r 0/ $caseName/
+    cp -r constant/ $caseName/
+    cp -r system/ $caseName/
+    echo $caseName
+
+    # We set the initial condition for the ensembles
+    let j=i-1
+    l=$(echo "$j 1.0 $cwipiMembers" | awk '{printf "%3.4f", ($1+$2)/$3}' |tr ',' '.')
+    echo $l
+    sed -i -e "s/uniform (1/uniform ($l/g" $caseName/0/U
+
+    # We decompose the domain in all the members
+    cd $caseName
+    runApplication decomposePar -force
+    cd ..
+
+    partCommand=" : -np $cwipiDec cwipiIcoFoamPar -case member$i -parallel"
+    command="$command$partCommand"
+done
+
+# We clean the root directory
+# rm -rf results postProcessing log
+mkdir -p $(pwd)/results
+
+
+# Run the application from the specification in the appConfig file
+# mpirun -np 1 ./KF_coupling.exe : -np $cwipiDec cwipiIcoFoamPar -case cavity_testPar1 -parallel : -np $cwipiDec cwipiIcoFoamPar -case cavity_testPar2 -parallel : -np $cwipiDec cwipiIcoFoamPar -case cavity_testPar3 -parallel : -np $cwipiDec cwipiIcoFoamPar -case cavity_testPar4 -parallel | tee log
+partEnKF="mpirun -np 1 ./KF_coupling.exe"
+finalCommand="$partEnKF$command"
+# echo $finalCommand
+
+$finalCommand | tee log
+
+#mpirun -np 1 ./KF_coupling.exe : -np $processors valgrind cwipiIcoFoamPar -parallel | tee log
