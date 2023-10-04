@@ -33,13 +33,12 @@ else
 
 int cwipiStep = values[0];
 int nbParts = values[2];
-int mainsubDomain = values[3];
-int cwipiObsU = values[4];
-// int cwipiObsp = values[5];
-int cwipiParams = values[7];
-double geom_tol = values[8];
-float cwipiVerbose = values[13];
-int cwipiParamsObs = values[16];
+int cwipiObsU = values[3];
+// int cwipiObsp = values[4];
+int cwipiParams = values[6];
+double geom_tol = values[7];
+float cwipiVerbose = values[12];
+int cwipiParamsObs = values[15];
 
 if (cwipiVerbose) Foam::Pout << "Information about decomposition read" << endl;
 

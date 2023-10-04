@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
             //interpolationCellPointWallModified<vector> triangulateCellsU(U);
             interpolationCellPoint<vector> triangulateCellsU(U);
             if (cwipiVerbose) Foam::Pout<< "Here I am with global rank equal to " << myGlobalRank << endl;
-            if (cwipiParamsObs == 0) UInterpolation(U, mesh, runTime, cwipiObsU, mainsubDomain, nbParts, triangulateCellsU, cwipiVerbose, globalRootPath, globalCasePath);
+            if (cwipiParamsObs == 0) UInterpolation(U, mesh, runTime, cwipiObsU, nbParts, triangulateCellsU, cwipiVerbose, globalRootPath, globalCasePath);
             //else if (cwipiParamsObs == 1) pInterpolation(p, mesh, cwipiObsp, cwipiVerbose, globalRootPath);
             //else if (cwipiParamsObs == 2) UpInterpolation(U, p, mesh, cwipiObsU, cwipiObsp, cwipiVerbose, globalRootPath);
            
