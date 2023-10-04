@@ -1,0 +1,7 @@
+SOURCE += UOPwrite.C
+SOURCE += UIPread.C
+SOURCE += UPstream.C
+SOURCE += PstreamGlobals.C
+SOURCE += cwipiPstreamPar.C
+
+LIB = $(FOAM_USER_LIBBIN)/libcwipiPstreamPar

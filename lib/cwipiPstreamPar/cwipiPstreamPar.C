@@ -387,7 +387,6 @@ interpolationCellPoint<vector> triangulateCellsU, float cwipiVerbose, std::strin
         }
     }
 
-
     //========== Retrieve the cellIDs of my probes ==========//
     // if (myGlobalRank == 1 && (runTime.value() - runTime.deltaTValue()) == 0){
     //     std::ofstream myfile_2;
@@ -545,6 +544,39 @@ void cwipiSendParamsChannel(const fvMesh& mesh, const volScalarField& Ck, const 
         //* We use a basic MPI primitive because we don't want any interpolation performed by
         //the cwipi primitive, the destination rank is always 0 because KF_coupling is supposed
         // to always be 0 when we launch a calculation (first in the command line)*
+        MPI_Send(ParamsToSend, cwipiParams, MPI_DOUBLE, 0, sendTag_params, MPI_COMM_WORLD);
+    }
+
+    if (cwipiVerbose) if (Pstream::master()) Pout << "After sending params to KF from member " << appSuffix << " from processor " << Foam::Pstream::myProcNo() << endl;
+
+    delete[] ParamsToSend;
+}
+
+void cwipiSendParamsKEps(const fvMesh& mesh, incompressible::momentumTransportModel& turbulence, const Time& runTime, int cwipiIteration, int cwipiParams, int nbParts, float cwipiVerbose)
+{
+    //=== Send the parameters the optimize, in this case model coefficients ===
+
+    double* ParamsToSend = new double[cwipiParams];
+
+    label nMyProc=Pstream::myProcNo();
+    int myGlobalRank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &myGlobalRank);
+    int appSuffix = round((myGlobalRank - nMyProc - 1)/nbParts) + 1;  // Normally works for any decomposition
+    
+    if (Pstream::master())
+    {
+
+        if (cwipiVerbose) std::cout << "Before sending params to KF" << std::endl; 
+
+        //* We can read the coefficient of a turbulence model from the object turbulence. Be careful,
+        // here "turbulence" is the object "turbulence()" and not the pointer "turbulence->" , because we 
+        // gave "turbulence()" to the function in the solver code *
+        ParamsToSend[0] = readScalar(turbulence.coeffDict().lookup("Cmu"));
+        ParamsToSend[1] = readScalar(turbulence.coeffDict().lookup("C1"));
+        ParamsToSend[2] = readScalar(turbulence.coeffDict().lookup("C2"));
+        ParamsToSend[3] = readScalar(turbulence.coeffDict().lookup("sigmak"));
+        ParamsToSend[4] = readScalar(turbulence.coeffDict().lookup("sigmaEps"));
+
         MPI_Send(ParamsToSend, cwipiParams, MPI_DOUBLE, 0, sendTag_params, MPI_COMM_WORLD);
     }
 
@@ -748,6 +780,79 @@ void cwipiRecvParamsChannel(const fvMesh& mesh, volScalarField& Ck, int cwipiPar
         }
 
         // if (cwipiVerbose) Pout << "After receive back params in member " << appSuffix << " from processor " << Foam::Pstream::myProcNo() << Foam::endl << "\n";
+    }
+
+    delete[] paramsToRecv;
+}
+
+void cwipiRecvParamsKEps(const fvMesh& mesh, incompressible::momentumTransportModel& turbulence, int cwipiParams, int nbParts, float cwipiVerbose, std::string globalRootPath)
+{
+    //=== Receive equivalent of the model coefficients send function, here we need to overwrite the momentumTransport dictionary 
+    // And then read again the coefficient in the solver (turbulence->read()). We need to declare a OFstream containing the stream
+    // of the file to overwrite. The stream is then closed at the end of this function. ===
+    
+    double* paramsToRecv = new double[cwipiParams];
+
+    label nMyProc=Pstream::myProcNo();
+    int myGlobalRank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &myGlobalRank);
+    int appSuffix = round((myGlobalRank - nMyProc - 1)/nbParts) + 1; // Normally works for any decomposition
+
+    if (Pstream::master()){
+        std::string dictPath = globalRootPath+"/member"+std::to_string(myGlobalRank-1)+"/constant/momentumTransport";
+
+        if (cwipiVerbose) Pout<< "dictPath = " << dictPath << endl; 
+
+        Foam::OFstream FileStream(dictPath);
+    
+        if (cwipiVerbose) Pout << "Before Re-receive params" << endl;
+
+        MPI_Status status4;
+        MPI_Recv(paramsToRecv, cwipiParams, MPI_DOUBLE, 0, recvTag_params, MPI_COMM_WORLD, &status4);
+        const double mean = 0.0;
+        const double stddev = 0.11;
+        std::normal_distribution<double> dist(mean, stddev);
+        float gaussample;
+        unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+        std::default_random_engine generator(seed);
+    
+        if (paramsToRecv[0] < 0)
+        {
+            do
+            {
+                gaussample=dist(generator);
+            }while (gaussample<(mean-3*stddev) || gaussample>(mean+3*stddev));
+
+            paramsToRecv[0] = 0.01 + 0.01*gaussample;
+        }
+
+        for (int i=1; i<cwipiParams; i++)
+        {
+            if (paramsToRecv[i] < 0.05)
+            {
+                do
+                {
+                    gaussample=dist(generator);
+                }   while (gaussample<(mean-3*stddev) || gaussample>(mean+3*stddev));
+
+                paramsToRecv[i] = 0.1 + 0.1*gaussample;
+            }
+        }
+
+        if (cwipiVerbose) Pout << turbulence.subDict("RAS") << endl;
+
+        turbulence.subDict("RAS").lookup("Cmu")[0] = paramsToRecv[0];
+        turbulence.subDict("RAS").lookup("C1")[0] = paramsToRecv[1];
+        turbulence.subDict("RAS").lookup("C2")[0] = paramsToRecv[2];
+        turbulence.subDict("RAS").lookup("sigmak")[0] = paramsToRecv[3];
+        turbulence.subDict("RAS").lookup("sigmaEps")[0] = paramsToRecv[4];
+
+        turbulence.writeHeader(FileStream);  //First overwrite with the OF header
+        turbulence.dictionary::write(FileStream, false); //Then overwrite the coefficients. "false" allows to write everything and not just the coeffs
+
+        if (cwipiVerbose) Pout << turbulence.subDict("RAS") << endl;
+    
+        if (cwipiVerbose) Pout << "After receive back params in member " << appSuffix << " from processor " << Foam::Pstream::myProcNo() << Foam::endl << "\n";
     }
 
     delete[] paramsToRecv;

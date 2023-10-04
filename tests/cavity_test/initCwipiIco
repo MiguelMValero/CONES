@@ -16,18 +16,12 @@ do
         [[ $name == "subDomains" ]]; then
         printf -v subdomains "%s\n" "$num"
     fi
-    if
-        [[ $name == "mainsubDomain" ]]; then
-        printf -v mainsubdomain "%s\n" "$num"
-    fi
 done < $file
 
 echo 'The number of ensembles we are dealing with is' $ensembles |sed 's/= //'
 cwipiMembers=$(printf "%s" "$ensembles" |sed 's/= //')
 echo 'The number of decompositions we are dealing with is' $subdomains |sed 's/= //'
 cwipiDec=$(printf "%s" "$subdomains" |sed 's/= //')
-echo 'The decomposition region where we change the top boundary condition is' $mainsubdomain |sed 's/= //'
-cwipiSubd=$(printf "%s" "$mainsubdomain" |sed 's/= //')
 
 for ((i=1; i<(cwipiMembers+1); i++));
 do
