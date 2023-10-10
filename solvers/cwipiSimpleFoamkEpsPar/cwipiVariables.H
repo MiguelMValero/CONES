@@ -1,10 +1,10 @@
-Foam::Pout << "Read cwipi variables" << endl;
+if (Pstream::master()) Foam::Pout << "Read cwipi variables" << endl;
 
 Switch cwipiSwitch = runTime.controlDict().lookup("cwipiSwitch");
 
 std::ifstream cFile ("cwipiConfig");
 
-double values[34]={0};
+int values[33]={0};
 int k = 0;
 
 if (cFile.is_open())
@@ -34,13 +34,13 @@ else
 int cwipiStep = values[0];
 int nbParts = values[2];
 int cwipiObsU = values[3];
-//int cwipiObsp = values[4];
+// int cwipiObsp = values[5];
 int cwipiParams = values[6];
 double geom_tol = values[7];
 float cwipiVerbose = values[12];
 int cwipiParamsObs = values[15];
 
-if (cwipiVerbose) Foam::Pout << "Information about decomposition read" << endl;
+if (cwipiVerbose) if (Pstream::master())  Foam::Pout << "Information about decomposition read" << endl;
 
 scalar cwipiTimestep = 1;
 scalar numberCwipiPhaseDouble = (runTime.endTime().value()/runTime.deltaTValue())/cwipiStep;
@@ -66,13 +66,13 @@ forAll(mesh.faces(),i){
 int* face_connectivity = new int[fconnec_size];
 
 //========== Definition of all MPI routines and directories ============//
-//int myGlobalRank;
+int myGlobalRank;
 MPI_Comm_rank(MPI_COMM_WORLD, &myGlobalRank);
 
-//std::string globalCaseName = args.globalCaseName();
-//std::string globalRootPath = args.rootPath(); // Root path
+std::string globalCaseName = args.globalCaseName();
+std::string globalRootPath = args.rootPath(); // Root path
 std::string globalCasePath = globalRootPath + "/" + globalCaseName; // For UInt
 
-if (cwipiVerbose){
+if (cwipiVerbose) if (Pstream::master()){
     Foam::Pout<< "Solving with rank " << myGlobalRank << " the testcase with path " << globalCasePath << endl;
 }

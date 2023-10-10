@@ -1,6 +1,6 @@
-cwipiStep = 500
+cwipiStep = 10
 cwipiMembers = 4
-subDomains = 10
+subDomains = 3
 cwipiObsU = 93
 cwipiObsp = 0
 cwipiObsCf = 0

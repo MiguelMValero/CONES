@@ -23,6 +23,8 @@ cwipiMembers=$(printf "%s" "$ensembles" |sed 's/= //')
 echo 'The number of decompositions we are dealing with is' $subdomains |sed 's/= //'
 cwipiDec=$(printf "%s" "$subdomains" |sed 's/= //')
 
+blockMesh
+
 # We create the "processor" folders with all information they need
 for ((i=1; i<(cwipiMembers+1); i++));
 do
@@ -55,20 +57,20 @@ do
     runApplication decomposePar -force
     cd ..
 
-    partCommand=" : -np $cwipiDec cwipiSimpleFoamParkEps -case member$i -parallel"
+    partCommand=" : -np $cwipiDec cwipiSimpleFoamkEpsPar -case member$i -parallel"
     command="$command$partCommand"
 done
 
-rm -rf results postProcessing log
+# rm -rf results postProcessing log
 mkdir -p $(pwd)/results
 
 # We run in parallel with the number of ensembles wished
 
-#partEnKF="mpirun -np 1 ./KF_coupling.exe"
-#finalCommand="$partEnKF$command"
+partEnKF="mpirun -np 1 ./KF_coupling.exe"
+finalCommand="$partEnKF$command"
 # echo $finalCommand
 
-#$finalCommand | tee log
+$finalCommand | tee log
 
 #mpirun -np 1 ./KF_coupling.exe : -np $cwipiMembers cwipiSimpleFoamkEps -parallel | tee log
 #mpirun -np 1 ./KF_coupling.exe : -np $cwipiMembers cwipiSimpleFoamkOmegaSST -parallel | tee log

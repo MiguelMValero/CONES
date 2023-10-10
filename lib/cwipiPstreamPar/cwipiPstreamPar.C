@@ -242,9 +242,9 @@ interpolationCellPoint<vector> triangulateCellsU, float cwipiVerbose, std::strin
     int ens = round((myGlobalRank - nMyProc - 1)/nbParts) + 1;
     
     std::string ensString = std::to_string(ens);
-    std::string sampString = ensString + procString;
-    char sampChar[500];
-    strcpy(sampChar, sampString.c_str());
+    // std::string sampString = ensString + procString;
+    // char sampChar[500];
+    // strcpy(sampChar, sampString.c_str());
     char ensChar[500];
     strcpy(ensChar, ensString.c_str());
 
@@ -311,7 +311,6 @@ interpolationCellPoint<vector> triangulateCellsU, float cwipiVerbose, std::strin
                 // if (columns == parameters){
                 //     columns = 0;
                 // }
-                // Pout<< "probe number " << countProbes + 1 << " found here" << endl;
             }
             ++countProbes;
         }
