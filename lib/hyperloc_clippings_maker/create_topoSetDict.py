@@ -16,7 +16,7 @@ from pylab import cm
 import pandas as pd
 csv.field_size_limit(sys.maxsize)
 
-lref = 0.005
+lref = 0.15
 decmls = 4
 
 filename = "obs_coordinates.txt"

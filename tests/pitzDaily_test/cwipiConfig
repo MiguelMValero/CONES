@@ -19,6 +19,7 @@ paramsInf = 0
 typeInf = 1
 clippingSwitch = 0
 localisationSwitch = 0
+hyperlocSwitch = 0
 paramEstSwitch = 1
 Ux = 1
 Uy = 1
