@@ -304,7 +304,7 @@ void define_mesh(double* pointCoords, int* face_index, int* cell_to_face_connect
 {
     //========== Coupling mesh definition ==========
     
-    if (cwipiVerbose) Info << "implementation of mesh EnKF" << nl << endl;
+    if (cwipiVerbose) Info << "Implementation of mesh in EnKF side" << nl << endl;
 
     int nCells = mesh.nCells();
     int nPoints = mesh.nPoints();
@@ -426,7 +426,7 @@ void define_mesh(double* pointCoords, int* face_index, int* cell_to_face_connect
                         face_connectivity_index,
                         face_connectivity);
  
-    if (cwipiVerbose) Info << "Fin de definition du maillage KF" << nl << endl;
+    if (cwipiVerbose) Info << "Mesh defined in EnKF side" << nl << endl;
 
     cwipi_locate(cl_coupling_name);    
 
@@ -552,8 +552,10 @@ MatrixXf samp_Data(int nb_e, int nb_o, int nb_oU, int velocityCase, int cwipiPar
     if (cwipiVerbose) std::cout << "Opening sampled data function " << std::endl;
     
     MatrixXf sampMatrix = MatrixXf::Zero(nb_o, nb_e); // By default our parameter is the velocity
-    std::string IntGen = stringRootPath + "/processor";
+    std::string IntGen = stringRootPath + "/member";
     std::ifstream file;
+    char* IntGenChar = new char[1000];
+    strcpy(IntGenChar, IntGen.c_str());
 
     for (int i = 0; i < nb_e; ++i)
     {
@@ -561,8 +563,9 @@ MatrixXf samp_Data(int nb_e, int nb_o, int nb_oU, int velocityCase, int cwipiPar
         char member[50];
         if (cwipiParamsObs == 0){
             std::string UInt;
-            sprintf(ensemble, "/UInt%i", i);
-            sprintf(member, "%i", i);
+            sprintf(IntGenChar, "%i", i+1);
+            sprintf(ensemble, "/UInt%i", i+1);
+            sprintf(member, "%i", i+1);
             UInt += IntGen; // Append the path
             UInt += member; // Append the member index
             UInt += ensemble; // Append file name
@@ -1118,6 +1121,28 @@ double sigmaUserUc, float paramEstSwitch, const fvMesh& mesh, float cwipiVerbose
 
     velo_field_mat_upt = velo_field_mat + K*(obs_field_mat-proj_field_mat);
 
+    //** optionnal : to verify updated matrix ** 
+    // std::string filename = "results/testU";
+    // std::fstream file_out;
+    
+    // file_out.open(filename, std::ios_base::out);
+    
+    // if (!file_out.is_open()) 
+    // {
+    //     std::cerr << "Failed to open " << filename << '\n';
+    // } 
+    // else 
+    // {
+    //     for (int i=0; i<nb_cells*3+nb_p; i++)
+    //     {
+    //         for(int j=0;j<nb_e;j++)
+    //         {
+    //             file_out << velo_field_mat_upt(i , j) << ' ';
+    //         }
+    //         file_out << "\n";
+    //     }
+    // }
+
     if (cwipiVerbose) std::cout << "The updated vector calculated. Adding inflation..." << std::endl;
 
     for (int j=0;j<nb_e;j++)
@@ -1197,11 +1222,10 @@ double sigmaUserUc, float paramEstSwitch, const fvMesh& mesh, float cwipiVerbose
     
     return velo_field_mat_upt;
 }
-
 //===========================================================================
 
-void KF_output(double *sendValues, double *paramsSendValues, const Eigen::Ref<const Eigen::MatrixXf>& UptMatrix, const Eigen::Ref<const Eigen::MatrixXf>& sampMatrix, const Eigen::Ref<const Eigen::ArrayXf>& obsMatrix, 
-int nb_e, int nb_cells, double time, int nb_p, int nb_oU, int nb_o, int cwipiParamsObs, int velocityCase, int index, double epsilon, float cwipiVerbose)
+void KF_output(double *sendValues, double *paramsSendValues, double *values, const Eigen::Ref<const Eigen::MatrixXf>& UptMatrix, const Eigen::Ref<const Eigen::MatrixXf>& sampMatrix, const Eigen::Ref<const Eigen::ArrayXf>& obsMatrix, 
+int nb_e, int nb_cells, double time, int nb_p, int nb_oU, int nb_o, int cwipiParamsObs, int velocityCase, int index, int subdomains, double epsilon, float cwipiVerbose)
 {
     //========== Take the right column with the good values to send to the corresponding OF instance ==========
 
@@ -1216,9 +1240,9 @@ int nb_e, int nb_cells, double time, int nb_p, int nb_oU, int nb_o, int cwipiPar
 
     for (int i = 0; i < nb_p; i++)
     {
-        paramsSendValues[i] = UptMatrix(nb_cells*3+i, index-1);
+        paramsSendValues[i] = UptMatrix(i + 3*nb_cells, index-1);
     }
-
+    
     //========== We do an output of all optimized coefficients to evaluate convergence ==========//
 
     if (index == 1){
@@ -1257,7 +1281,6 @@ int nb_e, int nb_cells, double time, int nb_p, int nb_oU, int nb_o, int cwipiPar
                     }
                     RMSD1 = std::sqrt(MSvals1.sum())/nb_oU; //Root Mean Square Deviation
                     NRMSD1 = std::sqrt(MSvals1.sum()/MSvobs1.sum())/nb_oU; //Normalized Root Mean Square Deviation
-                    // NRMSD1 = std::sqrt(MSvals1.sum()/nb_oU)/obsMatrix.mean(); //Normalized Root Mean Square Deviation
                     file_RMS_out << RMSD1 << ' ' << NRMSD1 << ' ';
                     file_RMS_out << "\n";
                     break;
@@ -1340,7 +1363,7 @@ int nb_e, int nb_cells, double time, int nb_p, int nb_oU, int nb_o, int cwipiPar
                         MSvals2(i) = std::pow(sampMatrix.row(i+nb_oU).mean() - obsMatrix(i+nb_oU), 2);
                         MSvobs2(i) = std::pow(obsMatrix(i+nb_oU), 2) + epsilon;
                     }
-                    for (int i = 0; i < (nb_o-2*nb_oU); ++i){
+                    for (int i = 0; i < (nb_o-nb_oU); ++i){
                         MSvals4(i) = std::pow(sampMatrix.row(i+2*nb_oU).mean() - obsMatrix(i+2*nb_oU), 2);
                         MSvobs4(i) = std::pow(obsMatrix(i+2*nb_oU), 2) + epsilon;
                     }
@@ -1364,7 +1387,7 @@ int nb_e, int nb_cells, double time, int nb_p, int nb_oU, int nb_o, int cwipiPar
                         MSvals3(i) = std::pow(sampMatrix.row(i+2*nb_oU).mean() - obsMatrix(i+2*nb_oU), 2);
                         MSvobs3(i) = std::pow(obsMatrix(i+2*nb_oU), 2) + epsilon;
                     }
-                    for (int i = 0; i < (nb_o-3*nb_oU); ++i){
+                    for (int i = 0; i < (nb_o-nb_oU); ++i){
                         MSvals4(i) = std::pow(sampMatrix.row(i+3*nb_oU).mean() - obsMatrix(i+3*nb_oU), 2);
                         MSvobs4(i) = std::pow(obsMatrix(i+3*nb_oU), 2) + epsilon;
                     }
