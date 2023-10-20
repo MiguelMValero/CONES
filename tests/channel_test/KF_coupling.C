@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
   //========== Parameters from config file ==========
 
   double *configValues = NULL;
-  configValues = (double *)malloc(sizeof(double) * 33);
+  configValues = (double *)malloc(sizeof(double) * 34);
   configuration(configValues);
 
   int cwipiStep = configValues[0];         // Number of time step between each DA phase
@@ -54,19 +54,20 @@ int main(int argc, char *argv[])
   double paramsInfl = configValues[17];    // Parameters inflation (default = 1)
   float typeInfl = configValues[18];       // Definition of inflation (0 = stochastic, 1 = deterministic)
   float clippingSwitch = configValues[19]; // Switch for the clipping
-  float localSwitch = configValues[20];    // Switch for the localisation (clippingSwitch == 1)
-  float paramEstSwitch = configValues[21]; // Switch for parameter estimation
-  float Ux = configValues[22];             // Specification if Ux is read or not (cwipiParamsObs needs to be either 0, 2 or 3)
-  float Uy = configValues[23];             // Specification if Uy is read or not (cwipiParamsObs needs to be either 0, 2 or 3)
-  float Uz = configValues[24];             // Specification if Uz is read or not (cwipiParamsObs needs to be either 0, 2 or 3)
-  int typeInputs = configValues[25];       // Inputs for R are given in absolute values (0), percentage (1) or potential function (2) (default = 0)
-  double sigmaLocX = configValues[26];     // eta of the EnKF (pertubation of the Kalman gain to take into consideration the localization in X direction)
-  double sigmaLocY = configValues[27];     // eta of the EnKF (pertubation of the Kalman gain to take into consideration the localization in Y direction)
-  double sigmaLocZ = configValues[28];     // eta of the EnKF (pertubation of the Kalman gain to take into consideration the localization in Z direction)
-  double epsilon = configValues[29];       // Value used to calculate the NSRMD
-  double sigmaUserUa = configValues[30];   // sigma of the EnKF given by a+by^c
-  double sigmaUserUb = configValues[31];   // sigma of the EnKF given by a+by^c
-  double sigmaUserUc = configValues[32];   // sigma of the EnKF given by a+by^c
+  float localSwitch = configValues[20];    // Switch for the localisation (basic clipping or hyperlocalisation activated)
+  float hyperlocSwitch = configValues[21]; // Switch for hyperlocalization
+  float paramEstSwitch = configValues[22]; // Switch for parameter estimation
+  float Ux = configValues[23];             // Specification if Ux is read or not (cwipiParamsObs needs to be either 0, 2 or 3)
+  float Uy = configValues[24];             // Specification if Uy is read or not (cwipiParamsObs needs to be either 0, 2 or 3)
+  float Uz = configValues[25];             // Specification if Uz is read or not (cwipiParamsObs needs to be either 0, 2 or 3)
+  int typeInputs = configValues[26];       // Inputs for R are given in absolute values (0), percentage (1) or potential function (2) (default = 0)
+  double sigmaLocX = configValues[27];     // eta of the EnKF (pertubation of the Kalman gain to take into consideration the localization in X direction)
+  double sigmaLocY = configValues[28];     // eta of the EnKF (pertubation of the Kalman gain to take into consideration the localization in Y direction)
+  double sigmaLocZ = configValues[29];     // eta of the EnKF (pertubation of the Kalman gain to take into consideration the localization in Z direction)
+  double epsilon = configValues[30];       // Value used to calculate the NSRMD
+  double sigmaUserUa = configValues[31];   // sigma of the EnKF given by a+by^c
+  double sigmaUserUb = configValues[32];   // sigma of the EnKF given by a+by^c
+  double sigmaUserUc = configValues[33];   // sigma of the EnKF given by a+by^c
 
   if (cwipiVerbose) std::cout << "Beginning of the configuration file" << std::endl << "\n";
   
@@ -301,11 +302,8 @@ int main(int argc, char *argv[])
   double time = cwipi_get_distant_double_control_parameter("cwipiFoam1", "currentTime");
   int numberCwipiPhase = cwipi_get_distant_int_control_parameter("cwipiFoam1", "numberCwipiPhase");
   double deltaT = cwipi_get_distant_double_control_parameter("cwipiFoam1", "deltaT");
-  // int nbParts = cwipi_get_distant_int_control_parameter("cwipiFoam1", "nbParts");
-  // int partsReparty = cwipi_get_distant_int_control_parameter("cwipiFoam1","partsReparty");
 
   int firstCwipiPhase = round(time/deltaT)/cwipiStep;
-  int inv_nb_cells = nb_cells;
 
   if (cwipiVerbose) std::cout << "numberCwipiPhase: " << numberCwipiPhase << "\n";
 
@@ -314,8 +312,8 @@ int main(int argc, char *argv[])
 
   for (int i = firstCwipiPhase; i < numberCwipiPhase; i++)
   {
+    // ========== Reload configurations if needed ===========
     configuration(configValues);
-
     cwipiVerbose = configValues[12]; // Print all the debuging messages or not, 1 printed 0 nothing
     stateInfl = configValues[16];    // Standard deviation for state inflation
     paramsInfl = configValues[17];   // Standard deviation for parameters inflation
@@ -323,17 +321,14 @@ int main(int argc, char *argv[])
 
     time = time + cwipiStep * deltaT;
 
-    MatrixXf stateVector = MatrixXf::Zero(nb_cells * 3 + cwipiParams, cwipiMembers);
-    MatrixXf invStateVector;
-    if (clippingSwitch)
-    {
-      invStateVector = MatrixXf::Zero(nb_cells * 3 + cwipiParams, cwipiMembers);
-    }
-
     if (cwipiVerbose)
       std::cout << "Phase " << i << " going from " << firstCwipiPhase << " to " << numberCwipiPhase - 1 << std::endl
                 << "\n";
 
+    MatrixXf stateMatrix = MatrixXf::Zero(nb_cells * 3 + cwipiParams, cwipiMembers);
+    MatrixXf stateMatrixUpt = MatrixXf::Zero(nb_cells * 3 + cwipiParams, cwipiMembers);
+    
+    // =================== Receive procedure ======================
     for (int j = 1; j < (cwipiMembers + 1); j++)
     {
       sprintf(cl_coupling_name, "cwipiFoamCoupling");
@@ -377,65 +372,38 @@ int main(int argc, char *argv[])
         std::cout << "The number of cells in the side of EnKF is " << nb_cells << std::endl;
       }
 
+      //======== Configuration as Eigen Matrices =========
+
       for (int k = 0; k < nb_cells; k++)
       {
-        stateVector(k, j-1) = values[3*k + 0];
-        stateVector(k + nb_cells, j-1) = values[3*k + 1];
-        stateVector(k + 2*nb_cells, j-1) = values[3*k + 2];
+        stateMatrix(k, j-1) = values[3*k + 0];
+        stateMatrix(k + nb_cells, j-1) = values[3*k + 1];
+        stateMatrix(k + 2*nb_cells, j-1) = values[3*k + 2];
       }
 
       //* The parameters are added at the end of the state vector *
       for (int k = 0; k < cwipiParams; k++)
       {
-        stateVector(3*nb_cells + k, j-1) = paramsValues[k];
+        stateMatrix(3*nb_cells + k, j-1) = paramsValues[k];
       }
     }
 
-    //====== Writing values to a txt file =========
-    print_matrix_on_txt(i, numberCwipiPhase, cwipiOutputNb, cwipiMembers, nb_cells, cwipiParams, time, stateVector, "UMat");
+    //** Writing values to a txt file if needed **
+    print_matrix_on_txt(i, numberCwipiPhase, cwipiOutputNb, cwipiMembers, nb_cells, cwipiParams, time, stateMatrix, "UMat");
 
-    if (clippingSwitch == 1)
-    {
-      stateVector = doClipping(stateVector, invStateVector, nb_cells, cwipiParams, cwipiMembers, cwipiVerbose, stringRootPath);
+    //==================== Kalman filter code =====================
 
-      //====== Writing values to a txt file =========
-      print_matrix_on_txt(i, numberCwipiPhase, cwipiOutputNb, cwipiMembers, nb_cells, cwipiParams, time, stateVector, "UMat_Clip");
-    }
-    //======== Kalman filter code =======
+    stateMatrixUpt = mainEnKF(stateMatrix, mesh, cwipiMembers, nb_cells, cwipiObs, cwipiObsU, sigmaUserU, sigmaUserp, sigmaUserCf, sigmaLocX, sigmaLocY, sigmaLocZ, localSwitch, clippingSwitch, hyperlocSwitch, cwipiParams, cwipiParamsObs, stateInfl, paramsInfl, typeInfl, typeInputs, velocityCase, sigmaUserUa, sigmaUserUb, sigmaUserUc, paramEstSwitch,  cwipiVerbose, stringRootPath, cwipiTimedObs, obsTimeStep, time);
 
-    //========= The observation Matrix will be different depending on the high-fidelity observations
-    ArrayXf obsMatrix(cwipiObs); // By default our parameter is the velocity
 
-    if (cwipiTimedObs)
-    {
-      int obsIndex = time / obsTimeStep - 1;
-      obsMatrix = obs_Data_timed(cwipiMembers, nb_cells, cwipiObs, cwipiObsU, obsIndex, cwipiParamsObs, cwipiVerbose, stringRootPath);
-    }
-    else
-      obsMatrix = obs_Data(cwipiMembers, nb_cells, cwipiObs, cwipiObsU, cwipiParamsObs, cwipiVerbose, stringRootPath);
+    //** Writing values to a txt file if needed **
+    print_matrix_on_txt(i, numberCwipiPhase, cwipiOutputNb, cwipiMembers, nb_cells, cwipiParams, time, stateMatrixUpt, "UMat_upt");
 
-    MatrixXf sampMatrix = samp_Data(cwipiMembers, cwipiObs, cwipiObsU, velocityCase, cwipiParamsObs, cwipiVerbose, stringRootPath);
-
-    MatrixXf UptMatrix = KF(stateVector, obsMatrix, sampMatrix, cwipiMembers, nb_cells, cwipiObs, cwipiObsU, sigmaUserU, sigmaUserp, sigmaUserCf,
-                            sigmaLocX, sigmaLocY, sigmaLocZ, localSwitch, clippingSwitch, cwipiParams, cwipiParamsObs, stateInfl, paramsInfl, typeInfl,
-                            typeInputs, velocityCase, sigmaUserUa, sigmaUserUb, sigmaUserUc, paramEstSwitch, mesh, cwipiVerbose, stringRootPath);
-
-    if (clippingSwitch)
-    {
-
-      //====== Writing updated values to a txt file =========
-      print_matrix_on_txt(i, numberCwipiPhase, cwipiOutputNb, cwipiMembers, nb_cells, cwipiParams, time, UptMatrix, "UMat_Clip_upt");
-      UptMatrix = undoClipping(UptMatrix, invStateVector, inv_nb_cells, nb_cells, cwipiParams, cwipiMembers, cwipiVerbose, stringRootPath);
-    }
-
-    print_matrix_on_txt(i, numberCwipiPhase, cwipiOutputNb, cwipiMembers, nb_cells, cwipiParams, time, UptMatrix, "UMat_upt");
-
-    //================== Send back ======================
+    //===================== Send back procedure ========================
 
     for (int j = 1; j < cwipiMembers + 1; j++)
     {
-      KF_output(sendValues, paramsSendValues, values, UptMatrix, sampMatrix, obsMatrix, cwipiMembers, nb_cells, time, cwipiParams, cwipiObsU, cwipiObs, cwipiParamsObs, velocityCase,
-                j, subdomains, epsilon, cwipiVerbose);
+      prepare_sendBack(sendValues, paramsSendValues, values, stateMatrixUpt, nb_cells, cwipiParams, j, cwipiVerbose);
       sprintf(cl_coupling_name, "cwipiFoamCoupling");
 
       sprintf(indexChar, "%i", j);
@@ -471,7 +439,7 @@ int main(int argc, char *argv[])
     }
   }
 
-  //========= Delete coupling ==========
+  //=========== Delete coupling after all loops performed ============
 
   if (rank == 0)
     printf("Delete Cwipi coupling from c++ file\n");

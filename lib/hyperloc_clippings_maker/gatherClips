@@ -1,0 +1,19 @@
+#! /bin/bash
+
+nb_obs=$(printf "%s" "4" |sed 's/= //')
+
+
+for ((i=0; i<(nb_obs); i++));
+do
+    #We copy the information from the root directory
+    caseName=$(pwd)"/clippingCells$i.txt"
+
+    sed -i '1,17d' $caseName
+    sed -i '/(/d' $caseName
+    sed -i '/)/g' $caseName
+    sed -i '$d' $caseName
+    sed -i '$d' $caseName
+    sed -i -e 's/ //g' $caseName
+    sed -i '$d' $caseName
+    cat $caseName >> clippingCells.txt
+done

@@ -23,6 +23,8 @@ cwipiMembers=$(printf "%s" "$ensembles" |sed 's/= //')
 echo 'The number of decompositions we are dealing with is' $subdomains |sed 's/= //'
 cwipiDec=$(printf "%s" "$subdomains" |sed 's/= //')
 
+blockMesh
+
 # We create the "processor" folders with all information they need
 for ((i=1; i<(cwipiMembers+1); i++));
 do
@@ -59,7 +61,7 @@ do
     command="$command$partCommand"
 done
 
-rm -rf results postProcessing log
+# rm -rf results postProcessing log
 mkdir -p $(pwd)/results
 
 # We run in parallel with the number of ensembles wished

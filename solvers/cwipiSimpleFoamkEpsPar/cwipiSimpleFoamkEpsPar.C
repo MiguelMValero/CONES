@@ -52,7 +52,6 @@ int main(int argc, char *argv[])
 
     #include "setRootCaseLists.H"
 
-    //#include "cwipiCreateTime.H"
     #include "createTime.H"
 
     #include "createMesh.H"

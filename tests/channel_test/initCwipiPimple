@@ -46,8 +46,8 @@ do
     cp -r system/ $caseName/
     echo $caseName
 
-    # cp -r dynamicCode/ processor$i/
-    # Python default ubuntu version must be python 3 in order to use numpy for random normal distrib
+    #cp -r dynamicCode/ processor$i/
+    #Python default ubuntu version must be python 3 in order to use numpy for random normal distrib
     j=$(python -c "import scipy.stats as stats; print('{:.4f}'.format(stats.truncnorm.rvs((0.034-0.094)/0.03, (0.154-0.094)/0.03, loc=0.094, scale=0.03)))")
     echo $j
     echo $j >> results/initConditions.txt

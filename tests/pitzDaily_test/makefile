@@ -30,5 +30,8 @@ KF_coupling.exe: KF_coupling_functions.o KF_coupling.C
 KF_coupling_functions.o:
 	$(C++) $(C++FLAGS) -c KF_coupling_functions.C -I$(CWIPI_INC) $(C++EXTINC) $(C++EXTLIB) $(CWIPI_LINK) -lm 
 
+clean:
+	rm -r member* results
+
 allclean:
-	rm -f -r KF_coupling.exe KF_coupling_functions.o
+	rm -f -r KF_coupling.exe KF_coupling_functions.o member* results log*
