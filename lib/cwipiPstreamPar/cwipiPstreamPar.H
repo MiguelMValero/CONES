@@ -21,6 +21,9 @@ int c2fconnec_size, int fconnec_size, int nbParts, float cwipiVerbose, double ge
 void UInterpolation(volVectorField& U, fvMesh& mesh, Time& runTime, int cwipiObsU, int nbParts, interpolationCellPoint<vector> triangulateCellsU,
 float cwipiVerbose, std::string globalPath, std::string UIntPath);
 
+void pInterpolation(volScalarField& p, fvMesh& mesh, Time& runTime, int cwipiObsp, int nbParts, interpolationCellPoint<double> triangulateCellsp, 
+float cwipiVerbose, std::string globalPath, std::string pIntPath);
+
 void cwipiSend(const fvMesh& mesh, const volVectorField& vf, const Time& runTime, int cwipiIteration, int nbParts, float cwipiVerbose);
 
 void cwipiSendParams(const fvMesh& mesh, const volVectorField& vf, const Time& runTime, int cwipiIteration, int cwipiParams, int nbParts, float cwipiVerbose);
