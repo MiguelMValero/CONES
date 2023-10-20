@@ -1,1 +1,10 @@
-.vscode/settings.json
+.vscode/
+solvers/cwipiIcoFoamPar/Make/linux64GccDPInt32Opt/
+solvers/cwipiSimpleFoamkEpsPar/Make/linux64GccDPInt32Opt/
+solvers/cwipiPimpleFoamPar/Make/linux64GccDPInt32Opt/
+lib/cwipiPstreamPar/Make/linux64GccDPInt32Opt/
+pitzDaily_test/member*/
+pitzDaily_test/results/
+pitzDaily_test/KF_coupling.o
+pitzDaily_test/KF_coupling.exe
+pitzDaily_test/log

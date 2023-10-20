@@ -1,0 +1,102 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  9
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format      ascii;
+    class       volScalarField;
+    location    "0.09";
+    object      p;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   nonuniform List<scalar> 
+40
+(
+-0.61374
+-0.596372
+-0.673157
+-0.658193
+-0.646902
+-0.640048
+-0.637907
+-0.639502
+-0.739794
+-0.727367
+-0.721144
+-0.721297
+-0.72659
+-0.733605
+-0.814647
+-0.806195
+-0.804254
+-0.808521
+-0.816551
+-0.82366
+-0.903277
+-0.898124
+-0.897037
+-0.898271
+-0.900963
+-0.903037
+-1.00808
+-1.00568
+-0.9989
+-0.986326
+-0.972309
+-0.967048
+-1.13497
+-1.12534
+-1.09935
+-1.06206
+-1.02499
+-1.01146
+-1.26597
+-1.23469
+)
+;
+
+boundaryField
+{
+    movingWall
+    {
+        type            zeroGradient;
+    }
+    fixedWalls
+    {
+        type            zeroGradient;
+    }
+    frontAndBack
+    {
+        type            empty;
+    }
+    procBoundary8to5
+    {
+        type            processor;
+        value           nonuniform List<scalar> 4(-0.631325 -0.686843 -0.749795 -0.82239);
+    }
+    procBoundary8to6
+    {
+        type            processor;
+        value           nonuniform List<scalar> 4(-0.90998 -1.01403 -1.14659 -1.29648);
+    }
+    procBoundary8to7
+    {
+        type            processor;
+        value           nonuniform List<scalar> 7(-0.56886 -0.552384 -0.587459 -0.587459 -0.578946 -0.57503 -0.576908);
+    }
+    procBoundary8to9
+    {
+        type            processor;
+        value           nonuniform List<scalar> 7(-1.20623 -1.14099 -1.06545 -1.0254 -1.37931 -1.20623 -1.3327);
+    }
+}
+
+
+// ************************************************************************* //

@@ -1,0 +1,102 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  9
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format      ascii;
+    class       volScalarField;
+    location    "0.015";
+    object      p;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   nonuniform List<scalar> 
+40
+(
+2.60142
+2.70643
+2.67608
+2.79618
+2.84746
+2.84347
+2.80596
+2.74029
+2.7503
+2.88464
+2.94371
+2.94718
+2.90893
+2.82929
+2.8246
+2.96974
+3.03685
+3.04967
+3.01603
+2.92354
+2.88621
+3.0442
+3.13383
+3.16858
+3.15177
+3.05579
+2.93639
+3.14262
+3.27767
+3.35901
+3.37419
+3.29017
+3.0591
+3.33366
+3.55165
+3.70133
+3.74664
+3.67314
+3.28893
+3.65788
+)
+;
+
+boundaryField
+{
+    movingWall
+    {
+        type            zeroGradient;
+    }
+    fixedWalls
+    {
+        type            zeroGradient;
+    }
+    frontAndBack
+    {
+        type            empty;
+    }
+    procBoundary8to5
+    {
+        type            processor;
+        value           nonuniform List<scalar> 4(2.46735 2.52343 2.57651 2.63316);
+    }
+    procBoundary8to6
+    {
+        type            processor;
+        value           nonuniform List<scalar> 4(2.68459 2.7181 2.78057 2.93428);
+    }
+    procBoundary8to7
+    {
+        type            processor;
+        value           nonuniform List<scalar> 7(2.53524 2.62841 2.74726 2.74726 2.74114 2.70368 2.64815);
+    }
+    procBoundary8to9
+    {
+        type            processor;
+        value           nonuniform List<scalar> 7(3.97267 4.17518 4.25126 4.17431 3.57701 3.97267 4.03028);
+    }
+}
+
+
+// ************************************************************************* //

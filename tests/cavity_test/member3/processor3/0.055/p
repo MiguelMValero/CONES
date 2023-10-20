@@ -1,0 +1,107 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  9
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format      ascii;
+    class       volScalarField;
+    location    "0.055";
+    object      p;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   nonuniform List<scalar> 
+40
+(
+1.06453
+1.10451
+1.1613
+1.24687
+1.37135
+0.924885
+0.966619
+1.02778
+1.12099
+1.25468
+0.715774
+0.721887
+0.745864
+0.791116
+0.859964
+0.962471
+1.10562
+0.466022
+0.486211
+0.523301
+0.577476
+0.655599
+0.767969
+0.919566
+0.160025
+0.206461
+0.261426
+0.327129
+0.414733
+0.535406
+0.693593
+-0.206548
+-0.119926
+-0.0370177
+0.0447471
+0.142332
+0.271674
+0.436695
+0.00696769
+0.178982
+)
+;
+
+boundaryField
+{
+    movingWall
+    {
+        type            zeroGradient;
+    }
+    fixedWalls
+    {
+        type            zeroGradient;
+    }
+    frontAndBack
+    {
+        type            empty;
+    }
+    procBoundary3to1
+    {
+        type            processor;
+        value           nonuniform List<scalar> 8(1.04588 0.902157 0.903953 0.903953 0.739405 0.475959 0.142335 -0.27155);
+    }
+    procBoundary3to2
+    {
+        type            processor;
+        value           nonuniform List<scalar> 5(1.15445 1.19777 1.25593 1.3392 1.45636);
+    }
+    procBoundary3to4
+    {
+        type            processor;
+        value           nonuniform List<scalar> 8(-0.622592 -0.470276 -0.346112 -0.238119 -0.126441 -0.126441 -0.201411 -0.0145762);
+    }
+    procBoundary3to5
+    {
+        type            processor;
+        value           nonuniform List<scalar> 2(1.51099 1.40593);
+    }
+    procBoundary3to6
+    {
+        type            processor;
+        value           nonuniform List<scalar> 5(1.2686 1.09222 0.877438 0.635554 0.398074);
+    }
+}
+
+
+// ************************************************************************* //

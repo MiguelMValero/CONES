@@ -1,0 +1,102 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  9
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format      ascii;
+    class       volScalarField;
+    location    "0.06";
+    object      p;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   nonuniform List<scalar> 
+40
+(
+-0.593911
+-0.576997
+-0.645932
+-0.631016
+-0.617959
+-0.609095
+-0.605012
+-0.605243
+-0.702133
+-0.689856
+-0.681707
+-0.679443
+-0.682199
+-0.687356
+-0.76274
+-0.754819
+-0.751051
+-0.753415
+-0.759452
+-0.76503
+-0.834496
+-0.829416
+-0.827374
+-0.828465
+-0.830946
+-0.832416
+-0.917917
+-0.916219
+-0.910766
+-0.901271
+-0.890252
+-0.885461
+-1.02226
+-1.01414
+-0.986187
+-0.955339
+-0.927703
+-0.919862
+-1.13326
+-1.10026
+)
+;
+
+boundaryField
+{
+    movingWall
+    {
+        type            zeroGradient;
+    }
+    fixedWalls
+    {
+        type            zeroGradient;
+    }
+    frontAndBack
+    {
+        type            empty;
+    }
+    procBoundary8to5
+    {
+        type            processor;
+        value           nonuniform List<scalar> 4(-0.611998 -0.661337 -0.715284 -0.774345);
+    }
+    procBoundary8to6
+    {
+        type            processor;
+        value           nonuniform List<scalar> 4(-0.845535 -0.929205 -1.03851 -1.16754);
+    }
+    procBoundary8to7
+    {
+        type            processor;
+        value           nonuniform List<scalar> 7(-0.553436 -0.537281 -0.566045 -0.566045 -0.555883 -0.550437 -0.551133);
+    }
+    procBoundary8to9
+    {
+        type            processor;
+        value           nonuniform List<scalar> 7(-1.07438 -1.02268 -0.962188 -0.932068 -1.23992 -1.07438 -1.19605);
+    }
+}
+
+
+// ************************************************************************* //

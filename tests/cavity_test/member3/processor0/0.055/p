@@ -1,0 +1,92 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  9
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format      ascii;
+    class       volScalarField;
+    location    "0.055";
+    object      p;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   nonuniform List<scalar> 
+40
+(
+0.000512186
+0.165502
+0.415739
+0.653011
+0.840597
+0.238948
+0.387864
+0.583665
+0.771156
+0.934313
+0.567541
+0.644192
+0.760063
+0.892045
+1.0218
+0.859767
+0.866158
+0.918547
+1.00081
+1.09564
+1.06852
+1.03197
+1.04145
+1.08549
+1.15002
+1.21157
+1.1438
+1.12294
+1.13872
+1.17906
+1.2941
+1.20209
+1.15881
+1.15379
+1.1759
+1.31415
+1.20164
+1.14115
+1.12138
+1.13076
+)
+;
+
+boundaryField
+{
+    movingWall
+    {
+        type            zeroGradient;
+    }
+    fixedWalls
+    {
+        type            zeroGradient;
+    }
+    frontAndBack
+    {
+        type            empty;
+    }
+    procBoundary0to1
+    {
+        type            processor;
+        value           nonuniform List<scalar> 5(1.27127 1.14147 1.07022 1.04286 1.04588);
+    }
+    procBoundary0to2
+    {
+        type            processor;
+        value           nonuniform List<scalar> 8(1.00084 1.0764 1.14066 1.1893 1.22014 1.22919 1.21022 1.15445);
+    }
+}
+
+
+// ************************************************************************* //

@@ -1,0 +1,102 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  9
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format      ascii;
+    class       volScalarField;
+    location    "0.07";
+    object      p;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   nonuniform List<scalar> 
+40
+(
+-0.759823
+-0.744558
+-0.81545
+-0.802401
+-0.791053
+-0.783875
+-0.781208
+-0.782317
+-0.876464
+-0.866544
+-0.860413
+-0.85995
+-0.864202
+-0.870247
+-0.943497
+-0.938264
+-0.936497
+-0.940402
+-0.947587
+-0.953777
+-1.02434
+-1.02159
+-1.021
+-1.02268
+-1.02525
+-1.02666
+-1.11831
+-1.11852
+-1.11366
+-1.10311
+-1.09031
+-1.08443
+-1.23339
+-1.22655
+-1.1963
+-1.16194
+-1.13059
+-1.12122
+-1.35195
+-1.31856
+)
+;
+
+boundaryField
+{
+    movingWall
+    {
+        type            zeroGradient;
+    }
+    fixedWalls
+    {
+        type            zeroGradient;
+    }
+    frontAndBack
+    {
+        type            empty;
+    }
+    procBoundary8to5
+    {
+        type            processor;
+        value           nonuniform List<scalar> 4(-0.77683 -0.829297 -0.887634 -0.952773);
+    }
+    procBoundary8to6
+    {
+        type            processor;
+        value           nonuniform List<scalar> 4(-1.03192 -1.12567 -1.24533 -1.38283);
+    }
+    procBoundary8to7
+    {
+        type            processor;
+        value           nonuniform List<scalar> 7(-0.717923 -0.703142 -0.736073 -0.736073 -0.726948 -0.72248 -0.723928);
+    }
+    procBoundary8to9
+    {
+        type            processor;
+        value           nonuniform List<scalar> 7(-1.29052 -1.23504 -1.16911 -1.13555 -1.45864 -1.29052 -1.415);
+    }
+}
+
+
+// ************************************************************************* //

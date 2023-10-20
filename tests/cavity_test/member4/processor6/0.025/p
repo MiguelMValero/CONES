@@ -1,0 +1,107 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  9
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format      ascii;
+    class       volScalarField;
+    location    "0.025";
+    object      p;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   nonuniform List<scalar> 
+40
+(
+0.926227
+1.09923
+1.25954
+1.43419
+0.886163
+1.07826
+1.26128
+1.46143
+0.82805
+1.0428
+1.25303
+1.49099
+0.749348
+0.994338
+1.24592
+1.53883
+0.652508
+0.934901
+1.2376
+1.58553
+0.561234
+0.873977
+1.22583
+1.62979
+0.497613
+0.83583
+1.23099
+1.68879
+0.503017
+0.836858
+1.25475
+1.75102
+0.558128
+0.865264
+1.27385
+1.78245
+0.616195
+0.87257
+1.2371
+1.69632
+)
+;
+
+boundaryField
+{
+    movingWall
+    {
+        type            zeroGradient;
+    }
+    fixedWalls
+    {
+        type            zeroGradient;
+    }
+    frontAndBack
+    {
+        type            empty;
+    }
+    procBoundary6to3
+    {
+        type            processor;
+        value           nonuniform List<scalar> 5(0.765209 0.706832 0.628903 0.521917 0.390369);
+    }
+    procBoundary6to4
+    {
+        type            processor;
+        value           nonuniform List<scalar> 5(0.266798 0.181592 0.159007 0.203037 0.291617);
+    }
+    procBoundary6to5
+    {
+        type            processor;
+        value           nonuniform List<scalar> 4(0.958158 1.11483 1.25728 1.40928);
+    }
+    procBoundary6to8
+    {
+        type            processor;
+        value           nonuniform List<scalar> 4(1.5902 1.64579 1.72924 1.84776);
+    }
+    procBoundary6to9
+    {
+        type            processor;
+        value           nonuniform List<scalar> 6(1.95254 2.07587 2.20762 2.36031 2.47297 2.38168);
+    }
+}
+
+
+// ************************************************************************* //

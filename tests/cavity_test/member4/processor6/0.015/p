@@ -1,0 +1,107 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  9
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format      ascii;
+    class       volScalarField;
+    location    "0.015";
+    object      p;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   nonuniform List<scalar> 
+40
+(
+1.86503
+2.07215
+2.22675
+2.39749
+1.88076
+2.09675
+2.25841
+2.43578
+1.9004
+2.12495
+2.29544
+2.49978
+1.91737
+2.16382
+2.37207
+2.63712
+1.90857
+2.2025
+2.47877
+2.816
+1.87744
+2.21828
+2.57424
+2.98516
+1.83755
+2.21642
+2.64967
+3.12245
+1.81673
+2.21148
+2.70857
+3.23573
+1.81656
+2.21763
+2.73303
+3.28872
+1.80524
+2.20535
+2.7191
+3.25563
+)
+;
+
+boundaryField
+{
+    movingWall
+    {
+        type            zeroGradient;
+    }
+    fixedWalls
+    {
+        type            zeroGradient;
+    }
+    frontAndBack
+    {
+        type            empty;
+    }
+    procBoundary6to3
+    {
+        type            processor;
+        value           nonuniform List<scalar> 5(1.60998 1.60839 1.61428 1.59826 1.55599);
+    }
+    procBoundary6to4
+    {
+        type            processor;
+        value           nonuniform List<scalar> 5(1.50112 1.46424 1.46598 1.47363 1.48326);
+    }
+    procBoundary6to5
+    {
+        type            processor;
+        value           nonuniform List<scalar> 4(1.86189 2.05093 2.19114 2.34677);
+    }
+    procBoundary6to8
+    {
+        type            processor;
+        value           nonuniform List<scalar> 4(2.58609 2.64553 2.76809 2.97627);
+    }
+    procBoundary6to9
+    {
+        type            processor;
+        value           nonuniform List<scalar> 6(3.22713 3.44827 3.61684 3.75492 3.83895 3.77438);
+    }
+}
+
+
+// ************************************************************************* //

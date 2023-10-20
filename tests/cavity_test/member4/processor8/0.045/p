@@ -1,0 +1,102 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  9
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format      ascii;
+    class       volScalarField;
+    location    "0.045";
+    object      p;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   nonuniform List<scalar> 
+40
+(
+1.20159
+1.27749
+1.23023
+1.32491
+1.35083
+1.31816
+1.22112
+1.05723
+1.25614
+1.38037
+1.43487
+1.41829
+1.31475
+1.11621
+1.27797
+1.43973
+1.53259
+1.54405
+1.44275
+1.20915
+1.28441
+1.49733
+1.64928
+1.7098
+1.62657
+1.36301
+1.27978
+1.57362
+1.81489
+1.95729
+1.91594
+1.63505
+1.297
+1.69505
+2.06899
+2.3351
+2.36886
+2.08781
+1.34065
+1.86284
+)
+;
+
+boundaryField
+{
+    movingWall
+    {
+        type            zeroGradient;
+    }
+    fixedWalls
+    {
+        type            zeroGradient;
+    }
+    frontAndBack
+    {
+        type            empty;
+    }
+    procBoundary8to5
+    {
+        type            processor;
+        value           nonuniform List<scalar> 4(1.10573 1.11249 1.11206 1.10486);
+    }
+    procBoundary8to6
+    {
+        type            processor;
+        value           nonuniform List<scalar> 4(1.06545 1.01356 0.948455 0.892897);
+    }
+    procBoundary8to7
+    {
+        type            processor;
+        value           nonuniform List<scalar> 7(1.18358 1.24485 1.29205 1.29205 1.25628 1.16587 1.02756);
+    }
+    procBoundary8to9
+    {
+        type            processor;
+        value           nonuniform List<scalar> 7(2.35091 2.78217 2.96441 2.7525 1.36942 2.35091 2.01707);
+    }
+}
+
+
+// ************************************************************************* //

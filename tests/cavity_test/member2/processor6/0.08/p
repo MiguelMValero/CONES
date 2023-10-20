@@ -1,0 +1,107 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  9
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format      ascii;
+    class       volScalarField;
+    location    "0.08";
+    object      p;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   nonuniform List<scalar> 
+40
+(
+-0.843983
+-0.845512
+-0.843095
+-0.836564
+-0.946161
+-0.949605
+-0.945284
+-0.930892
+-1.07203
+-1.07633
+-1.06972
+-1.05084
+-1.21617
+-1.22548
+-1.21599
+-1.18757
+-1.37201
+-1.39442
+-1.37232
+-1.3186
+-1.55882
+-1.59195
+-1.54223
+-1.42758
+-1.8152
+-1.86955
+-1.79694
+-1.59261
+-2.08331
+-2.158
+-2.113
+-1.91912
+-2.26943
+-2.36942
+-2.35267
+-2.20231
+-2.32665
+-2.45225
+-2.44802
+-2.30828
+)
+;
+
+boundaryField
+{
+    movingWall
+    {
+        type            zeroGradient;
+    }
+    fixedWalls
+    {
+        type            zeroGradient;
+    }
+    frontAndBack
+    {
+        type            empty;
+    }
+    procBoundary6to3
+    {
+        type            processor;
+        value           nonuniform List<scalar> 5(-0.827709 -0.92822 -1.04857 -1.18285 -1.31712);
+    }
+    procBoundary6to4
+    {
+        type            processor;
+        value           nonuniform List<scalar> 5(-1.45122 -1.66366 -1.94611 -2.15534 -2.22778);
+    }
+    procBoundary6to5
+    {
+        type            processor;
+        value           nonuniform List<scalar> 4(-0.763795 -0.764562 -0.762374 -0.757003);
+    }
+    procBoundary6to8
+    {
+        type            processor;
+        value           nonuniform List<scalar> 4(-0.828706 -0.923341 -1.03862 -1.15634);
+    }
+    procBoundary6to9
+    {
+        type            processor;
+        value           nonuniform List<scalar> 6(-1.26088 -1.30518 -1.33606 -1.58257 -1.96526 -2.15906);
+    }
+}
+
+
+// ************************************************************************* //

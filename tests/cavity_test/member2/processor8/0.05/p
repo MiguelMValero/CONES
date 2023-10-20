@@ -1,0 +1,102 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  9
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format      ascii;
+    class       volScalarField;
+    location    "0.05";
+    object      p;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   nonuniform List<scalar> 
+40
+(
+-0.00394744
+0.0161403
+-0.0476484
+-0.0301505
+-0.0135491
+-0.00186317
+0.00441678
+0.00551832
+-0.093168
+-0.0793756
+-0.0681287
+-0.0628502
+-0.0629599
+-0.0663638
+-0.140375
+-0.132147
+-0.125734
+-0.125509
+-0.129181
+-0.133113
+-0.198104
+-0.192317
+-0.188163
+-0.187851
+-0.189111
+-0.189509
+-0.263819
+-0.261724
+-0.255722
+-0.247134
+-0.237208
+-0.232073
+-0.348506
+-0.340604
+-0.308903
+-0.28203
+-0.260502
+-0.256141
+-0.439876
+-0.404297
+)
+;
+
+boundaryField
+{
+    movingWall
+    {
+        type            zeroGradient;
+    }
+    fixedWalls
+    {
+        type            zeroGradient;
+    }
+    frontAndBack
+    {
+        type            empty;
+    }
+    procBoundary8to5
+    {
+        type            processor;
+        value           nonuniform List<scalar> 4(-0.0276282 -0.0684901 -0.112082 -0.157722);
+    }
+    procBoundary8to6
+    {
+        type            processor;
+        value           nonuniform List<scalar> 4(-0.213448 -0.28008 -0.368744 -0.477285);
+    }
+    procBoundary8to7
+    {
+        type            processor;
+        value           nonuniform List<scalar> 7(0.0291995 0.0488033 0.0300702 0.0300702 0.0431865 0.0508765 0.0514787);
+    }
+    procBoundary8to9
+    {
+        type            processor;
+        value           nonuniform List<scalar> 7(-0.378369 -0.337983 -0.288858 -0.265696 -0.533753 -0.378369 -0.492441);
+    }
+}
+
+
+// ************************************************************************* //

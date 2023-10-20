@@ -1,0 +1,107 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  9
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format      ascii;
+    class       volScalarField;
+    location    "0.055";
+    object      p;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   nonuniform List<scalar> 
+40
+(
+1.7434
+1.8911
+2.02675
+2.14428
+1.73912
+1.87266
+1.99587
+2.10398
+1.73167
+1.8572
+1.97382
+2.07767
+1.71915
+1.84208
+1.95782
+2.06261
+1.70084
+1.82543
+1.94516
+2.05644
+1.67559
+1.80576
+1.93445
+2.05714
+1.6398
+1.77953
+1.92053
+2.05875
+1.58703
+1.73953
+1.8961
+2.0546
+1.51099
+1.67817
+1.85476
+2.03833
+1.40593
+1.5899
+1.78978
+2.00609
+)
+;
+
+boundaryField
+{
+    movingWall
+    {
+        type            zeroGradient;
+    }
+    fixedWalls
+    {
+        type            zeroGradient;
+    }
+    frontAndBack
+    {
+        type            empty;
+    }
+    procBoundary5to2
+    {
+        type            processor;
+        value           nonuniform List<scalar> 8(1.59039 1.60247 1.606 1.60004 1.58482 1.55891 1.51815 1.45636);
+    }
+    procBoundary5to3
+    {
+        type            processor;
+        value           nonuniform List<scalar> 2(1.37135 1.25468);
+    }
+    procBoundary5to6
+    {
+        type            processor;
+        value           nonuniform List<scalar> 4(1.2686 1.46589 1.68834 1.9412);
+    }
+    procBoundary5to7
+    {
+        type            processor;
+        value           nonuniform List<scalar> 6(2.23506 2.18734 2.15765 2.14311 2.14152 2.15245);
+    }
+    procBoundary5to8
+    {
+        type            processor;
+        value           nonuniform List<scalar> 4(2.16689 2.18461 2.19801 2.20397);
+    }
+}
+
+
+// ************************************************************************* //

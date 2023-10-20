@@ -1,0 +1,107 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  9
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format      ascii;
+    class       volScalarField;
+    location    "0.025";
+    object      p;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   nonuniform List<scalar> 
+40
+(
+1.10343
+1.20604
+1.29857
+1.38244
+1.10529
+1.20079
+1.28632
+1.36452
+1.1064
+1.19837
+1.27974
+1.35514
+1.10619
+1.19769
+1.27768
+1.35291
+1.10513
+1.19862
+1.2796
+1.35859
+1.10429
+1.20192
+1.28758
+1.37336
+1.10133
+1.20736
+1.2999
+1.39463
+1.0917
+1.20938
+1.31293
+1.42177
+1.07302
+1.20648
+1.32672
+1.45256
+1.04927
+1.20405
+1.34384
+1.4917
+)
+;
+
+boundaryField
+{
+    movingWall
+    {
+        type            zeroGradient;
+    }
+    fixedWalls
+    {
+        type            zeroGradient;
+    }
+    frontAndBack
+    {
+        type            empty;
+    }
+    procBoundary5to2
+    {
+        type            processor;
+        value           nonuniform List<scalar> 8(0.997064 1.00791 1.01412 1.01613 1.0147 1.0101 0.999674 0.978295);
+    }
+    procBoundary5to3
+    {
+        type            processor;
+        value           nonuniform List<scalar> 2(0.946504 0.905597);
+    }
+    procBoundary5to6
+    {
+        type            processor;
+        value           nonuniform List<scalar> 4(1.02525 1.19654 1.35383 1.52321);
+    }
+    procBoundary5to7
+    {
+        type            processor;
+        value           nonuniform List<scalar> 6(1.45397 1.4294 1.41669 1.41439 1.42278 1.44466);
+    }
+    procBoundary5to8
+    {
+        type            processor;
+        value           nonuniform List<scalar> 4(1.47336 1.51356 1.56082 1.61697);
+    }
+}
+
+
+// ************************************************************************* //

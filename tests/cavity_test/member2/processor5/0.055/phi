@@ -1,0 +1,136 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  9
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format      ascii;
+    class       surfaceScalarField;
+    location    "0.055";
+    object      phi;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 3 -1 0 0 0 0];
+
+internalField   nonuniform List<scalar> 
+66
+(
+-3.78587e-06
+-1.3388e-08
+-3.59073e-06
+-1.95141e-07
+-3.23073e-06
+-3.59997e-07
+-5.0907e-07
+-9.23396e-06
+-7.2428e-08
+-8.76824e-06
+-6.60856e-07
+-7.92916e-06
+-1.19908e-06
+-1.67342e-06
+-1.36157e-05
+-1.69061e-07
+-1.29518e-05
+-1.32477e-06
+-1.17584e-05
+-2.39246e-06
+-3.32883e-06
+-1.75202e-05
+-2.77111e-07
+-1.6709e-05
+-2.13606e-06
+-1.52298e-05
+-3.87167e-06
+-5.39934e-06
+-2.11959e-05
+-3.48773e-07
+-2.02966e-05
+-3.03537e-06
+-1.85901e-05
+-5.57814e-06
+-7.83732e-06
+-2.48035e-05
+-3.08327e-07
+-2.39006e-05
+-3.93833e-06
+-2.20515e-05
+-7.42718e-06
+-1.05823e-05
+-2.84137e-05
+-7.40322e-08
+-2.76153e-05
+-4.73679e-06
+-2.573e-05
+-9.31245e-06
+-1.35473e-05
+-3.19886e-05
+3.95538e-07
+-3.13709e-05
+-5.35449e-06
+-2.9573e-05
+-1.11103e-05
+-1.65905e-05
+-3.53787e-05
+1.08127e-06
+-3.49724e-05
+-5.76074e-06
+-3.33568e-05
+-1.27259e-05
+-1.95631e-05
+-3.83679e-05
+-3.82086e-05
+-3.68463e-05
+)
+;
+
+boundaryField
+{
+    movingWall
+    {
+        type            calculated;
+        value           nonuniform List<scalar> 0();
+    }
+    fixedWalls
+    {
+        type            calculated;
+        value           uniform 0;
+    }
+    frontAndBack
+    {
+        type            empty;
+        value           nonuniform List<scalar> 0();
+    }
+    procBoundary5to2
+    {
+        type            processor;
+        value           nonuniform List<scalar> 8(3.79925e-06 9.293e-06 1.37124e-05 1.76283e-05 2.12676e-05 2.47631e-05 2.81794e-05 3.1519e-05);
+    }
+    procBoundary5to3
+    {
+        type            processor;
+        value           nonuniform List<scalar> 2(3.4693e-05 3.75052e-05);
+    }
+    procBoundary5to6
+    {
+        type            processor;
+        value           nonuniform List<scalar> 4(1.94401e-06 -5.92008e-06 -1.40882e-05 -2.23345e-05);
+    }
+    procBoundary5to7
+    {
+        type            processor;
+        value           nonuniform List<scalar> 6(-2.72166e-06 -6.76482e-06 -1.0103e-05 -1.31592e-05 -1.61522e-05 -1.93065e-05);
+    }
+    procBoundary5to8
+    {
+        type            processor;
+        value           nonuniform List<scalar> 4(-2.27651e-05 -2.65297e-05 -3.03842e-05 -3.40749e-05);
+    }
+}
+
+
+// ************************************************************************* //
