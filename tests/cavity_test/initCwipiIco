@@ -58,7 +58,7 @@ do
 done
 
 # We clean the root directory
-# rm -rf results postProcessing log
+rm -rf results postProcessing log
 mkdir -p $(pwd)/results
 
 
