@@ -380,9 +380,6 @@ int main(int argc, char *argv[])
         stateMatrix(k + nb_cells, j-1) = values[3*k + 1];
         stateMatrix(k + 2*nb_cells, j-1) = values[3*k + 2];
       }
-      else obsMatrix = obs_Data(cwipiMembers, nb_cells, cwipiObs, cwipiObsU, cwipiParamsObs, cwipiVerbose, stringRootPath);
-     
-      MatrixXf sampMatrix = samp_Data(cwipiMembers, cwipiObs, cwipiObsU, velocityCase, cwipiParamsObs, cwipiVerbose, stringRootPath);
 
       //* The parameters are added at the end of the state vector *
       for (int k = 0; k < cwipiParams; k++)
