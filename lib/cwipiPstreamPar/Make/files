@@ -5,4 +5,8 @@ PstreamGlobals.C
 interpolation.C
 cwipiPstreamPar.C
 
+cavity_test.C
+pitzDaily_test.C
+channel_test.C
+
 LIB = $(FOAM_USER_LIBBIN)/libcwipiPstreamPar

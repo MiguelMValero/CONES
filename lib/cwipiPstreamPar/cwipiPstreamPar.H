@@ -7,6 +7,7 @@
 #include "interpolationCellPointWallModified.H"
 #include "kinematicMomentumTransportModel.H"
 // #include "interpolationCellPointFace.H"
+#include <cwipi.h>
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
