@@ -4,7 +4,7 @@ Switch cwipiSwitch = runTime.controlDict().lookup("cwipiSwitch");
 
 std::ifstream cFile ("cwipiConfig");
 
-int values[34]={0};
+double values[34]={0};
 int k = 0;
 
 if (cFile.is_open())
@@ -34,13 +34,13 @@ else
 int cwipiStep = values[0];
 int nbParts = values[2];
 int cwipiObsU = values[3];
-// int cwipiObsp = values[5];
+int cwipiObsp = values[4];
 int cwipiParams = values[6];
 double geom_tol = values[7];
 float cwipiVerbose = values[12];
 int cwipiParamsObs = values[15];
 
-if (cwipiVerbose) if (Pstream::master())  Foam::Pout << "Information about decomposition read" << endl;
+if (cwipiVerbose) if (Pstream::master()) Foam::Pout << "Information about decomposition read" << endl;
 
 scalar cwipiTimestep = 1;
 scalar numberCwipiPhaseDouble = (runTime.endTime().value()/runTime.deltaTValue())/cwipiStep;
@@ -73,6 +73,6 @@ std::string globalCaseName = args.globalCaseName();
 std::string globalRootPath = args.rootPath(); // Root path
 std::string globalCasePath = globalRootPath + "/" + globalCaseName; // For UInt
 
-if (cwipiVerbose) if (Pstream::master()){
+if (cwipiVerbose) if (Pstream::master){
     Foam::Pout<< "Solving with rank " << myGlobalRank << " the testcase with path " << globalCasePath << endl;
 }

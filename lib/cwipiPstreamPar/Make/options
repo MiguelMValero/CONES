@@ -1,9 +1,12 @@
 -include $(GENERAL_RULES)/mplibType
 
 EXE_INC  = $(PFLAGS) $(PINC) \
+EXE_INC  = $(PFLAGS) $(PINC) \
     -I$(LIB_SRC)/MomentumTransportModels/momentumTransportModels/lnInclude \
     -I$(LIB_SRC)/MomentumTransportModels/incompressible/lnInclude \
     -I$(LIB_SRC)/transportModels/lnInclude \
+    -I$(LIB_SRC)/meshTools/lnInclude \
+    -I$(LIB_SRC)/dynamicMesh/lnInclude \
     -I$(LIB_SRC)/meshTools/lnInclude \
     -I$(LIB_SRC)/dynamicMesh/lnInclude \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
@@ -12,6 +15,8 @@ EXE_INC  = $(PFLAGS) $(PINC) \
 LIB_LIBS = $(PLIBS) \
     -lmomentumTransportModels \
     -lincompressibleMomentumTransportModels \
+    -lmeshTools \
+    -ldynamicMesh \
     -lmeshTools \
     -ldynamicMesh \
     -lfiniteVolume \
