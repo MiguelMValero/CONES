@@ -1,3 +1,7 @@
-cwipiPimpleFoamPar.C
+UOPwrite.C
+UIPread.C
+UPstream.C
+PstreamGlobals.C
+cwipiPstreamPar.C
 
-EXE = $(FOAM_USER_APPBIN)/cwipiPimpleFoamPar
+LIB = $(FOAM_USER_LIBBIN)/libcwipiPstreamPar
