@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
   int cwipiParams = configValues[6];       // Number of parameters to optimize with the DA
   double geom_tol = configValues[7];       // Geometric tolerance of the cwipi coupling meshes
   int cwipiOutputNb = configValues[8];     // Number of txt file written beginning from the last one
-  double sigmaUserU = configValues[9];    // sigma of the EnKF (pertubation of the obs and diagonal of R matrix for velocity)
+  double sigmaUserU = configValues[9];     // sigma of the EnKF (pertubation of the obs and diagonal of R matrix for velocity)
   double sigmaUserp = configValues[10];    // sigma of the EnKF (pertubation of the obs and diagonal of R matrix for pressure)
   double sigmaUserCf = configValues[11];   // sigma of the EnKF (pertubation of the obs and diagonal of R matrix for friction coefficient)
   float cwipiVerbose = configValues[12];   // Print all the debuging messages or not: 1 = printed, 0 = nothing
@@ -393,7 +393,7 @@ int main(int argc, char *argv[])
 
     //==================== Kalman filter code =====================
 
-    stateMatrixUpt = mainEnKF(stateMatrix, mesh, cwipiMembers, nb_cells, cwipiObs, cwipiObsU, sigmaUserU, sigmaUserp, sigmaUserCf, sigmaLocX, sigmaLocY, sigmaLocZ, localSwitch, clippingSwitch, hyperlocSwitch, cwipiParams, cwipiParamsObs, stateInfl, paramsInfl, typeInfl, typeInputs, velocityCase, sigmaUserUa, sigmaUserUb, sigmaUserUc, paramEstSwitch,  cwipiVerbose, stringRootPath, cwipiTimedObs, obsTimeStep, time);
+    stateMatrixUpt = mainEnKF(stateMatrix, mesh, cwipiMembers, nb_cells, cwipiObs, cwipiObsU, sigmaUserU, sigmaUserp, sigmaUserCf, sigmaLocX, sigmaLocY, sigmaLocZ, localSwitch, clippingSwitch, hyperlocSwitch, cwipiParams, cwipiParamsObs, stateInfl, paramsInfl, typeInfl, typeInputs, velocityCase, sigmaUserUa, sigmaUserUb, sigmaUserUc, paramEstSwitch,  cwipiVerbose, stringRootPath, cwipiTimedObs, obsTimeStep, time, epsilon);
 
 
     //** Writing values to a txt file if needed **

@@ -347,7 +347,7 @@ void pInterpolation(volScalarField& p, fvMesh& mesh, Time& runTime, int cwipiObs
     if (cwipiVerbose) if (Pstream::master()) Pout << "Sampling files created " << endl;
 }
 
-void UpInterpolation(volVectorField& U, volScalarField& p, fvMesh& mesh, const Time& runTime, int cwipiObsU, int cwipiObsp, int nbParts, float cwipiVerbose, std::string globalPath, std::string UpIntPath)
+void UpInterpolation(volVectorField& U, volScalarField& p, fvMesh& mesh, Time& runTime, int cwipiObsU, int cwipiObsp, int nbParts, float cwipiVerbose, std::string globalPath, std::string UpIntPath)
 {
     //=== Produce a file for each OF instance containing the sampled velocities and pressures 
     //(H.x term in the kalman gain calculation) === 
