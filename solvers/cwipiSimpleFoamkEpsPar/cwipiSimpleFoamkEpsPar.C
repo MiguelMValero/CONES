@@ -97,15 +97,14 @@ int main(int argc, char *argv[])
         {
             if (cwipiVerbose) Foam::Pout<< "The remainder between the rank and the number of partitions by simulation " << myGlobalRank << " is " << myGlobalRank % nbParts << nl << endl;
             if (cwipiParamsObs == 0){
-                interpolationCellPoint<vector> triangulateCellsU(U);
-                UInterpolation(U, mesh, runTime, cwipiObsU, nbParts, triangulateCellsU, cwipiVerbose, globalRootPath, globalCasePath);
+                UInterpolation(U, mesh, runTime, cwipiObsU, nbParts, cwipiVerbose, globalRootPath, globalCasePath);
             }
-            else if (cwipiParamsObs == 1) {
-                interpolationCellPoint<double> triangulateCellsp(p);
-                pInterpolation(p, mesh, runTime, cwipiObsp, nbParts, triangulateCellsp, cwipiVerbose, globalRootPath, globalCasePath);
+            else if (cwipiParamsObs == 1){
+                pInterpolation(p, mesh, runTime, cwipiObsp, nbParts, cwipiVerbose, globalRootPath, globalCasePath);
             }
-            // else if (cwipiParamsObs == 2) UpInterpolation(U, p, mesh, cwipiObsU, cwipiObsp, cwipiVerbose, globalRootPath);
-
+            else if (cwipiParamsObs == 2){
+                UpInterpolation(U, p, mesh, runTime, cwipiObsU, cwipiObsp, nbParts, cwipiVerbose, globalRootPath, globalCasePath);
+            }
             cwipiSend(mesh, U, runTime, cwipiIteration, nbParts, cwipiVerbose);
             cwipiSendParamsKEps(mesh, turbulence(), runTime, cwipiIteration, cwipiParams, nbParts, cwipiVerbose);
 
