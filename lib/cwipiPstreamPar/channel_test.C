@@ -1,6 +1,7 @@
 #include "cwipiPstreamPar.H"
 #include <random>
 #include <chrono>
+#include <cwipi.h>
 
 namespace Foam
 {

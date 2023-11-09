@@ -10,6 +10,7 @@
 #include "interpolationCellPointWallModified.H"
 // #include "interpolationCellPointFace.H"
 #include "cwipiPstreamPar.H"
+#include <cwipi.h>
 #include <iostream>
 #include <fstream>
 #include <cmath>

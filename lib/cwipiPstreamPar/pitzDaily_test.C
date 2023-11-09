@@ -1,6 +1,7 @@
 #include "cwipiPstreamPar.H"
 #include <random>
 #include <chrono>
+#include <cwipi.h>
 
 namespace Foam
 {
@@ -65,7 +66,6 @@ void cwipiRecvParamsKEps(const fvMesh& mesh, incompressible::momentumTransportMo
     
         if (cwipiVerbose) Pout << "Before Re-receive params" << endl;
 
-        MPI_Status status4;
         MPI_Recv(paramsToRecv, cwipiParams, MPI_DOUBLE, 0, recvTag_params, MPI_COMM_WORLD, &status4);
         const double mean = 0.0;
         const double stddev = 0.11;

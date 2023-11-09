@@ -451,8 +451,8 @@ MatrixXf samp_Data(int cwipiMembers, int cwipiObs, int cwipiObsU, int velocityCa
         }
         else if (cwipiParamsObs == 1){
             std::string pInt;
-            sprintf(ensemble, "/pInt%i", i);
-            sprintf(member, "%i", i);
+            sprintf(ensemble, "/pInt%i", i+1);
+            sprintf(member, "%i", i+1);
             pInt += IntGen; // Append the path
             pInt += member; // Append the member index
             pInt += ensemble; // Append file name
@@ -461,8 +461,8 @@ MatrixXf samp_Data(int cwipiMembers, int cwipiObs, int cwipiObsU, int velocityCa
         }
         else if (cwipiParamsObs == 2){
             std::string UpInt;
-            sprintf(ensemble, "/UpInt%i", i);
-            sprintf(member, "%i", i);
+            sprintf(ensemble, "/UpInt%i", i+1);
+            sprintf(member, "%i", i+1);
             UpInt += IntGen; // Append the path
             UpInt += member; // Append the member index
             UpInt += ensemble; // Append file name
@@ -575,7 +575,7 @@ MatrixXf samp_Data(int cwipiMembers, int cwipiObs, int cwipiObsU, int velocityCa
 }
 
 //===========================================================================
-void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const Eigen::Ref<const Eigen::MatrixXf>& sampMatrix, const Eigen::Ref<const Eigen::ArrayXf>& obsArray, int cwipiMembers, int nb_cells, double time, int cwipiParams, int cwipiObsU, int cwipiObs, int cwipiParamsObs, int velocityCase, float cwipiVerbose, double epsilon = 0)
+void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const Eigen::Ref<const Eigen::MatrixXf>& sampMatrix, const Eigen::Ref<const Eigen::ArrayXf>& obsArray, int cwipiMembers, int nb_cells, double time, int cwipiParams, int cwipiObsU, int cwipiObs, int cwipiParamsObs, int velocityCase, float cwipiVerbose, double epsilon)
 {
     //========== We do an output of all optimized coefficients to evaluate convergence ==========//
     std::fstream file_coeffs_out;
@@ -598,8 +598,8 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
     std::string filename_RMS = "results/NRMSD";
     file_RMS_out.open(filename_RMS, std::ios_base::out | std::ios_base::app);
     file_RMS_out << time << ' ';
-    ArrayXf MSvals1(cwipiObsU), MSvals2(cwipiObsU), MSvals3(cwipiObsU), MSvals4(cwipiObs-cwipiObsU);
-    ArrayXf MSvobs1(cwipiObsU), MSvobs2(cwipiObsU), MSvobs3(cwipiObsU), MSvobs4(cwipiObs-cwipiObsU);
+    ArrayXf MSvals1(cwipiObsU), MSvals2(cwipiObsU), MSvals3(cwipiObsU), MSvals4(cwipiObs-3*cwipiObsU);
+    ArrayXf MSvobs1(cwipiObsU), MSvobs2(cwipiObsU), MSvobs3(cwipiObsU), MSvobs4(cwipiObs-3*cwipiObsU);
     double RMSD1, RMSD2, RMSD3, RMSD4, RMSD5;
     double NRMSD1, NRMSD2, NRMSD3, NRMSD4, NRMSD5;
     if (cwipiParamsObs == 0){
@@ -661,8 +661,8 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
             MSvals4(i) = std::pow(sampMatrix.row(i).mean() - obsArray(i), 2);
             MSvobs4(i) = std::pow(obsArray(i), 2) + epsilon;
         }
-        RMSD4 = std::sqrt(MSvals4.sum())/cwipiObsU; //Root Mean Square Deviation
-        NRMSD4 = std::sqrt(MSvals4.sum()/MSvobs4.sum())/(cwipiObs-cwipiObsU); //Normalized Root Mean Square Deviation
+        RMSD4 = std::sqrt(MSvals4.sum())/cwipiObs; //Root Mean Square Deviation
+        NRMSD4 = std::sqrt(MSvals4.sum()/MSvobs4.sum())/cwipiObs; //Normalized Root Mean Square Deviation
         file_RMS_out << RMSD4 << ' ' << NRMSD4 << ' ';
         file_RMS_out << "\n";
     }
@@ -696,16 +696,16 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
                     MSvals2(i) = std::pow(sampMatrix.row(i+cwipiObsU).mean() - obsArray(i+cwipiObsU), 2);
                     MSvobs2(i) = std::pow(obsArray(i+cwipiObsU), 2) + epsilon;
                 }
-                for (int i = 0; i < (cwipiObs-cwipiObsU); ++i){
+                for (int i = 0; i < (cwipiObs-2*cwipiObsU); ++i){
                     MSvals4(i) = std::pow(sampMatrix.row(i+2*cwipiObsU).mean() - obsArray(i+2*cwipiObsU), 2);
                     MSvobs4(i) = std::pow(obsArray(i+2*cwipiObsU), 2) + epsilon;
                 }
                 RMSD1 = std::sqrt(MSvals1.sum())/cwipiObsU; //Root Mean Square Deviation
                 RMSD2 = std::sqrt(MSvals2.sum())/cwipiObsU; //Root Mean Square Deviation
-                RMSD4 = std::sqrt(MSvals4.sum())/cwipiObsU; //Root Mean Square Deviation
+                RMSD4 = std::sqrt(MSvals4.sum())/(cwipiObs-2*cwipiObsU); //Root Mean Square Deviation
                 NRMSD1 = std::sqrt(MSvals1.sum()/MSvobs1.sum())/cwipiObsU; //Normalized Root Mean Square Deviation
                 NRMSD2 = std::sqrt(MSvals2.sum()/MSvobs2.sum())/cwipiObsU; //Normalized Root Mean Square Deviation
-                NRMSD4 = std::sqrt(MSvals4.sum()/MSvobs4.sum())/(cwipiObs-cwipiObsU); //Normalized Root Mean Square Deviation
+                NRMSD4 = std::sqrt(MSvals4.sum()/MSvobs4.sum())/(cwipiObs-2*cwipiObsU); //Normalized Root Mean Square Deviation
                 file_RMS_out << RMSD1 << ' ' << NRMSD1 << ' ';
                 file_RMS_out << RMSD2 << ' ' << NRMSD2 << ' ';
                 file_RMS_out << RMSD4 << ' ' << NRMSD4 << ' ';
@@ -720,18 +720,18 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
                     MSvals3(i) = std::pow(sampMatrix.row(i+2*cwipiObsU).mean() - obsArray(i+2*cwipiObsU), 2);
                     MSvobs3(i) = std::pow(obsArray(i+2*cwipiObsU), 2) + epsilon;
                 }
-                for (int i = 0; i < (cwipiObs-cwipiObsU); ++i){
+                for (int i = 0; i < (cwipiObs-3*cwipiObsU); ++i){
                     MSvals4(i) = std::pow(sampMatrix.row(i+3*cwipiObsU).mean() - obsArray(i+3*cwipiObsU), 2);
-                    MSvobs4(i) = std::pow(obsArray(i+3*cwipiObsU), 2) + epsilon;
+                    MSvobs4(i) = std::pow(obsArray(i+3*cwipiObsU), 2) + epsilon; 
                 }
                 RMSD1 = std::sqrt(MSvals1.sum())/cwipiObsU; //Root Mean Square Deviation
                 RMSD2 = std::sqrt(MSvals2.sum())/cwipiObsU; //Root Mean Square Deviation
                 RMSD3 = std::sqrt(MSvals3.sum())/cwipiObsU; //Root Mean Square Deviation
-                RMSD4 = std::sqrt(MSvals4.sum())/cwipiObsU; //Root Mean Square Deviation
+                RMSD4 = std::sqrt(MSvals4.sum())/(cwipiObs-3*cwipiObsU); //Root Mean Square Deviation
                 NRMSD1 = std::sqrt(MSvals1.sum()/MSvobs1.sum())/cwipiObsU; //Normalized Root Mean Square Deviation
                 NRMSD2 = std::sqrt(MSvals2.sum()/MSvobs2.sum())/cwipiObsU; //Normalized Root Mean Square Deviation
                 NRMSD3 = std::sqrt(MSvals3.sum()/MSvobs3.sum())/cwipiObsU; //Normalized Root Mean Square Deviation
-                NRMSD4 = std::sqrt(MSvals4.sum()/MSvobs4.sum())/(cwipiObs-cwipiObsU); //Normalized Root Mean Square Deviation
+                NRMSD4 = std::sqrt(MSvals4.sum()/MSvobs4.sum())/(cwipiObs-3*cwipiObsU); //Normalized Root Mean Square Deviation                 
                 file_RMS_out << RMSD1 << ' ' << NRMSD1 << ' ';
                 file_RMS_out << RMSD2 << ' ' << NRMSD2 << ' ';
                 file_RMS_out << RMSD3 << ' ' << NRMSD3 << ' ';
@@ -1697,7 +1697,7 @@ MatrixXf EnKF_hyperloc(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, con
 }
 
 // ====************************ MAIN EnKF Function ************************===
-MatrixXf mainEnKF(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, const fvMesh& mesh, int cwipiMembers, int nb_cells, int cwipiObs, int cwipiObsU, double sigmaUserU, double sigmaUserp, double sigmaUserCf, double sigmaLocX, double sigmaLocY, double sigmaLocZ, float localSwitch, float clippingSwitch, float hyperlocSwitch, int cwipiParams, int cwipiParamsObs, double stateInfl, double paramsInfl, float typeInfl, int typeInputs, int velocityCase, double sigmaUserUa, double sigmaUserUb, double sigmaUserUc, float paramEstSwitch, float cwipiVerbose, std::string stringRootPath, int cwipiTimedObs, double obsTimeStep, double time)
+MatrixXf mainEnKF(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, const fvMesh& mesh, int cwipiMembers, int nb_cells, int cwipiObs, int cwipiObsU, double sigmaUserU, double sigmaUserp, double sigmaUserCf, double sigmaLocX, double sigmaLocY, double sigmaLocZ, float localSwitch, float clippingSwitch, float hyperlocSwitch, int cwipiParams, int cwipiParamsObs, double stateInfl, double paramsInfl, float typeInfl, int typeInputs, int velocityCase, double sigmaUserUa, double sigmaUserUb, double sigmaUserUc, float paramEstSwitch, float cwipiVerbose, std::string stringRootPath, int cwipiTimedObs, double obsTimeStep, double time, double epsilon)
 {
     if(cwipiVerbose) std::cout << "** ENTERING MAIN EnKF FUNCTION **" << std::endl;
     //** The observation Matrix will be different depending on the high-fidelity observations **
@@ -1777,7 +1777,7 @@ MatrixXf mainEnKF(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, const fv
     toc();
 
     if (cwipiVerbose) std::cout << "Starting writing outputs from the EnKF..." << std::endl;
-    EnKF_outputs(stateMatrixUpt, sampMatrix, obsArray, cwipiMembers, nb_cells, time, cwipiParams, cwipiObsU, cwipiObs, cwipiParamsObs, velocityCase, cwipiVerbose);
+    EnKF_outputs(stateMatrixUpt, sampMatrix, obsArray, cwipiMembers, nb_cells, time, cwipiParams, cwipiObsU, cwipiObs, cwipiParamsObs, velocityCase, cwipiVerbose, epsilon);
 
     if (cwipiVerbose) std::cout << "** End of Kalman Filter **" << std::endl << "\n";
 

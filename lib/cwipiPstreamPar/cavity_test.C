@@ -1,4 +1,5 @@
 #include "cwipiPstreamPar.H"
+#include <cwipi.h>
 
 namespace Foam
 {
