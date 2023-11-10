@@ -139,14 +139,15 @@ int main(int argc, char *argv[])
         if (cwipiSwitch && cwipiTimestep == cwipiStep)
         {
             if (cwipiVerbose) if (Pstream::master()) Foam::Pout<< "The remainder between the rank and the number of partitions by simulation " << myGlobalRank << " is " << myGlobalRank % nbParts << nl << endl;
-            //interpolationCellPointWallModified<vector> triangulateCellsU(U);
-            interpolationCellPoint<vector> triangulateCellsU(U);
-            if (cwipiVerbose) if (Pstream::master()) Foam::Pout<< "Here I am with global rank equal to " << myGlobalRank << endl;
-            if (cwipiParamsObs == 0) UInterpolation(U, mesh, runTime, cwipiObsU, nbParts, triangulateCellsU, cwipiVerbose, globalRootPath, globalCasePath);
-            //else if (cwipiParamsObs == 1) pInterpolation(p, mesh, cwipiObsp, cwipiVerbose, globalRootPath);
-            //else if (cwipiParamsObs == 2) UpInterpolation(U, p, mesh, cwipiObsU, cwipiObsp, cwipiVerbose, globalRootPath);
-           
-            // if (Foam::Pstream::master()) cwipiSend(mesh, U, runTime, cwipiIteration, nbParts, cwipiVerbose);
+            if (cwipiParamsObs == 0){
+                UInterpolation(U, mesh, runTime, cwipiObsU, nbParts, cwipiVerbose, globalRootPath, globalCasePath);
+            }
+            else if (cwipiParamsObs == 1){
+                pInterpolation(p, mesh, runTime, cwipiObsp, nbParts, cwipiVerbose, globalRootPath, globalCasePath);
+            }
+            else if (cwipiParamsObs == 2){
+                UpInterpolation(U, p, mesh, runTime, cwipiObsU, cwipiObsp, nbParts, cwipiVerbose, globalRootPath, globalCasePath);
+            }
             cwipiSend(mesh, U, runTime, cwipiIteration, nbParts, cwipiVerbose);
 
             cwipiSendParams(mesh, U, runTime, cwipiIteration, cwipiParams, nbParts, cwipiVerbose); 

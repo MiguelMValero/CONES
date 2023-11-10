@@ -34,7 +34,7 @@ else
 int cwipiStep = values[0];
 int nbParts = values[2];
 int cwipiObsU = values[3];
-// int cwipiObsp = values[5];
+int cwipiObsp = values[4];
 int cwipiParams = values[6];
 double geom_tol = values[7];
 float cwipiVerbose = values[12];

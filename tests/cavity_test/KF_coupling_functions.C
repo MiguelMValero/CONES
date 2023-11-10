@@ -593,16 +593,19 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
     }
     file_coeffs_out << "\n";
     file_coeffs_out.close();
+    std::cout << "My velocity case is " << velocityCase << std::endl;
+    std::cout << "cwipiParamsObs is " << cwipiParamsObs << std::endl;
 
     std::fstream file_RMS_out;
     std::string filename_RMS = "results/NRMSD";
     file_RMS_out.open(filename_RMS, std::ios_base::out | std::ios_base::app);
     file_RMS_out << time << ' ';
-    ArrayXf MSvals1(cwipiObsU), MSvals2(cwipiObsU), MSvals3(cwipiObsU), MSvals4(cwipiObs-3*cwipiObsU);
-    ArrayXf MSvobs1(cwipiObsU), MSvobs2(cwipiObsU), MSvobs3(cwipiObsU), MSvobs4(cwipiObs-3*cwipiObsU);
     double RMSD1, RMSD2, RMSD3, RMSD4, RMSD5;
     double NRMSD1, NRMSD2, NRMSD3, NRMSD4, NRMSD5;
+
     if (cwipiParamsObs == 0){
+        ArrayXf MSvals1(cwipiObsU), MSvals2(cwipiObsU), MSvals3(cwipiObsU), MSvals4(cwipiObs-3*cwipiObsU);
+        ArrayXf MSvobs1(cwipiObsU), MSvobs2(cwipiObsU), MSvobs3(cwipiObsU), MSvobs4(cwipiObs-3*cwipiObsU);
         switch (velocityCase){
             case 1 :
             case 2 :
@@ -1268,7 +1271,7 @@ MatrixXf randomize_Obs(const Eigen::Ref<const Eigen::ArrayXf>& obsArray, int cwi
     }
     if (typeInputs == 0) obsMatrix = obsMatrix + err_mat;
     else if (typeInputs == 1) obsMatrix = obsMatrix + obsMatrix.cwiseProduct(err_mat);
-    // if (cwipiVerbose) std::cout << "obsMatrix = "<< obsMatrix << "\n" << std::endl;
+    //if (cwipiVerbose) std::cout << "obsMatrix = "<< obsMatrix << "\n" << std::endl;
 
     return obsMatrix;
 }
@@ -1373,8 +1376,8 @@ MatrixXf calculate_R(const Eigen::Ref<const Eigen::ArrayXf>& obsArray, int cwipi
         }
     }
 
-    // if (cwipiVerbose) std::cout << "R :" << std::endl;
-    // if (cwipiVerbose) std::cout << R << std::endl << "\n";
+    //if (cwipiVerbose) std::cout << "R :" << std::endl;
+    //if (cwipiVerbose) std::cout << R << std::endl << "\n";
 
     return R;
 }
@@ -1731,7 +1734,7 @@ MatrixXf mainEnKF(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, const fv
         // ** Calculation of the Kalman Gain
         if (cwipiVerbose) std::cout << "Calculating the Kalman gain ... " << std::endl;
         MatrixXf K = calculate_K(stateMatrixUpt, obsMatrix, sampMatrix, R, cwipiMembers, nb_cells, cwipiObs, cwipiParams, cwipiVerbose);
-        // if (cwipiVerbose) std::cout << "Knoloc = " <<  K << std::endl;
+        //if (cwipiVerbose) std::cout << "Knoloc = " <<  K << std::endl;
         
         // ** If covariance localization needed
         if (localSwitch == 1 && hyperlocSwitch !=1){
@@ -1746,11 +1749,14 @@ MatrixXf mainEnKF(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, const fv
 
         // ** Update of velocities Ue_mat + K_mat*(Uo_mat-H_mat*(Ue_mat))
         if (cwipiVerbose) std::cout << "Updating the values ... " << std::endl;
+        //if (cwipiVerbose) std::cout << "Forecast system state = " << stateMatrixUpt << std::endl;
         stateMatrixUpt = stateMatrixUpt + K*(obsMatrix-sampMatrix);
+        //if (cwipiVerbose) std::cout << "Analysis system state = " << stateMatrixUpt << std::endl;
 
         // ** If inflation needed
         if (cwipiVerbose) std::cout << "Applying inflation if needed ... " << std::endl;
         stateMatrixUpt = inflation(stateMatrixUpt, cwipiMembers, nb_cells, cwipiParams, stateInfl, paramsInfl, typeInfl, paramEstSwitch, cwipiVerbose, stringRootPath);
+        //if (cwipiVerbose) std::cout << "Analysis system state after inflation = " << stateMatrixUpt << std::endl;
 
         // ** Reconstructing state if clipping
         if (clippingSwitch == 1 && hyperlocSwitch!=1){
