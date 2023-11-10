@@ -598,11 +598,11 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
     std::string filename_RMS = "results/NRMSD";
     file_RMS_out.open(filename_RMS, std::ios_base::out | std::ios_base::app);
     file_RMS_out << time << ' ';
-    ArrayXf MSvals1(cwipiObsU), MSvals2(cwipiObsU), MSvals3(cwipiObsU), MSvals4(cwipiObs-3*cwipiObsU);
-    ArrayXf MSvobs1(cwipiObsU), MSvobs2(cwipiObsU), MSvobs3(cwipiObsU), MSvobs4(cwipiObs-3*cwipiObsU);
     double RMSD1, RMSD2, RMSD3, RMSD4, RMSD5;
     double NRMSD1, NRMSD2, NRMSD3, NRMSD4, NRMSD5;
     if (cwipiParamsObs == 0){
+        ArrayXf MSvals1(cwipiObsU), MSvals2(cwipiObsU), MSvals3(cwipiObsU);
+        ArrayXf MSvobs1(cwipiObsU), MSvobs2(cwipiObsU), MSvobs3(cwipiObsU);
         switch (velocityCase){
             case 1 :
             case 2 :
@@ -657,16 +657,20 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
         }
     }
     else if (cwipiParamsObs == 1){
+        ArrayXf MSvals4(cwipiObs-3*cwipiObsU);
+        ArrayXf MSvobs4(cwipiObs-3*cwipiObsU);
         for (int i = 0; i < (cwipiObs-cwipiObsU); ++i){
             MSvals4(i) = std::pow(sampMatrix.row(i).mean() - obsArray(i), 2);
             MSvobs4(i) = std::pow(obsArray(i), 2) + epsilon;
         }
-        RMSD4 = std::sqrt(MSvals4.sum())/cwipiObs; //Root Mean Square Deviation
-        NRMSD4 = std::sqrt(MSvals4.sum()/MSvobs4.sum())/cwipiObs; //Normalized Root Mean Square Deviation
+        RMSD4 = std::sqrt(MSvals4.sum())/cwipiObsU; //Root Mean Square Deviation
+        NRMSD4 = std::sqrt(MSvals4.sum()/MSvobs4.sum())/(cwipiObs-cwipiObsU); //Normalized Root Mean Square Deviation
         file_RMS_out << RMSD4 << ' ' << NRMSD4 << ' ';
         file_RMS_out << "\n";
     }
     else if (cwipiParamsObs == 2){
+        ArrayXf MSvals1(cwipiObsU), MSvals2(cwipiObsU), MSvals3(cwipiObsU), MSvals4(cwipiObs-3*cwipiObsU);
+        ArrayXf MSvobs1(cwipiObsU), MSvobs2(cwipiObsU), MSvobs3(cwipiObsU), MSvobs4(cwipiObs-3*cwipiObsU);
         switch (velocityCase){
             case 1 :
             case 2 :
@@ -741,6 +745,8 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
         }
     }
     else if (cwipiParamsObs == 3){
+        ArrayXf MSvals1(cwipiObsU), MSvals2(cwipiObsU), MSvals3(cwipiObsU);
+        ArrayXf MSvobs1(cwipiObsU), MSvobs2(cwipiObsU), MSvobs3(cwipiObsU);
         switch (velocityCase){
             case 1 :
             case 2 :

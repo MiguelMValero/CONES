@@ -183,7 +183,7 @@ int main(int argc, char *argv[])
   int commWorldSize;
   // int nNotLocatedPoints = 0;
 
-  //========== MPI Initialization ==========
+  //========== MPI Initilization ==========
 
   MPI_Comm localcomm;
   MPI_Init(&argc, &argv);
