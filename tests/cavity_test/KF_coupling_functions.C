@@ -616,6 +616,7 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
                 }
                 RMSD1 = std::sqrt(MSvals1.sum())/cwipiObsU; //Root Mean Square Deviation
                 NRMSD1 = std::sqrt(MSvals1.sum()/MSvobs1.sum())/cwipiObsU; //Normalized Root Mean Square Deviation
+                // NRMSD1 = std::sqrt(MSvals1.sum()/nb_oU)/obsArray.mean(); //Normalized Root Mean Square Deviation
                 file_RMS_out << RMSD1 << ' ' << NRMSD1 << ' ';
                 file_RMS_out << "\n";
                 break;
@@ -1007,75 +1008,85 @@ MatrixXf inflation(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, int 
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::default_random_engine generator(seed);
 
-    for (int j=0;j<cwipiMembers;j++)
-    {
 
-        for (int i = 0; i < nb_cells_cmpnt; i++)
+    if (stateInfl>0.00001){
+    if(cwipiVerbose) std::cout << "Adding state inflation" << std::endl;
+        for (int j=0;j<cwipiMembers;j++)
         {
-            do
-            {
-                gaussample=dist_state(generator);
-            }while (gaussample<(mean_state-2*stddev_state) || gaussample>(mean_state+2*stddev_state));
 
-            if (typeInfl){
-                stateMatrixInflated(i,j) = stateMatrixUpt.row(i).mean() + (1+stddev_state+(0.1*gaussample))*(stateMatrixUpt(i,j) - stateMatrixUpt.row(i).mean());  //Deterministic
-            }
-            else stateMatrixInflated(i,j) = stateMatrixUpt(i,j) + gaussample*stateMatrixUpt(i,j);     //Stochastic
-        }
-
-        if (paramEstSwitch){
-
-            for (int i = 0; i < cwipiParams; i++)
+            for (int i = 0; i < nb_cells_cmpnt; i++)
             {
                 do
                 {
-                    gaussample=dist_params(generator);
-                }while (gaussample<(mean_params-2*stddev_params) || gaussample>(mean_params+2*stddev_params));
-                
+                    gaussample=dist_state(generator);
+                }while (gaussample<(mean_state-2*stddev_state) || gaussample>(mean_state+2*stddev_state));
+
                 if (typeInfl){
-                    stateMatrixInflated(i + nb_cells_cmpnt, j) = stateMatrixUpt.row(i + nb_cells_cmpnt).mean() + (1+stddev_params+(0.1*gaussample))*(stateMatrixUpt(i + nb_cells_cmpnt, j) - stateMatrixUpt.row(i + nb_cells_cmpnt).mean());
+                    stateMatrixInflated(i,j) = stateMatrixUpt.row(i).mean() + (1+stddev_state+(0.1*gaussample))*(stateMatrixUpt(i,j) - stateMatrixUpt.row(i).mean());  //Deterministic
                 }
-                else stateMatrixInflated(i + nb_cells_cmpnt, j) = stateMatrixUpt(i + nb_cells_cmpnt, j) + gaussample*stateMatrixUpt(i + nb_cells_cmpnt, j);  //Stochastic
+                else stateMatrixInflated(i,j) = stateMatrixUpt(i,j) + gaussample*stateMatrixUpt(i,j);     //Stochastic
             }
-        }
-        else {
-            std::string IntGen = stringRootPath + "/processor";
-            std::string ensemble = "/UpdatedVariables";
-            std::ifstream file;
-            char member[50];
-            std::string UpdatedVar;
+        }    
+    }
 
-            sprintf(member, "%i", j);
-            UpdatedVar += IntGen; // Append the path
-            UpdatedVar += member; // Append the member index
-            UpdatedVar += ensemble; // Append file name
-            file.open(UpdatedVar);
+    if (paramsInfl>0.00001){
+    if(cwipiVerbose) std::cout << "Adding parameters inflation" << std::endl;
+        for (int j=0;j<cwipiMembers;j++)
+        {
+            if (paramEstSwitch){
 
-            MatrixXf parameters(cwipiParams, cwipiMembers);
-            int count = 0;
-
-            if (file.is_open())
-            {
-                std::string line;
-                while( std::getline(file,line) )
+                for (int i = 0; i < cwipiParams; i++)
                 {
-                    std::stringstream ss(line);
-                    std::string parNOUpt;
-                    std::getline(ss, parNOUpt, ' ');
-                    parameters(count, j) = std::stod(parNOUpt);
-
-                    ++count;
+                    do
+                    {
+                        gaussample=dist_params(generator);
+                    }while (gaussample<(mean_params-2*stddev_params) || gaussample>(mean_params+2*stddev_params));
+                    
+                    if (typeInfl){
+                        stateMatrixInflated(i + nb_cells_cmpnt, j) = stateMatrixUpt.row(i + nb_cells_cmpnt).mean() + (1+stddev_params+(0.1*gaussample))*(stateMatrixUpt(i + nb_cells_cmpnt, j) - stateMatrixUpt.row(i + nb_cells_cmpnt).mean());
+                    }
+                    else stateMatrixInflated(i + nb_cells_cmpnt, j) = stateMatrixUpt(i + nb_cells_cmpnt, j) + gaussample*stateMatrixUpt(i + nb_cells_cmpnt, j);  //Stochastic
                 }
-
             }
-	        else {
-		        std::cerr << "Couldn't open any of the UpdatedVariables files.\n";
-            }
-            file.close();
+            else {
+                std::string IntGen = stringRootPath + "/processor";
+                std::string ensemble = "/UpdatedVariables";
+                std::ifstream file;
+                char member[50];
+                std::string UpdatedVar;
 
-            for (int i = 0; i < cwipiParams; i++)
-            {
-                stateMatrixInflated(i + nb_cells_cmpnt, j) = parameters(i, j);    
+                sprintf(member, "%i", j);
+                UpdatedVar += IntGen; // Append the path
+                UpdatedVar += member; // Append the member index
+                UpdatedVar += ensemble; // Append file name
+                file.open(UpdatedVar);
+
+                MatrixXf parameters(cwipiParams, cwipiMembers);
+                int count = 0;
+
+                if (file.is_open())
+                {
+                    std::string line;
+                    while( std::getline(file,line) )
+                    {
+                        std::stringstream ss(line);
+                        std::string parNOUpt;
+                        std::getline(ss, parNOUpt, ' ');
+                        parameters(count, j) = std::stod(parNOUpt);
+
+                        ++count;
+                    }
+
+                }
+                else {
+                    std::cerr << "Couldn't open any of the UpdatedVariables files.\n";
+                }
+                file.close();
+
+                for (int i = 0; i < cwipiParams; i++)
+                {
+                    stateMatrixInflated(i + nb_cells_cmpnt, j) = parameters(i, j);    
+                }
             }
         }
     }
@@ -1633,8 +1644,8 @@ MatrixXf EnKF_hyperloc(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, con
             temp_state_upt = temp_state + temp_K*(temp_obsMatrix - temp_sampMatrix);
             // if (cwipiVerbose) std::cout << "temp_state_upt  = \n " << temp_state_upt << std::endl;
 
-            //** Perform inflation on temp_sate **
-            temp_state_upt = inflation(temp_state_upt, cwipiMembers, nb_clipCells, cwipiParams, stateInfl, paramsInfl, typeInfl, paramEstSwitch, cwipiVerbose, stringRootPath);
+            //** Perform inflation on temp_sate withtout parameter inflation **
+            temp_state_upt = inflation(temp_state_upt, cwipiMembers, nb_clipCells, cwipiParams, stateInfl, 0, typeInfl, paramEstSwitch, cwipiVerbose, stringRootPath);
             // if (cwipiVerbose) std::cout << "temp_state_upt_infl  = \n " << temp_state_upt << std::endl;
 
             //** Save updated params to perform an average on the values updated by each clipping **
@@ -1666,9 +1677,9 @@ MatrixXf EnKF_hyperloc(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, con
         else{
             //** Retrieve the correct values until reaching the next clipping **
             for (int j = 0; j < cwipiMembers; j++){
-                temp_state(i - count_cellsClipsDone, j) = stateMatrix(clippingCells(i+1), j);
-                temp_state(nb_clipCells + i - count_cellsClipsDone, j) = stateMatrix(nb_cells + clippingCells(i+1), j);
-                temp_state(2*nb_clipCells + i - count_cellsClipsDone, j) = stateMatrix(2*nb_cells + clippingCells(i+1), j);
+                temp_state(i - count_cellsClipsDone, j) = stateMatrixUpt(clippingCells(i+1), j);
+                temp_state(nb_clipCells + i - count_cellsClipsDone, j) = stateMatrixUpt(nb_cells + clippingCells(i+1), j);
+                temp_state(2*nb_clipCells + i - count_cellsClipsDone, j) = stateMatrixUpt(2*nb_cells + clippingCells(i+1), j);
             }
         }
     }
@@ -1681,6 +1692,9 @@ MatrixXf EnKF_hyperloc(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, con
             stateMatrixUpt(3*nb_cells + k, j) = temp_params(k, j);
         }
     }
+
+    //** Perform inflation on stateMatrixUpt withtout state inflation **
+    stateMatrixUpt = inflation(stateMatrixUpt, cwipiMembers, nb_cells, cwipiParams, 0, paramsInfl, typeInfl, paramEstSwitch, cwipiVerbose, stringRootPath);
 
     return stateMatrixUpt;
 }
