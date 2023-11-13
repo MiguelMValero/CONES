@@ -19,10 +19,7 @@ numberOfSubdomains  10;
 
 method          simple;
 //method		   hierarchical;
-<<<<<<< HEAD:pitzDaily_test/system/decomposeParDict
-=======
 // method scotch;
->>>>>>> cd649f5848680d386c9142cb4106913f938f1f0c:tests/pitzDaily_test/system/decomposeParDict
 
 simpleCoeffs
 {
