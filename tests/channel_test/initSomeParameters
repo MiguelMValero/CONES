@@ -1,0 +1,40 @@
+#! /usr/bin/bash
+
+cwipiMembers=40;
+for ((i=0; i<cwipiMembers; i++));
+do
+    cp -r system/ processor$i/
+    # cp -r constant/ processor$i/
+    # cp processor$i/constant/momentumTransport processor$i/constant/momentumTransport.old
+    # cp processor$i/constant/momentumTransport.old processor$i/constant/momentumTransport
+    # cp processor$i/50.04/UMean processor$i/50.04/UMean.old
+    # cp avg_test/0/UMean processor$i/50.04/UMean
+    # cp -r processor$i/50.04/ processor$i/50.04.old
+    # cp -r processor$i/20.12/ processor$i/0.12
+
+    # rm -r processor$i/0.12/uniform/
+    # rm processor$i/0.12/phi
+    # rm processor$i/0.12/phi_0
+    # rm processor$i/0.12/U_0
+    # rm -r processor$i/19.92/
+    # rm -r processor$i/20.04/
+    # rm -r processor$i/20.16/
+    # rm -r processor$i/20.28/
+    # rm -r processor$i/49.56/
+    # rm -r processor$i/49.68/
+    # rm -r processor$i/49.92/
+    # rm -r processor$i/50.04/
+    # rm -r processor$i/50.28/
+    # rm -r processor$i/50.52/
+    # rm -r processor$i/50.64/
+    # rm -r processor$i/55.92/
+    # rm -r processor$i/56.04/
+    # rm -r processor$i/299.88/
+    # rm -r processor$i/300/
+done
+
+sed -i -e 's|// #include "forceCoeffs"|#include "forceCoeffs"|g' processor0/system/controlDict
+
+# We run in parallel with the number of ensembles wished
+# mpirun -np 1 ./KF_coupling.exe : -np $cwipiMembers cwipiPimpleFoam -parallel | tee log8
+nohup mpirun -np 1 ./KF_coupling.exe : -np $cwipiMembers cwipiPimpleFoam -parallel > log8 &

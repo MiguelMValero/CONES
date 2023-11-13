@@ -15,8 +15,14 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+<<<<<<< HEAD:pitzDaily_test/system/controlDict
 application     cwipiSimpleFoamkEps;
 //application   cwipiSimpleFoamkOmegaSST;
+=======
+libs ("libDASmagorinsky.so")
+
+application     cwipiPimpleFoamPar;
+>>>>>>> cd649f5848680d386c9142cb4106913f938f1f0c:tests/channel_test/system/controlDict
 
 startFrom       startTime;
 
@@ -24,15 +30,27 @@ startTime       0;
 
 stopAt          endTime;
 
+<<<<<<< HEAD:pitzDaily_test/system/controlDict
 endTime         2000;
 
 deltaT          1;
+=======
+endTime         10.08;
 
-writeControl    timeStep;
+deltaT          0.02;
+>>>>>>> cd649f5848680d386c9142cb4106913f938f1f0c:tests/channel_test/system/controlDict
 
+writeControl    runTime;
+
+<<<<<<< HEAD:pitzDaily_test/system/controlDict
 writeInterval   25;
 
 purgeWrite      0;
+=======
+writeInterval   0.12;
+
+purgeWrite      3;
+>>>>>>> cd649f5848680d386c9142cb4106913f938f1f0c:tests/channel_test/system/controlDict
 
 writeFormat     ascii;
 
@@ -58,5 +76,14 @@ cacheTemporaryObjects
 //    #includeFunc streamlines
 //    #includeFunc writeObjects(kEpsilon:G)
 // }
+
+RSTSwitch    true;
+
+functions
+{
+    // #include "fieldAverage"
+    // #include "userFieldAverage"
+    // #include "forceCoeffs"
+}
 
 // ************************************************************************* //
