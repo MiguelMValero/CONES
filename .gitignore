@@ -14,3 +14,9 @@ tests/cavity_test/results/
 tests/cavity_test/KF_coupling.o
 tests/cavity_test/KF_coupling.exe
 tests/cavity_test/log
+tests/mixerVessel2D_test/member*/
+tests/mixerVessel2D_test/results/
+tests/mixerVessel2D_test/KF_coupling.o
+tests/mixerVessel2D_test/KF_coupling.exe
+tests/mixerVessel2D_test/log*
+tests/mixerVessel2D_test/dynamicCode
