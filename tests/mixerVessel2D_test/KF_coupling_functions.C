@@ -605,6 +605,7 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
             case 1 :
             case 2 :
             case 3 :
+            {
                 ArrayXf MSvals1(cwipiObsU);
                 ArrayXf MSvobs1(cwipiObsU); 
                 for (int i = 0; i < cwipiObsU; ++i){
@@ -616,10 +617,12 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
                 // NRMSD1 = std::sqrt(MSvals1.sum()/nb_oU)/obsArray.mean(); //Normalized Root Mean Square Deviation
                 file_RMS_out << RMSD1 << ' ' << NRMSD1 << ' ';
                 file_RMS_out << "\n";
+            }
                 break;
             case 4 :
             case 5 :
             case 6 :
+            {
                 ArrayXf MSvals1(cwipiObsU), MSvals2(cwipiObsU);
                 ArrayXf MSvobs1(cwipiObsU), MSvobs2(cwipiObsU);
                 for (int i = 0; i < cwipiObsU; ++i){
@@ -635,8 +638,10 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
                 file_RMS_out << RMSD1 << ' ' << NRMSD1 << ' ';
                 file_RMS_out << RMSD2 << ' ' << NRMSD2 << ' ';
                 file_RMS_out << "\n";
+            }
                 break;
             case 7 :
+            {
                 ArrayXf MSvals1(cwipiObsU), MSvals2(cwipiObsU), MSvals3(cwipiObsU);
                 ArrayXf MSvobs1(cwipiObsU), MSvobs2(cwipiObsU), MSvobs3(cwipiObsU);
                 for (int i = 0; i < cwipiObsU; ++i){
@@ -657,6 +662,7 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
                 file_RMS_out << RMSD2 << ' ' << NRMSD2 << ' ';
                 file_RMS_out << RMSD3 << ' ' << NRMSD3 << ' ';
                 file_RMS_out << "\n";
+            }
                 break;
         }
     }
@@ -677,6 +683,7 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
             case 1 :
             case 2 :
             case 3 :
+            {
                 ArrayXf MSvals1(cwipiObsU), MSvals4(cwipiObs-cwipiObsU);
                 ArrayXf MSvobs1(cwipiObsU), MSvobs4(cwipiObs-cwipiObsU);
                 for (int i = 0; i < cwipiObsU; ++i){
@@ -694,10 +701,12 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
                 file_RMS_out << RMSD1 << ' ' << NRMSD1 << ' ';
                 file_RMS_out << RMSD4 << ' ' << NRMSD4 << ' ';
                 file_RMS_out << "\n";
+            }
                 break;
             case 4 :
             case 5 :
             case 6 :
+            {
                 ArrayXf MSvals1(cwipiObsU), MSvals2(cwipiObsU), MSvals4(cwipiObs-2*cwipiObsU);
                 ArrayXf MSvobs1(cwipiObsU), MSvobs2(cwipiObsU), MSvobs4(cwipiObs-2*cwipiObsU);
                 for (int i = 0; i < cwipiObsU; ++i){
@@ -720,8 +729,10 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
                 file_RMS_out << RMSD2 << ' ' << NRMSD2 << ' ';
                 file_RMS_out << RMSD4 << ' ' << NRMSD4 << ' ';
                 file_RMS_out << "\n";
+            }
                 break;
             case 7 :
+            {
                 ArrayXf MSvals1(cwipiObsU), MSvals2(cwipiObsU), MSvals3(cwipiObsU), MSvals4(cwipiObs-3*cwipiObsU);
                 ArrayXf MSvobs1(cwipiObsU), MSvobs2(cwipiObsU), MSvobs3(cwipiObsU), MSvobs4(cwipiObs-3*cwipiObsU);
                 for (int i = 0; i < cwipiObsU; ++i){
@@ -749,6 +760,7 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
                 file_RMS_out << RMSD3 << ' ' << NRMSD3 << ' ';
                 file_RMS_out << RMSD4 << ' ' << NRMSD4 << ' ';
                 file_RMS_out << "\n";
+            }
                 break;
         }
     }
@@ -757,6 +769,7 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
             case 1 :
             case 2 :
             case 3 :
+            {
                 ArrayXf MSvals1(cwipiObsU);
                 ArrayXf MSvobs1(cwipiObsU);
                 for (int i = 0; i < cwipiObsU; ++i){
@@ -770,10 +783,12 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
                 file_RMS_out << RMSD1 << ' ' << NRMSD1 << ' ';
                 file_RMS_out << RMSD5 << ' ' << NRMSD5 << ' ';
                 file_RMS_out << "\n";
+            }
                 break;
             case 4 :
             case 5 :
             case 6 :
+            {
                 ArrayXf MSvals1(cwipiObsU), MSvals2(cwipiObsU);
                 ArrayXf MSvobs1(cwipiObsU), MSvobs2(cwipiObsU);
                 for (int i = 0; i < cwipiObsU; ++i){
@@ -792,8 +807,10 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
                 file_RMS_out << RMSD2 << ' ' << NRMSD2 << ' ';
                 file_RMS_out << RMSD5 << ' ' << NRMSD5 << ' ';
                 file_RMS_out << "\n";
+            }
                 break;
             case 7 :
+            {
                 ArrayXf MSvals1(cwipiObsU), MSvals2(cwipiObsU), MSvals3(cwipiObsU);
                 ArrayXf MSvobs1(cwipiObsU), MSvobs2(cwipiObsU), MSvobs3(cwipiObsU);
                 for (int i = 0; i < cwipiObsU; ++i){
@@ -817,6 +834,7 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
                 file_RMS_out << RMSD3 << ' ' << NRMSD3 << ' ';
                 file_RMS_out << RMSD5 << ' ' << NRMSD5 << ' ';
                 file_RMS_out << "\n";
+            }
                 break;
         }
     file_RMS_out.close();
