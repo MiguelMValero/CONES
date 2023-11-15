@@ -105,14 +105,15 @@ int main(int argc, char *argv[])
             else if (cwipiParamsObs == 2){
                 UpInterpolation(U, p, mesh, runTime, cwipiObsU, cwipiObsp, nbParts, cwipiVerbose, globalRootPath, globalCasePath);
             }
-            cwipiSend(mesh, U, runTime, cwipiIteration, nbParts, cwipiVerbose);
-            cwipiSendParamsKEps(mesh, turbulence(), runTime, cwipiIteration, cwipiParams, nbParts, cwipiVerbose);
+            cwipiSend(mesh, U, runTime, cwipiIteration, nbParts, cwipiVerbose); 
+            cwipiSendParamsKOmegaSST(mesh, turbulence(), runTime, cwipiIteration, cwipiParams, nbParts, cwipiVerbose);
 
             cwipiTimestep = 0;
             cwipiPhaseCheck = 1;
         }
 
         cwipiTimestep = cwipiTimestep + 1;
+
 
         //========= Receiving back updated Velocity Field and parameters ==========
         if (cwipiSwitch && cwipiPhaseCheck == 1)

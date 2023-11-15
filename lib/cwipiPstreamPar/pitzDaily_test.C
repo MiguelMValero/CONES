@@ -40,6 +40,44 @@ void cwipiSendParamsKEps(const fvMesh& mesh, incompressible::momentumTransportMo
     delete[] ParamsToSend;
 }
 
+void cwipiSendParamsKOmegaSST(const fvMesh& mesh, incompressible::momentumTransportModel& turbulence, const Time& runTime, int cwipiIteration, int cwipiParams, int nbParts, float cwipiVerbose)
+{
+    //=== Send the parameters the optimize, in this case model coefficients ===
+
+    static int sendTag_params = 3; /*!< Tag for send parameters from OpenFOAM to EnKF */
+    double* ParamsToSend = new double[cwipiParams];
+
+    label nMyProc=Pstream::myProcNo();
+    int myGlobalRank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &myGlobalRank);
+    int appSuffix = round((myGlobalRank - nMyProc - 1)/nbParts) + 1;  // Normally works for any decomposition
+    
+    if (Pstream::master())
+    {
+
+        if (cwipiVerbose) std::cout << "Before sending params to KF" << std::endl; 
+
+        //* We can read the coefficient of a turbulence model from the object turbulence. Be careful,
+        // here "turbulence" is the object "turbulence()" and not the pointer "turbulence->" , because we 
+        // gave "turbulence()" to the function in the solver code *
+        ParamsToSend[0] = readScalar(turbulence.coeffDict().lookup("alphaK1"));
+        ParamsToSend[1] = readScalar(turbulence.coeffDict().lookup("alphaK2"));
+        ParamsToSend[2] = readScalar(turbulence.coeffDict().lookup("alphaOmega1"));
+        ParamsToSend[3] = readScalar(turbulence.coeffDict().lookup("alphaOmega2"));
+        ParamsToSend[4] = readScalar(turbulence.coeffDict().lookup("gamma1"));
+        ParamsToSend[5] = readScalar(turbulence.coeffDict().lookup("gamma2"));
+        ParamsToSend[6] = readScalar(turbulence.coeffDict().lookup("beta1"));
+        ParamsToSend[7] = readScalar(turbulence.coeffDict().lookup("beta2"));
+        ParamsToSend[8] = readScalar(turbulence.coeffDict().lookup("betaStar"));
+
+        MPI_Send(ParamsToSend, cwipiParams, MPI_DOUBLE, 0, sendTag_params, MPI_COMM_WORLD);
+    }
+
+    if (cwipiVerbose) if (Pstream::master()) Pout << "After sending params to KF from member " << appSuffix << " from processor " << Foam::Pstream::myProcNo() << endl;
+
+    delete[] ParamsToSend;
+}
+
 void cwipiRecvParamsKEps(const fvMesh& mesh, incompressible::momentumTransportModel& turbulence, int cwipiParams, int nbParts, float cwipiVerbose, std::string globalRootPath)
 {
     //=== Receive equivalent of the model coefficients send function, here we need to overwrite the momentumTransport dictionary 
