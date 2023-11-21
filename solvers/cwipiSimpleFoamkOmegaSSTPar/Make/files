@@ -1,3 +1,3 @@
-cwipiSimpleFoamkOmegaSST.C
+cwipiSimpleFoamkOmegaSSTPar.C
 
-EXE = $(FOAM_USER_APPBIN)/cwipiSimpleFoamkOmegaSST
+EXE = $(FOAM_USER_APPBIN)/cwipiSimpleFoamkOmegaSSTPar

@@ -19,4 +19,4 @@ EXE_LIBS = $(PLIBS) \
     -lfvConstraints \
     -lmeshTools \
     -lsampling \
-    -L$(FOAM_USER_LIBBIN) -lcwipiPstream
+    -L$(FOAM_USER_LIBBIN) -lcwipiPstreamPar
