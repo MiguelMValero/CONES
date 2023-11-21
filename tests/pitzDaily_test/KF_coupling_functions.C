@@ -673,8 +673,8 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
             MSvals4(i) = std::pow(sampMatrix.row(i).mean() - obsArray(i), 2);
             MSvobs4(i) = std::pow(obsArray(i), 2) + epsilon;
         }
-        RMSD4 = std::sqrt(MSvals4.sum())/cwipiObsU; //Root Mean Square Deviation
-        NRMSD4 = std::sqrt(MSvals4.sum()/MSvobs4.sum())/(cwipiObs-cwipiObsU); //Normalized Root Mean Square Deviation
+        RMSD4 = std::sqrt(MSvals4.sum())/cwipiObs; //Root Mean Square Deviation
+        NRMSD4 = std::sqrt(MSvals4.sum()/MSvobs4.sum())/cwipiObs; //Normalized Root Mean Square Deviation
         file_RMS_out << RMSD4 << ' ' << NRMSD4 << ' ';
         file_RMS_out << "\n";
     }

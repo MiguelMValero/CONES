@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
         if (cwipiSwitch && cwipiPhaseCheck == 1)
         {
             cwipiRecv(mesh, U, runTime, cwipiIteration, nbParts, cwipiVerbose);
-            cwipiRecvParamsKEps(mesh, turbulence(), cwipiParams, nbParts, cwipiVerbose, globalRootPath);
+            cwipiRecvParamsKOmegaSST(mesh, turbulence(), cwipiParams, nbParts, cwipiVerbose, globalRootPath);
             
             // ========== We correct the pressure after the DA cycle 
             //(solve a Poisson equation for the approximate pressure taking into account the

@@ -15,8 +15,8 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     cwipiSimpleFoamkEps;
-//application   cwipiSimpleFoamkOmegaSST;
+//application     cwipiSimpleFoamkEpsPar;
+application   cwipiSimpleFoamkOmegaSSTPar;
 
 startFrom       startTime;
 

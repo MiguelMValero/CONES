@@ -6,7 +6,9 @@ solvers/cwipiPimpleFoamPar/Make/linux64GccDPInt32Opt/
 lib/cwipiPstreamPar/Make/linux64GccDPInt32Opt/
 lib/cwipiPstreamPar/lnInclude/
 tests/pitzDaily_test/member*/
-tests/pitzDaily_test/results/
+tests/pitzDaily_test/constant*/
+tests/pitzDaily_test/results_kEps_*/
+tests/pitzDaily_test/results_kOmegaSST_*/
 tests/pitzDaily_test/KF_coupling_functions.o
 tests/pitzDaily_test/KF_coupling.exe
 tests/pitzDaily_test/log
