@@ -47,7 +47,18 @@ timePrecision   6;
 
 runTimeModifiable true;
 
-cwipiSwitch     true;
+cwipiSwitch   true;
+
+cacheTemporaryObjects
+(
+    kEpsilon:G
+);
+
+// functions
+// {
+//    #includeFunc streamlines
+//    #includeFunc writeObjects(kEpsilon:G)
+// }
 
 RSTSwitch    true;
 
