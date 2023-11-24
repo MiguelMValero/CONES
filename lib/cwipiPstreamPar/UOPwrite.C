@@ -1,9 +1,12 @@
 /*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     | Website:  https://openfoam.org
-    \\  /    A nd           | Copyright (C) 2011-2018 OpenFOAM Foundation
+   \\    /   O peration     |
+    \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
+-------------------------------------------------------------------------------
+    Copyright (C) 2011-2017 OpenFOAM Foundation
+    Copyright (C) 2019-2021 OpenCFD Ltd.
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -28,6 +31,7 @@ Description
 
 #include "UOPstream.H"
 #include "PstreamGlobals.H"
+#include "profilingPstream.H"
 
 #include <mpi.h>
 
@@ -68,6 +72,8 @@ bool Foam::UOPstream::write
 
     bool transferFailed = true;
 
+    profilingPstream::beginTiming();
+
     if (commsType == commsTypes::blocking)
     {
         transferFailed = MPI_Bsend
@@ -75,10 +81,13 @@ bool Foam::UOPstream::write
             const_cast<char*>(buf),
             bufSize,
             MPI_BYTE,
-            toProcNo,   // procID(toProcNo),
+            toProcNo,
             tag,
             PstreamGlobals::MPICommunicators_[communicator]
         );
+
+        // Assume these are from scatters ...
+        profilingPstream::addScatterTime();
 
         if (debug)
         {
@@ -95,10 +104,13 @@ bool Foam::UOPstream::write
             const_cast<char*>(buf),
             bufSize,
             MPI_BYTE,
-            toProcNo,   // procID(toProcNo),
+            toProcNo,
             tag,
             PstreamGlobals::MPICommunicators_[communicator]
         );
+
+        // Assume these are from scatters ...
+        profilingPstream::addScatterTime();
 
         if (debug)
         {
@@ -117,11 +129,13 @@ bool Foam::UOPstream::write
             const_cast<char*>(buf),
             bufSize,
             MPI_BYTE,
-            toProcNo,   // procID(toProcNo),
+            toProcNo,
             tag,
             PstreamGlobals::MPICommunicators_[communicator],
             &request
         );
+
+        profilingPstream::addWaitTime();
 
         if (debug)
         {

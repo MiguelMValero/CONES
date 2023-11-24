@@ -14,12 +14,12 @@ C++FLAGS = -m64 -Dlinux64 -DWM_DP -DWM_LABEL_SIZE=32 -Wall -Wextra -Wno-unused-p
 CCSanitizer = -Wall -Werror -fsanitize=address -fno-omit-frame-pointer -g
 CCSanitizer_address = -Wall -fsanitize=address -fno-omit-frame-pointer -g
 
-C++EXTINC = -I$(FOAM_SRC)/MomentumTransportModels/momentumTransportModels/lnInclude -I$(FOAM_SRC)/MomentumTransportModels/incompressible/lnInclude -I$(FOAM_SRC)/transportModels/lnInclude -I$(FOAM_SRC)/finiteVolume/lnInclude -I$(FOAM_SRC)/fvOptions/lnInclude -I$(FOAM_SRC)/sampling/lnInclude -I$(FOAM_SRC)/dynamicFvMesh/lnInclude -I$(FOAM_SRC)/dynamicMesh/lnInclude -I$(FOAM_SRC)/meshTools/lnInclude -I$(FOAM_SRC)/OpenFOAM/lnInclude -I$(FOAM_SRC)/OSspecific/POSIX/lnInclude -I/usr/include/eigen3
+C++EXTINC = -I$(LIB_SRC)/transportModels/compressible/lnInclude -I$(LIB_SRC)/TurbulenceModels/turbulenceModels/lnInclude -I$(LIB_SRC)/TurbulenceModels/incompressible/lnInclude -I$(LIB_SRC)/TurbulenceModels/compressible/lnInclude -I$(FOAM_SRC)/finiteVolume/lnInclude -I$(FOAM_SRC)/fvOptions/lnInclude -I$(FOAM_SRC)/sampling/lnInclude -I$(FOAM_SRC)/dynamicFvMesh/lnInclude -I$(FOAM_SRC)/dynamicMesh/lnInclude -I$(FOAM_SRC)/meshTools/lnInclude -I$(FOAM_SRC)/OpenFOAM/lnInclude -I$(FOAM_SRC)/OSspecific/POSIX/lnInclude -I/usr/include/eigen3
 C++EXTLIB =  /usr/lib64/libstdc++.so.6 -lc -lgcc_s
 C++EXTLIB = /lib/gcc/x86_64-linux-gnu/9 -lgfortran
-C++EXTLIB = -lutil -lstdc++ -lmpi -lmpi_mpifh -lmpi_cxx -fuse-ld=bfd -Xlinker --add-needed -L$(FOAM_LIBBIN) -lOpenFOAM -lmomentumTransportModels -lincompressibleMomentumTransportModels -lfiniteVolume -lsampling -ldynamicFvMesh -ltopoChangerFvMesh -ldynamicMesh -lmeshTools -ldl -lm
+C++EXTLIB = -lutil -lstdc++ -lmpi -lmpi_mpifh -lmpi_cxx -fuse-ld=bfd -Xlinker --add-needed -L$(FOAM_LIBBIN) -lOpenFOAM -lturbulenceModels -lcompressibleTransportModels -lincompressibleTurbulenceModels -lcompressibleTurbulenceModels -lfiniteVolume -lsampling -ldynamicFvMesh -ltopoChangerFvMesh -ldynamicMesh -lmeshTools -ldl -lm
 
-CWIPI_DIR  = /home/miguel/cwipi_installation
+CWIPI_DIR  = /home/villanul/Documents/Travail/tools/cwipi/build/
 CWIPI_INC  = $(CWIPI_DIR)/include
 CWIPI_LIB  = $(CWIPI_DIR)/lib
 CWIPI_LINK =  -Wl,-rpath=$(CWIPI_LIB) -L$(CWIPI_LIB) -lcwpf -lcwp

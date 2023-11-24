@@ -206,12 +206,13 @@ int main(int argc, char *argv[])
   }
 
   std::string stringRootPath = path;
- char RunCase[250]= "/";
+  // char RunCase[250]= "/";
+  std::string RunCase = "/";
   // char RunCase[250] = "/cavity_testPar1";
 
 
-  // Foam::Time runTime(Foam::Time::controlDictName, path, RunCase);
-  Foam::Time runTime(Foam::Time::controlDictName, path, {RunCase});
+  Foam::Time runTime(Foam::Time::controlDictName, path, RunCase);
+  // Foam::Time runTime(Foam::Time::controlDictName, path, {RunCase});
 
   if (cwipiVerbose)
     std::cout << "Runtime created" << std::endl

@@ -16,7 +16,7 @@ dimensionedScalar nu
 (
     "nu",
     dimViscosity,
-    transportProperties.lookup("nu")
+    transportProperties
 );
 
 Info<< "Reading field p\n" << endl;
@@ -32,6 +32,7 @@ volScalarField p
     ),
     mesh
 );
+
 
 Info<< "Reading field U\n" << endl;
 volVectorField U

@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
             // (solve a Poisson equation for the approximate pressure taking into account the updated source term)
 
             volScalarField magSqrU_DA(magSqr(U));
-            volSymmTensorField FF(sqr(U)/(magSqrU_DA + small*average(magSqrU_DA)));
+            volSymmTensorField FF(sqr(U)/(magSqrU_DA + SMALL*average(magSqrU_DA)));
             volScalarField divDivUU_DA
             (
                 fvc::div

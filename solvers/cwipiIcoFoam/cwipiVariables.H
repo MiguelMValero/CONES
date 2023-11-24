@@ -1,6 +1,6 @@
 if (Pstream::master()) Foam::Pout << "Read cwipi variables" << endl;
 
-Switch cwipiSwitch = runTime.controlDict().lookup("cwipiSwitch");
+Switch cwipiSwitch = runTime.controlDict().getBool("cwipiSwitch");
 
 std::ifstream cFile ("cwipiConfig");
 

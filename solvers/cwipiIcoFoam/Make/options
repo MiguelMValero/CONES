@@ -1,6 +1,6 @@
 include $(GENERAL_RULES)/mpi-rules
 
-EXE_INC  = $(PINC) $(c++LESSWARN) \
+EXE_INC = $(PFLAGS) $(PINC) \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
     -I$(LIB_SRC)/meshTools/lnInclude \
     -I$(LIB_SRC)/dynamicMesh/lnInclude \
@@ -9,9 +9,9 @@ EXE_INC  = $(PINC) $(c++LESSWARN) \
     -I$(LIB_SRC)/TurbulenceModels/turbulenceModels/lnInclude \
     -I$(LIB_SRC)/TurbulenceModels/incompressible/lnInclude \
     -I$(LIB_SRC)/TurbulenceModels/compressible/lnInclude \
-    -I/home/villanul/Documents/Travail/tools/cwipi/build/include
-    
-LIB_LIBS = $(PLIBS) \
+    -I$(PWD)/../../lib/cwipiPstreamPar/lnInclude
+
+EXE_LIBS = $(PLIBS) \
     -lfiniteVolume \
     -lmeshTools \
     -ldynamicMesh \
@@ -20,9 +20,4 @@ LIB_LIBS = $(PLIBS) \
     -lincompressibleTurbulenceModels \
     -lincompressibleTransportModels \
     -lcompressibleTurbulenceModels \
-    -L/home/villanul/Documents/Travail/tools/cwipi/build/lib \
-    -lcwpf \
-    -lcwp
-
-/* Project lib dependencies */
-PROJECT_LIBS = -L$(FOAM_LIBBIN) -lOpenFOAM
+    -L$(FOAM_USER_LIBBIN) -lcwipiPstreamPar

@@ -1,4 +1,5 @@
 #include "cwipiPstreamPar.H"
+#include "fvCFD.H"
 #include <random>
 #include <chrono>
 #include <cwipi.h>
@@ -6,7 +7,7 @@
 namespace Foam
 {
 
-void cwipiSendParamsKEps(const fvMesh& mesh, incompressible::momentumTransportModel& turbulence, const Time& runTime, int cwipiIteration, int cwipiParams, int nbParts, float cwipiVerbose)
+void cwipiSendParamsKEps(const fvMesh& mesh, turbulenceModel& turbulence, const Time& runTime, int cwipiIteration, int cwipiParams, int nbParts, float cwipiVerbose)
 {
     //=== Send the parameters the optimize, in this case model coefficients ===
 
@@ -40,7 +41,7 @@ void cwipiSendParamsKEps(const fvMesh& mesh, incompressible::momentumTransportMo
     delete[] ParamsToSend;
 }
 
-void cwipiRecvParamsKEps(const fvMesh& mesh, incompressible::momentumTransportModel& turbulence, int cwipiParams, int nbParts, float cwipiVerbose, std::string globalRootPath)
+void cwipiRecvParamsKEps(const fvMesh& mesh, turbulenceModel& turbulence, int cwipiParams, int nbParts, float cwipiVerbose, std::string globalRootPath)
 {
     //=== Receive equivalent of the model coefficients send function, here we need to overwrite the momentumTransport dictionary 
     // And then read again the coefficient in the solver (turbulence->read()). We need to declare a OFstream containing the stream

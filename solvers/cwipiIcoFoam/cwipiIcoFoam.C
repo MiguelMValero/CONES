@@ -2,8 +2,11 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2016 OpenFOAM Foundation
+    \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
+-------------------------------------------------------------------------------
+    Copyright (C) 2011-2016 OpenFOAM Foundation
+    Copyright (C) 2019 OpenCFD Ltd.
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -24,8 +27,39 @@ License
 Application
     icoFoam
 
+Group
+    grpIncompressibleSolvers
+
 Description
     Transient solver for incompressible, laminar flow of Newtonian fluids.
+
+    \heading Solver details
+    The solver uses the PISO algorithm to solve the continuity equation:
+
+        \f[
+            \div \vec{U} = 0
+        \f]
+
+    and momentum equation:
+
+        \f[
+            \ddt{\vec{U}}
+          + \div \left( \vec{U} \vec{U} \right)
+          - \div \left(\nu \grad \vec{U} \right)
+          = - \grad p
+        \f]
+
+    Where:
+    \vartable
+        \vec{U} | Velocity
+        p       | Pressure
+    \endvartable
+
+    \heading Required fields
+    \plaintable
+        U       | Velocity [m/s]
+        p       | Kinematic pressure, p/rho [m2/s2]
+    \endplaintable
 
 \*---------------------------------------------------------------------------*/
 
@@ -44,16 +78,27 @@ Description
 int main(int argc, char *argv[])
 {
 
-    #include "setRootCase.H"
+    argList::addNote
+    (
+        "Transient solver for incompressible, laminar flow"
+        " of Newtonian fluids."
+    );
+
+    #include "postProcess.H"
+
+    #include "addCheckCaseOptions.H"
+    Info<< "I am here !!!!!" << nl << endl;
+    #include "setRootCaseLists.H"
+    // #include "setRootCase.H"
+    Info<< "I am here 2222 !!!!!" << nl << endl;
     #include "createTime.H"
-    //#include "cwipiCreateTime.H"
     #include "createMesh.H"
 
     pisoControl piso(mesh);
 
     #include "createFields.H"
     #include "initContinuityErrs.H"
-
+    
     //========== Declaration of cwipi variables ==========
     #include "cwipiVariables.H"
 
@@ -71,7 +116,6 @@ int main(int argc, char *argv[])
 
     while (runTime.loop())
     {
-
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
         #include "CourantNo.H"
@@ -119,7 +163,7 @@ int main(int argc, char *argv[])
 
                 pEqn.setReference(pRefCell, pRefValue);
 
-                pEqn.solve();
+                pEqn.solve(mesh.solver(p.select(piso.finalInnerIter())));
 
                 if (piso.finalNonOrthogonalIter())
                 {
@@ -172,7 +216,7 @@ int main(int argc, char *argv[])
             
             if (cwipiVerbose) Info << "Out of the receive parameters function" << endl;
             volScalarField magSqrU_DA(magSqr(U));
-            volSymmTensorField FF(sqr(U)/(magSqrU_DA + small*average(magSqrU_DA)));
+            volSymmTensorField FF(sqr(U)/(magSqrU_DA + SMALL*average(magSqrU_DA)));
             volScalarField divDivUU_DA
             (
                 fvc::div
@@ -196,8 +240,9 @@ int main(int argc, char *argv[])
         //=========================================================
 
         runTime.write();
+        runTime.printExecutionTime(Info);
     }
-
+    
     //========== Delete Cwipi Coupling and allocated arrays ===========
     if (cwipiSwitch)
     {

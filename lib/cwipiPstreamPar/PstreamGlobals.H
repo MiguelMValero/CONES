@@ -1,9 +1,11 @@
 /*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     | Website:  https://openfoam.org
-    \\  /    A nd           | Copyright (C) 2013-2018 OpenFOAM Foundation
+   \\    /   O peration     |
+    \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
+-------------------------------------------------------------------------------
+    Copyright (C) 2013-2015 OpenFOAM Foundation
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -37,34 +39,32 @@ SourceFiles
 #define PstreamGlobals_H
 
 #include "DynamicList.H"
-
 #include <mpi.h>
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
-
-/*---------------------------------------------------------------------------*\
-                           Class PstreamGlobals Declaration
-\*---------------------------------------------------------------------------*/
-
 namespace PstreamGlobals
 {
-    extern MPI_Comm MPI_COMM_FOAM;
 
-    extern DynamicList<MPI_Request> outstandingRequests_;
+//- Outstanding non-blocking operations.
+extern DynamicList<MPI_Request> outstandingRequests_;
+extern DynamicList<label> freedRequests_;
 
-    extern int nTags_;
+//- Max outstanding message tag operations.
+extern int nTags_;
 
-    extern DynamicList<int> freedTags_;
+//- Free'd message tags
+extern DynamicList<int> freedTags_;
 
-    // Current communicators. First element will be MPI_COMM_FOAM
-    extern DynamicList<MPI_Comm> MPICommunicators_;
+// Current communicators. First element will be MPI_COMM_WORLD
+extern DynamicList<MPI_Comm> MPICommunicators_;
+extern DynamicList<MPI_Group> MPIGroups_;
 
-    extern DynamicList<MPI_Group> MPIGroups_;
 
-    void checkCommunicator(const label, const label procNo);
+void checkCommunicator(const label comm, const label toProcNo);
+
 };
 
 

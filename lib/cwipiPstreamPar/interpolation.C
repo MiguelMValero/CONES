@@ -1,6 +1,7 @@
 #include "volPointInterpolation.H"
 #include "interpolationCellPointWallModified.H"
 #include "cwipiPstreamPar.H"
+#include <fstream>
 #include <cwipi.h>
 
 namespace Foam

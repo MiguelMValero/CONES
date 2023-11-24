@@ -47,4 +47,9 @@ runTimeModifiable true;
 
 cwipiSwitch     true;
 
+DebugSwitches
+{
+    Pstream          1;
+}
+
 // ************************************************************************* //

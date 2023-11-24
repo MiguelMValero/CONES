@@ -1,9 +1,11 @@
 /*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     | Website:  https://openfoam.org
-    \\  /    A nd           | Copyright (C) 2013-2018 OpenFOAM Foundation
+   \\    /   O peration     |
+    \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
+-------------------------------------------------------------------------------
+    Copyright (C) 2013-2015 OpenFOAM Foundation
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -25,51 +27,23 @@ License
 
 #include "PstreamGlobals.H"
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-namespace Foam
-{
-
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
-MPI_Comm PstreamGlobals::MPI_COMM_FOAM;
+Foam::DynamicList<MPI_Request> Foam::PstreamGlobals::outstandingRequests_;
+Foam::DynamicList<Foam::label> Foam::PstreamGlobals::freedRequests_;
 
-// Outstanding non-blocking operations.
-//! \cond fileScope
-DynamicList<MPI_Request> PstreamGlobals::outstandingRequests_;
-//! \endcond
+int Foam::PstreamGlobals::nTags_ = 0;
 
-//// Max outstanding non-blocking operations.
-////! \cond fileScope
-//int PstreamGlobals::nRequests_ = 0;
-////! \endcond
+Foam::DynamicList<int> Foam::PstreamGlobals::freedTags_;
 
-// Free'd non-blocking operations.
-//! \cond fileScope
-//DynamicList<label> PstreamGlobals::freedRequests_;
-//! \endcond
-
-// Max outstanding message tag operations.
-//! \cond fileScope
-int PstreamGlobals::nTags_ = 0;
-//! \endcond
-
-// Free'd message tags
-//! \cond fileScope
-DynamicList<int> PstreamGlobals::freedTags_;
-//! \endcond
+Foam::DynamicList<MPI_Comm> Foam::PstreamGlobals::MPICommunicators_;
+Foam::DynamicList<MPI_Group> Foam::PstreamGlobals::MPIGroups_;
 
 
-// Allocated communicators.
-//! \cond fileScope
-DynamicList<MPI_Comm> PstreamGlobals::MPICommunicators_;
-DynamicList<MPI_Group> PstreamGlobals::MPIGroups_;
-//! \endcond
-
-void PstreamGlobals::checkCommunicator
+void Foam::PstreamGlobals::checkCommunicator
 (
     const label comm,
-    const label otherProcNo
+    const label toProcNo
 )
 {
     if
@@ -79,16 +53,13 @@ void PstreamGlobals::checkCommunicator
     )
     {
         FatalErrorInFunction
-            << "otherProcNo:" << otherProcNo << " : illegal communicator "
-            << comm << endl
-            << "Communicator should be within range 0.."
-            << PstreamGlobals::MPICommunicators_.size()-1 << abort(FatalError);
+            << "toProcNo:" << toProcNo << " : illegal communicator "
+            << comm << nl
+            << "Communicator should be within range [0,"
+            << PstreamGlobals::MPICommunicators_.size()
+            << ')' << abort(FatalError);
     }
 }
 
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-} // End namespace Foam
 
 // ************************************************************************* //
