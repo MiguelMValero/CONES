@@ -105,8 +105,8 @@ int main(int argc, char *argv[])
             else if (cwipiParamsObs == 2){
                 UpInterpolation(U, p, mesh, runTime, cwipiObsU, cwipiObsp, nbParts, cwipiVerbose, globalRootPath, globalCasePath);
             }
-            cwipiSend(mesh, U, runTime, cwipiIteration, nbParts, cwipiVerbose);
-            cwipiSendParamsKEps(mesh, turbulence(), runTime, cwipiIteration, cwipiParams, nbParts, cwipiVerbose);
+            cwipiSend(mesh, U, runTime, cwipiIteration, nbParts, cwipiVerbose); 
+            cwipiSendParamsKOmegaSST(mesh, turbulence(), runTime, cwipiIteration, cwipiParams, nbParts, cwipiVerbose);
 
             cwipiTimestep = 0;
             cwipiPhaseCheck = 1;
@@ -114,11 +114,12 @@ int main(int argc, char *argv[])
 
         cwipiTimestep = cwipiTimestep + 1;
 
+
         //========= Receiving back updated Velocity Field and parameters ==========
         if (cwipiSwitch && cwipiPhaseCheck == 1)
         {
             cwipiRecv(mesh, U, runTime, cwipiIteration, nbParts, cwipiVerbose);
-            cwipiRecvParamsKEps(mesh, turbulence(), cwipiParams, nbParts, cwipiVerbose, globalRootPath);
+            cwipiRecvParamsKOmegaSST(mesh, turbulence(), cwipiParams, nbParts, cwipiVerbose, globalRootPath);
             
             // ========== We correct the pressure after the DA cycle 
             //(solve a Poisson equation for the approximate pressure taking into account the

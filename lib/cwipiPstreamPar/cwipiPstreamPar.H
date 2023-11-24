@@ -33,6 +33,8 @@ void cwipiSendParamsChannel(const fvMesh& mesh, const volScalarField& Ck, const 
 
 void cwipiSendParamsKEps(const fvMesh& mesh, incompressible::momentumTransportModel& turbulence, const Time& runTime, int cwipiIteration, int cwipiParams, int nbParts, float cwipiVerbose);
 
+void cwipiSendParamsKOmegaSST(const fvMesh& mesh, incompressible::momentumTransportModel& turbulence, const Time& runTime, int cwipiIteration, int cwipiParams, int nbParts, float cwipiVerbose);
+
 void cwipiRecv(const fvMesh& mesh, volVectorField& U, const Time& runTime, int cwipiIteration, int nbParts, float cwipiVerbose);
 
 void cwipiRecvParams(const fvMesh& mesh, volVectorField& U, int cwipiParams, int nbParts, float cwipiVerbose);
@@ -40,6 +42,8 @@ void cwipiRecvParams(const fvMesh& mesh, volVectorField& U, int cwipiParams, int
 void cwipiRecvParamsChannel(const fvMesh& mesh, volScalarField& Ck, int cwipiParams, int nbParts, float cwipiVerbose);
 
 void cwipiRecvParamsKEps(const fvMesh& mesh, incompressible::momentumTransportModel& turbulence, int cwipiParams, int nbParts, float cwipiVerbose, std::string globalRootPath);
+
+void cwipiRecvParamsKOmegaSST(const fvMesh& mesh, incompressible::momentumTransportModel& turbulence, int cwipiParams, int nbParts, float cwipiVerbose, std::string globalRootPath);
 
 void cwipideleteCoupling(double* pointCoords, int* face_index, int* face_connectivity_index, int* cell_to_face_connectivity, int* face_connectivity, int nbParts, float cwipiVerbose);
 }
