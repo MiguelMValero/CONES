@@ -1,0 +1,1323 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2306                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      topoSetDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+actions
+(
+    {
+        name    clippingCells0.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (-0.0496 -0.0070 -0.0290)(0.0084 0.0510 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells1.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (-0.0392 -0.0072 -0.0290)(0.0188 0.0508 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells2.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (-0.0289 -0.0074 -0.0290)(0.0291 0.0506 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells3.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (-0.0185 -0.0077 -0.0290)(0.0395 0.0504 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells4.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (-0.0082 -0.0079 -0.0290)(0.0498 0.0501 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells5.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.0022 -0.0081 -0.0290)(0.0602 0.0499 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells6.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.0125 -0.0083 -0.0290)(0.0705 0.0497 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells7.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.0229 -0.0085 -0.0290)(0.0809 0.0495 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells8.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.0332 -0.0087 -0.0290)(0.0912 0.0493 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells9.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.0436 -0.0090 -0.0290)(0.1016 0.0490 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells10.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.0539 -0.0092 -0.0290)(0.1119 0.0488 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells11.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.0643 -0.0094 -0.0290)(0.1223 0.0486 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells12.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.0746 -0.0096 -0.0290)(0.1326 0.0484 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells13.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.0850 -0.0098 -0.0290)(0.1430 0.0482 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells14.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.0953 -0.0100 -0.0290)(0.1533 0.0480 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells15.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.1057 -0.0103 -0.0290)(0.1637 0.0478 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells16.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.1161 -0.0105 -0.0290)(0.1741 0.0475 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells17.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.1264 -0.0107 -0.0290)(0.1844 0.0473 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells18.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.1368 -0.0109 -0.0290)(0.1948 0.0471 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells19.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.1471 -0.0111 -0.0290)(0.2051 0.0469 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells20.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.1575 -0.0113 -0.0290)(0.2155 0.0467 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells21.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.1678 -0.0116 -0.0290)(0.2258 0.0465 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells22.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.1782 -0.0118 -0.0290)(0.2362 0.0462 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells23.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.1885 -0.0120 -0.0290)(0.2465 0.0460 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells24.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.1989 -0.0122 -0.0290)(0.2569 0.0458 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells25.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.2092 -0.0124 -0.0290)(0.2672 0.0456 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells26.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.2196 -0.0126 -0.0290)(0.2776 0.0454 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells27.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.2299 -0.0129 -0.0290)(0.2879 0.0452 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells28.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.2403 -0.0131 -0.0290)(0.2983 0.0449 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells29.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.2506 -0.0133 -0.0290)(0.3086 0.0447 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells30.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.2610 -0.0135 -0.0290)(0.3190 0.0445 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells31.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (-0.0496 -0.0280 -0.0290)(0.0084 0.0300 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells32.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (-0.0392 -0.0280 -0.0290)(0.0188 0.0300 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells33.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (-0.0289 -0.0281 -0.0290)(0.0291 0.0299 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells34.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (-0.0185 -0.0281 -0.0290)(0.0395 0.0299 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells35.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (-0.0082 -0.0281 -0.0290)(0.0498 0.0299 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells36.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.0022 -0.0282 -0.0290)(0.0602 0.0298 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells37.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.0125 -0.0282 -0.0290)(0.0705 0.0298 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells38.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.0229 -0.0282 -0.0290)(0.0809 0.0298 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells39.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.0332 -0.0283 -0.0290)(0.0912 0.0297 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells40.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.0436 -0.0283 -0.0290)(0.1016 0.0297 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells41.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.0539 -0.0283 -0.0290)(0.1119 0.0297 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells42.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.0643 -0.0284 -0.0290)(0.1223 0.0296 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells43.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.0746 -0.0284 -0.0290)(0.1326 0.0296 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells44.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.0850 -0.0284 -0.0290)(0.1430 0.0296 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells45.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.0953 -0.0285 -0.0290)(0.1533 0.0295 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells46.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.1057 -0.0285 -0.0290)(0.1637 0.0295 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells47.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.1161 -0.0285 -0.0290)(0.1741 0.0295 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells48.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.1264 -0.0286 -0.0290)(0.1844 0.0294 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells49.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.1368 -0.0286 -0.0290)(0.1948 0.0294 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells50.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.1471 -0.0286 -0.0290)(0.2051 0.0294 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells51.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.1575 -0.0287 -0.0290)(0.2155 0.0293 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells52.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.1678 -0.0287 -0.0290)(0.2258 0.0293 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells53.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.1782 -0.0287 -0.0290)(0.2362 0.0293 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells54.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.1885 -0.0288 -0.0290)(0.2465 0.0292 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells55.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.1989 -0.0288 -0.0290)(0.2569 0.0292 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells56.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.2092 -0.0288 -0.0290)(0.2672 0.0292 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells57.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.2196 -0.0289 -0.0290)(0.2776 0.0291 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells58.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.2299 -0.0289 -0.0290)(0.2879 0.0291 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells59.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.2403 -0.0289 -0.0290)(0.2983 0.0291 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells60.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.2506 -0.0290 -0.0290)(0.3086 0.0290 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells61.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.2610 -0.0290 -0.0290)(0.3190 0.0290 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells62.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (-0.0290 -0.0544 -0.0290)(0.0290 0.0036 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells63.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (-0.0193 -0.0537 -0.0290)(0.0387 0.0043 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells64.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (-0.0097 -0.0530 -0.0290)(0.0483 0.0050 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells65.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.0000 -0.0524 -0.0290)(0.0580 0.0056 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells66.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.0097 -0.0517 -0.0290)(0.0677 0.0063 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells67.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.0193 -0.0510 -0.0290)(0.0773 0.0070 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells68.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.0290 -0.0503 -0.0290)(0.0870 0.0077 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells69.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.0387 -0.0496 -0.0290)(0.0967 0.0084 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells70.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.0483 -0.0490 -0.0290)(0.1063 0.0090 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells71.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.0580 -0.0483 -0.0290)(0.1160 0.0097 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells72.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.0677 -0.0476 -0.0290)(0.1257 0.0104 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells73.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.0773 -0.0469 -0.0290)(0.1353 0.0111 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells74.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.0870 -0.0462 -0.0290)(0.1450 0.0118 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells75.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.0967 -0.0456 -0.0290)(0.1547 0.0124 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells76.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.1063 -0.0449 -0.0290)(0.1643 0.0131 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells77.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.1160 -0.0442 -0.0290)(0.1740 0.0138 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells78.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.1257 -0.0435 -0.0290)(0.1837 0.0145 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells79.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.1353 -0.0428 -0.0290)(0.1933 0.0152 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells80.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.1450 -0.0422 -0.0290)(0.2030 0.0158 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells81.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.1547 -0.0415 -0.0290)(0.2127 0.0165 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells82.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.1643 -0.0408 -0.0290)(0.2223 0.0172 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells83.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.1740 -0.0401 -0.0290)(0.2320 0.0179 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells84.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.1837 -0.0394 -0.0290)(0.2417 0.0186 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells85.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.1933 -0.0388 -0.0290)(0.2513 0.0192 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells86.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.2030 -0.0381 -0.0290)(0.2610 0.0199 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells87.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.2127 -0.0374 -0.0290)(0.2707 0.0206 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells88.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.2223 -0.0367 -0.0290)(0.2803 0.0213 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells89.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.2320 -0.0360 -0.0290)(0.2900 0.0220 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells90.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.2417 -0.0354 -0.0290)(0.2997 0.0226 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells91.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.2513 -0.0347 -0.0290)(0.3093 0.0233 0.0290)
+            );
+        }
+    }
+
+    {
+        name    clippingCells92.txt;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            boxes
+            (
+                (0.2610 -0.0340 -0.0290)(0.3190 0.0240 0.0290)
+            );
+        }
+    }
+
+);
+
+// ************************************************************************* //

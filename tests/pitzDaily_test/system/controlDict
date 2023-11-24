@@ -15,8 +15,8 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-//application     cwipiSimpleFoamkEpsPar;
-application   cwipiSimpleFoamkOmegaSSTPar;
+application     cwipiSimpleFoamkEpsPar;
+//application   cwipiSimpleFoamkOmegaSSTPar;
 
 startFrom       startTime;
 
@@ -24,7 +24,7 @@ startTime       0;
 
 stopAt          endTime;
 
-endTime         300;
+endTime         20;
 
 deltaT          1;
 
@@ -48,10 +48,10 @@ runTimeModifiable true;
 
 cwipiSwitch   true;
 
-cacheTemporaryObjects
-(
-    kEpsilon:G
-);
+//cacheTemporaryObjects
+//(
+//    kEpsilon:G
+//);
 
 // functions
 // {

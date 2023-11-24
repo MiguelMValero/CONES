@@ -1592,7 +1592,7 @@ MatrixXf EnKF_hyperloc(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, con
     int count_nbClips = 0;          // Count the number of clippings 
     int cellIndex = 0;              // Retrieve cell index in the clipping file for the loop
 
-    MatrixXf stateMatrixUpt = stateMatrix;  // Save orginial state matrix to reconstruct it after hyperlocalization process
+    MatrixXf stateMatrixUpt = stateMatrix;  // Save original state matrix to reconstruct it after hyperlocalization process
 
     int nb_clipCells = clippingCells(0);
     MatrixXf temp_state(nb_clipCells*3 + cwipiParams,cwipiMembers);
