@@ -106,22 +106,24 @@ void cwipiRecvParamsKEps(const fvMesh& mesh, incompressible::momentumTransportMo
 
         MPI_Recv(paramsToRecv, cwipiParams, MPI_DOUBLE, 0, recvTag_params, MPI_COMM_WORLD, &status4);
         const double mean = 0.0;
-        const double stddev = 0.11;
+        const double stddev = 0.01;
         std::normal_distribution<double> dist(mean, stddev);
         float gaussample;
         unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
         std::default_random_engine generator(seed);
 
-        for (int i=1; i<cwipiParams; i++)
+        for (int i=0; i<cwipiParams; i++)
         {
             if (paramsToRecv[i] < 0.05)
             {
+            	scalar oldRecv = paramsToRecv[i];
                 do
                 {
                     gaussample=dist(generator);
                 }   while (gaussample<(mean-3*stddev) || gaussample>(mean+3*stddev));
 
-                paramsToRecv[i] = 0.1 + 0.1*gaussample;
+                paramsToRecv[i] = 0.05 + 0.1*gaussample;
+                if (cwipiVerbose) Pout << "Parameter " << i << " from ensemble " << appSuffix << " replaced from " << oldRecv << " to " << paramsToRecv[i] << endl;
             }
         }
 
