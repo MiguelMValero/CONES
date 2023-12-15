@@ -1,0 +1,46 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2212                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      observations;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+nEns 8;
+
+state
+{
+    type "BC";
+    patchName "movingWall";
+    fieldName "U";
+    fieldType "fixedValue";
+    sdType "Percentage";
+    sdValue (5 0 0);
+};
+
+xObs 
+(
+    (0.0425 0.0975 0.005)
+    (0.0475 0.0975 0.005) 
+    (0.0525 0.0975 0.005) 
+    (0.0575 0.0975 0.005) 
+    (0.0600 0.0975 0.005) 
+);
+
+Uobs 
+(
+    (4.13640 0.0322568 0)
+    (4.20305 0.0189137 0)
+    (4.24147 0.00712773 0)
+    (4.25221 -0.00441124 0)
+    (4.23345 -0.0168068 0)
+);
+
+

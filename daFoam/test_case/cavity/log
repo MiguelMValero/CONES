@@ -1,0 +1,46 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2212                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _70874860-20230612 OPENFOAM=2212 patch=230612 version=2212
+Arch   : "LSB;label=32;scalar=64"
+Exec   : daFoam -parallel
+Date   : Dec 04 2023
+Time   : 12:07:11
+Host   : diana
+PID    : 815286
+I/O    : uncollated
+Case   : /home/pe/OpenFOAM/pe-v2212/daFoam/test_case/cavity
+nProcs : 9
+Hosts  :
+(
+    (diana 9)
+)
+Pstream initialized with:
+    floatTransfer      : 0
+    nProcsSimpleSum    : 0
+    commsType          : nonBlocking
+    polling iterations : 0
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 0
+
+Reading field T
+
+Reading transportProperties
+
+Reading diffusivity DT
+
+Reading/calculating face flux field phi
+
+Courant Number mean: 0 max: 0
+This application is bugged in parallel. 
+Finalising parallel run

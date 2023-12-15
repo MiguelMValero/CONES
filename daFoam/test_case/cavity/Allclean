@@ -1,0 +1,13 @@
+#!/bin/bash
+cd ../../
+wclean
+wmake
+cd test_case/cavity/
+rm -rf processor*
+rm -rf 0.*
+decomposePar -force
+mpirun -np 9 daFoam -parallel > log
+for i in $(seq 0 8); do
+  touch processor$i/processor$i"".foam
+done
+reconstructPar

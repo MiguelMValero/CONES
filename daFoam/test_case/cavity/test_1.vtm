@@ -1,0 +1,16 @@
+<VTKFile type="vtkMultiBlockDataSet" version="1.0" byte_order="LittleEndian" header_type="UInt64">
+  <vtkMultiBlockDataSet>
+    <Block index="0" name="boundary">
+      <DataSet index="0" name="movingWall" file="test_1/test_1_0_0.vtp"/>
+      <DataSet index="1" name="fixedWalls" file="test_1/test_1_1_0.vtp"/>
+    </Block>
+  </vtkMultiBlockDataSet>
+  <FieldData>
+    <DataArray type="Int8" Name="CasePath" NumberOfTuples="52" format="binary" RangeMin="0" RangeMax="121">
+      NAAAAAAAAAAvaG9tZS9wZS9PcGVuRk9BTS9wZS12MjIxMi9kYUZvYW0vdGVzdF9jYXNlL2Nhdml0eS8A
+    </DataArray>
+    <DataArray type="Float64" Name="TimeValue" NumberOfTuples="1" format="binary" RangeMin="0.2" RangeMax="0.2">
+      CAAAAAAAAACamZmZmZnJPw==
+    </DataArray>
+  </FieldData>
+</VTKFile>
