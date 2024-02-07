@@ -57,17 +57,18 @@ int main(int argc, char *argv[])
   float localSwitch = configValues[20];    // Switch for the localisation (basic clipping or hyperlocalisation activated)
   float hyperlocSwitch = configValues[21]; // Switch for hyperlocalization
   float paramEstSwitch = configValues[22]; // Switch for parameter estimation
-  float Ux = configValues[23];             // Specification if Ux is read or not (cwipiParamsObs needs to be either 0, 2 or 3)
-  float Uy = configValues[24];             // Specification if Uy is read or not (cwipiParamsObs needs to be either 0, 2 or 3)
-  float Uz = configValues[25];             // Specification if Uz is read or not (cwipiParamsObs needs to be either 0, 2 or 3)
-  int typeInputs = configValues[26];       // Inputs for R are given in absolute values (0), percentage (1) or potential function (2) (default = 0)
-  double sigmaLocX = configValues[27];     // eta of the EnKF (pertubation of the Kalman gain to take into consideration the localization in X direction)
-  double sigmaLocY = configValues[28];     // eta of the EnKF (pertubation of the Kalman gain to take into consideration the localization in Y direction)
-  double sigmaLocZ = configValues[29];     // eta of the EnKF (pertubation of the Kalman gain to take into consideration the localization in Z direction)
-  double epsilon = configValues[30];       // Value used to calculate the NSRMD
-  double sigmaUserUa = configValues[31];   // sigma of the EnKF given by a+by^c
-  double sigmaUserUb = configValues[32];   // sigma of the EnKF given by a+by^c
-  double sigmaUserUc = configValues[33];   // sigma of the EnKF given by a+by^c
+  float stateEstSwitch = configValues[23]; // Switch for state estimation
+  float Ux = configValues[24];             // Specification if Ux is read or not (cwipiParamsObs needs to be either 0, 2 or 3)
+  float Uy = configValues[25];             // Specification if Uy is read or not (cwipiParamsObs needs to be either 0, 2 or 3)
+  float Uz = configValues[26];             // Specification if Uz is read or not (cwipiParamsObs needs to be either 0, 2 or 3)
+  int typeInputs = configValues[27];       // Inputs for R are given in absolute values (0), percentage (1) or potential function (2) (default = 0)
+  double sigmaLocX = configValues[28];     // eta of the EnKF (pertubation of the Kalman gain to take into consideration the localization in X direction)
+  double sigmaLocY = configValues[29];     // eta of the EnKF (pertubation of the Kalman gain to take into consideration the localization in Y direction)
+  double sigmaLocZ = configValues[30];     // eta of the EnKF (pertubation of the Kalman gain to take into consideration the localization in Z direction)
+  double epsilon = configValues[31];       // Value used to calculate the NSRMD
+  double sigmaUserUa = configValues[32];   // sigma of the EnKF given by a+by^c
+  double sigmaUserUb = configValues[33];   // sigma of the EnKF given by a+by^c
+  double sigmaUserUc = configValues[34];   // sigma of the EnKF given by a+by^c
 
   if (cwipiVerbose) std::cout << "Beginning of the configuration file" << std::endl << "\n";
   
@@ -393,7 +394,7 @@ int main(int argc, char *argv[])
 
     //==================== Kalman filter code =====================
 
-    stateMatrixUpt = mainEnKF(stateMatrix, mesh, cwipiMembers, nb_cells, cwipiObs, cwipiObsU, sigmaUserU, sigmaUserp, sigmaUserCf, sigmaLocX, sigmaLocY, sigmaLocZ, localSwitch, clippingSwitch, hyperlocSwitch, cwipiParams, cwipiParamsObs, stateInfl, paramsInfl, typeInfl, typeInputs, velocityCase, sigmaUserUa, sigmaUserUb, sigmaUserUc, paramEstSwitch,  cwipiVerbose, stringRootPath, cwipiTimedObs, obsTimeStep, time, epsilon);
+    stateMatrixUpt = mainEnKF(stateMatrix, mesh, cwipiMembers, nb_cells, cwipiObs, cwipiObsU, sigmaUserU, sigmaUserp, sigmaUserCf, sigmaLocX, sigmaLocY, sigmaLocZ, localSwitch, clippingSwitch, hyperlocSwitch, cwipiParams, cwipiParamsObs, stateInfl, paramsInfl, typeInfl, typeInputs, velocityCase, sigmaUserUa, sigmaUserUb, sigmaUserUc, paramEstSwitch, stateEstSwitch,  cwipiVerbose, stringRootPath, cwipiTimedObs, obsTimeStep, time, epsilon);
 
 
     //** Writing values to a txt file if needed **

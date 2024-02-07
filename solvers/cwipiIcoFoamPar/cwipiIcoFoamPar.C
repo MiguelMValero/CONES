@@ -151,6 +151,7 @@ int main(int argc, char *argv[])
             cwipiSend(mesh, U, runTime, cwipiIteration, nbParts, cwipiVerbose);
 
             cwipiSendParams(mesh, U, runTime, cwipiIteration, cwipiParams, nbParts, cwipiVerbose); 
+            //cwipiSendParams_sin(mesh, U, cwipiParams, nbParts, cwipiVerbose);   //For sinusoidal inlets
 
             cwipiTimestep = 0;
             cwipiPhaseCheck = 1;
@@ -165,12 +166,13 @@ int main(int argc, char *argv[])
             cwipiRecv(mesh, U, runTime, cwipiIteration, nbParts, cwipiVerbose);
             
             cwipiRecvParams(mesh, U, cwipiParams, nbParts, cwipiVerbose);
+            //cwipiRecvParams_sin(mesh, U, cwipiParams, nbParts, cwipiVerbose);       //For sinusoidal inlets
 
             // ========== We correct the pressure after the DA cycle 
             //(solve a Poisson equation for the approximate pressure taking into account the
             //updated source term)==========
             
-            if (cwipiVerbose) Info << "Out of the receive parameters function" << endl;
+            if (cwipiVerbose) Pout << "Out of the receive parameters function" << endl;
             volScalarField magSqrU_DA(magSqr(U));
             volSymmTensorField FF(sqr(U)/(magSqrU_DA + small*average(magSqrU_DA)));
             volScalarField divDivUU_DA
@@ -188,7 +190,7 @@ int main(int argc, char *argv[])
             pEqn_DA.setReference(pRefCell, pRefValue);
             pEqn_DA.solve();
 
-            if (cwipiVerbose) Info<< "Pressure updated after DA analysis" << endl;
+            if (cwipiVerbose) Pout << "Pressure updated after DA analysis" << endl;
 
             cwipiPhaseCheck = 0;
             cwipiIteration = cwipiIteration + 1;
@@ -196,6 +198,7 @@ int main(int argc, char *argv[])
         //=========================================================
 
         runTime.write();
+        if (cwipiVerbose) Pout << "After write in the solver" << endl;
     }
 
     //========== Delete Cwipi Coupling and allocated arrays ===========

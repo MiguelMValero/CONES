@@ -21,6 +21,7 @@ clippingSwitch = 0
 localisationSwitch = 0
 hyperlocSwitch = 0
 paramEstSwitch = 1
+stateEstSwitch = 1
 Ux = 1
 Uy = 1
 Uz = 0

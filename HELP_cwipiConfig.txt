@@ -21,12 +21,13 @@ cwipiParamsObs    // Definition of observation parameter : 0 = vel, 1 = pres, 2 
 stateInfl         // State inflation lambda - 1 (default = 0)(double)
 paramsInfl        // Parameters inflation lambda - 1 (double)
 typeInfl          // Definition of inflation (0 = stochastic, 1 = deterministic) (bool)
-clippingSwitch =  // Switch for the clipping. If true, a file called "clippingCells.txt" containing the cells IDs of the
+clippingSwitch    // Switch for the clipping. If true, a file called "clippingCells.txt" containing the cells IDs of the
                   // clipping must be included in the root directory (bool)
-localSwitch =     // Switch for the localisation (basic clipping or hyperlocalisation activated)(bool)
-hyperlocSwitch =  // Switch for hyperlocalization. If true, a file called "clippingCells.txt" containing the cells IDs of all
+localSwitch       // Switch for the localisation (basic clipping or hyperlocalisation activated)(bool)
+hyperlocSwitch    // Switch for hyperlocalization. If true, a file called "clippingCells.txt" containing the cells IDs of all
                   // the clippings must be included in the root directory (bool)
 paramEstSwitch    // Switch for parameter estimation (default = 1) (bool)
+stateEstSwitch    // Switch for state estimation (default = 1) (bool)
 Ux                // Specification if Ux is read or not (cwipiParamsObs needs to be either 0, 2 or 3)(bool)
 Uy                // Specification if Uy is read or not (cwipiParamsObs needs to be either 0, 2 or 3)(bool)
 Uz                // Specification if Uz is read or not (cwipiParamsObs needs to be either 0, 2 or 3)(bool)

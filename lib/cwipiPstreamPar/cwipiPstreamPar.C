@@ -210,7 +210,7 @@ int c2fconnec_size, int fconnec_size, int nbParts, float cwipiVerbose, double ge
 	delete[] face_connectivity_index_temp_IDs;
 }
 
-void cwipiSend(const fvMesh& mesh, const volVectorField& vf, const Time& runTime, int cwipiIteration, int nbParts, float cwipiVerbose)
+void cwipiSend(const fvMesh& mesh, const volVectorField& U, const Time& runTime, int cwipiIteration, int nbParts, float cwipiVerbose)
 {
     //=== Basic sent with the velocity field, can be automatically interpolated by cwipi if the coupling meshes are different
     //between the OF instance and the KF_coupling code === 
@@ -220,9 +220,9 @@ void cwipiSend(const fvMesh& mesh, const volVectorField& vf, const Time& runTime
     if (cwipiVerbose) if (Pstream::master()) Pout << "Number of cells in the cwipiSend function: " << mesh.nCells() << endl;
     forAll(mesh.cellCentres(),i)
     {
-        fieldsToSend[3*i+0]=vf[i].component(0);
-        fieldsToSend[3*i+1]=vf[i].component(1);
-        fieldsToSend[3*i+2]=vf[i].component(2);
+        fieldsToSend[3*i+0]=U[i].component(0);
+        fieldsToSend[3*i+1]=U[i].component(1);
+        fieldsToSend[3*i+2]=U[i].component(2);
     }
 
     //* Use the correct coupling name depending on the OF instance *
@@ -296,7 +296,7 @@ void cwipiRecv(const fvMesh& mesh, volVectorField& U, const Time& runTime, int c
     switch(status2)
     {
         case CWIPI_EXCHANGE_OK :
-        if (cwipiVerbose) Pout << "Back-receive Ok in member " << appSuffix << " from processor " << Foam::Pstream::myProcNo() << endl;
+        if (cwipiVerbose) if (Pstream::master()) Pout << "Back-receive Ok in member " << appSuffix << " from processor " << Foam::Pstream::myProcNo() << endl;
         break;
         case CWIPI_EXCHANGE_BAD_RECEIVING :
         if (cwipiVerbose) Pout << "Bad Back-receiving in member " << appSuffix << "\n";

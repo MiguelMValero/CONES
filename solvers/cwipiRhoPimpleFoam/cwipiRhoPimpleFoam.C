@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     | Website:  https://openfoam.org
-    \\  /    A nd           | Copyright (C) 2011-2020 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2021 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -22,22 +22,25 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    cwipiPimpleFoam
+    rhoPimpleFoam
 
 Description
-    Transient solver for incompressible, turbulent flow of Newtonian fluids,
-    with optional mesh motion and mesh topology changes.
+    Transient solver for turbulent flow of compressible fluids for HVAC and
+    similar applications, with optional mesh motion and mesh topology changes.
 
-    Turbulence modelling is generic, i.e. laminar, RAS or LES may be selected.
+    Uses the flexible PIMPLE (PISO-SIMPLE) solution for time-resolved and
+    pseudo-transient simulations.
 
 \*---------------------------------------------------------------------------*/
 
 #include "cwipiPstreamPar.H"
 #include "fvCFD.H"
 #include "dynamicFvMesh.H"
-#include "singlePhaseTransportModel.H"
-#include "kinematicMomentumTransportModel.H"
+#include "fluidThermo.H"
+#include "dynamicMomentumTransportModel.H"
+#include "fluidThermophysicalTransportModel.H"
 #include "pimpleControl.H"
+#include "pressureReference.H"
 #include "CorrectPhi.H"
 #include "fvModels.H"
 #include "fvConstraints.H"
@@ -53,7 +56,6 @@ Description
 
 #include <mpi.h>
 
-
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 int main(int argc, char *argv[])
@@ -61,19 +63,19 @@ int main(int argc, char *argv[])
     #include "postProcess.H"
 
     #include "setRootCaseLists.H"
-    // #include "cwipiCreateTime.H"
     #include "createTime.H"
     #include "createDynamicFvMesh.H"
-    #include "initContinuityErrs.H"
     #include "createDyMControls.H"
+    #include "initContinuityErrs.H"
     #include "createFields.H"
-    #include "createUfIfPresent.H"
+    #include "createFieldRefs.H"
+    #include "createRhoUfIfPresent.H"
 
     turbulence->validate();
 
     if (!LTS)
     {
-        #include "CourantNo.H"
+        #include "compressibleCourantNo.H"
         #include "setInitialDeltaT.H"
     }
 
@@ -89,7 +91,6 @@ int main(int argc, char *argv[])
         cwipiCoupling(mesh, pointCoords, face_index, face_connectivity_index, cell_to_face_connectivity, face_connectivity, 
         c2fconnec_size, fconnec_size, nbParts, cwipiVerbose, geom_tol);
     }
-    // Info << "After if" << nl << endl;
 
     Info<< "\nStarting time loop\n" << endl;
 
@@ -97,13 +98,26 @@ int main(int argc, char *argv[])
     {
         #include "readDyMControls.H"
 
+        // Store divrhoU from the previous mesh so that it can be mapped
+        // and used in correctPhi to ensure the corrected phi has the
+        // same divergence
+        autoPtr<volScalarField> divrhoU;
+        if (correctPhi)
+        {
+            divrhoU = new volScalarField
+            (
+                "divrhoU",
+                fvc::div(fvc::absolute(phi, rho, U))
+            );
+        }
+
         if (LTS)
         {
             #include "setRDeltaT.H"
         }
         else
         {
-            #include "CourantNo.H"
+            #include "compressibleCourantNo.H"
             #include "setDeltaT.H"
         }
 
@@ -116,8 +130,16 @@ int main(int argc, char *argv[])
         {
             if (pimple.firstPimpleIter() || moveMeshOuterCorrectors)
             {
+                // Store momentum to set rhoUf for introduced faces.
+                autoPtr<volVectorField> rhoU;
+                if (rhoUf.valid())
+                {
+                    rhoU = new volVectorField("rhoU", rho*U);
+                }
+
                 fvModels.preUpdateMesh();
 
+                // Do any mesh changes
                 mesh.update();
 
                 if (mesh.changing())
@@ -136,9 +158,20 @@ int main(int argc, char *argv[])
                 }
             }
 
+            if
+            (
+                !mesh.steady()
+             && !pimple.simpleRho()
+             && pimple.firstPimpleIter()
+            )
+            {
+                #include "rhoEqn.H"
+            }
+
             fvModels.correct();
 
             #include "UEqn.H"
+            #include "EEqn.H"
 
             // --- Pressure corrector loop
             while (pimple.correct())
@@ -148,11 +181,16 @@ int main(int argc, char *argv[])
 
             if (pimple.turbCorr())
             {
-                laminarTransport.correct();
                 turbulence->correct();
+                thermophysicalTransport->correct();
             }
         }
-        
+
+        if (!mesh.steady())
+        {
+            rho = thermo.rho();
+        }
+
         Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s" << "  ClockTime = " << runTime.elapsedClockTime() << " s" << nl << endl;
 
         //========= Sending Velocity Field and Parameters and creating sampled velocities ==========
@@ -168,9 +206,10 @@ int main(int argc, char *argv[])
             else if (cwipiParamsObs == 2){
                 UpInterpolation(U, p, mesh, runTime, cwipiObsU, cwipiObsp, nbParts, cwipiVerbose, globalRootPath, globalCasePath);
             }
-            
             cwipiSend(mesh, U, runTime, cwipiIteration, nbParts, cwipiVerbose);
-            cwipiSendParamsChannel(mesh, Ck, runTime, cwipiIteration, cwipiParams, nbParts, cwipiVerbose);
+
+            // cwipiSendParams(mesh, U, runTime, cwipiIteration, cwipiParams, nbParts, cwipiVerbose); 
+            cwipiSendParams_OFRsin(mesh, U, cwipiParams, nbParts, cwipiVerbose);   //For sinusoidal inlets
 
             cwipiTimestep = 0;
             cwipiPhaseCheck = 1;
@@ -183,43 +222,31 @@ int main(int argc, char *argv[])
         if (cwipiSwitch && cwipiPhaseCheck == 1)
         {
             cwipiRecv(mesh, U, runTime, cwipiIteration, nbParts, cwipiVerbose);
-            cwipiRecvParamsChannel(mesh, Ck, cwipiParams, nbParts, cwipiVerbose);
+            
+            // cwipiRecvParams(mesh, U, cwipiParams, nbParts, cwipiVerbose);
+            cwipiRecvParams_OFRsin(mesh, U, cwipiParams, nbParts, cwipiVerbose);       //For sinusoidal inlets
 
-            cwipiPhaseCheck = 0;
-            cwipiIteration = cwipiIteration + 1;
+            //== We solve the energy equation after the velocity update and update the pressure ==
+            #include "UEqn.H"
+            #include "EEqn.H"
 
-            //== We correct the pressure after the DA cycle ==
-            // (solve a Poisson equation for the approximate pressure taking into account the updated source term)
-
-            volScalarField magSqrU_DA(magSqr(U));
-            volSymmTensorField FF(sqr(U)/(magSqrU_DA + small*average(magSqrU_DA)));
-            volScalarField divDivUU_DA
-            (
-                fvc::div
-                (
-                    FF & fvc::div(phi, U),
-                    "div(div(phi,U))"
-                )
-            );
-
-            while (pimple.correctNonOrthogonal())
+            // --- Pressure corrector loop
+            while (pimple.correct())
             {
-                fvScalarMatrix pEqn_DA
-                (
-                    fvm::laplacian(p) + divDivUU_DA
-                );
-                pEqn_DA.setReference(pressureReference.refCell(),pressureReference.refValue());
-                pEqn_DA.solve();
+                #include "pEqn.H"
             }
     
             //== We update Ck in the files and turbulence model ==
             
-            Ck.write();
-            turbulence->read();
+            // Ck.write();
+            // turbulence->read();
+
+            cwipiPhaseCheck = 0;
+            cwipiIteration = cwipiIteration + 1;
         }
         //=========================================================
 
-        #include "RSTcalculation.H"
+        // #include "RSTcalculation.H"
 
         runTime.write();
     }

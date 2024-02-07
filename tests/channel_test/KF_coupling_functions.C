@@ -601,11 +601,11 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
     double RMSD1, RMSD2, RMSD3, RMSD4, RMSD5;
     double NRMSD1, NRMSD2, NRMSD3, NRMSD4, NRMSD5;
     if (cwipiParamsObs == 0){
-        switch (velocityCase){
+                switch (velocityCase){
             case 1 :
             case 2 :
             case 3 :
-            {
+{
                 ArrayXf MSvals1(cwipiObsU);
                 ArrayXf MSvobs1(cwipiObsU); 
                 for (int i = 0; i < cwipiObsU; ++i){
@@ -617,12 +617,12 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
                 // NRMSD1 = std::sqrt(MSvals1.sum()/nb_oU)/obsArray.mean(); //Normalized Root Mean Square Deviation
                 file_RMS_out << RMSD1 << ' ' << NRMSD1 << ' ';
                 file_RMS_out << "\n";
-            }
+}
                 break;
             case 4 :
             case 5 :
             case 6 :
-            {
+{
                 ArrayXf MSvals1(cwipiObsU), MSvals2(cwipiObsU);
                 ArrayXf MSvobs1(cwipiObsU), MSvobs2(cwipiObsU);
                 for (int i = 0; i < cwipiObsU; ++i){
@@ -638,10 +638,10 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
                 file_RMS_out << RMSD1 << ' ' << NRMSD1 << ' ';
                 file_RMS_out << RMSD2 << ' ' << NRMSD2 << ' ';
                 file_RMS_out << "\n";
-            }
+}
                 break;
             case 7 :
-            {
+{
                 ArrayXf MSvals1(cwipiObsU), MSvals2(cwipiObsU), MSvals3(cwipiObsU);
                 ArrayXf MSvobs1(cwipiObsU), MSvobs2(cwipiObsU), MSvobs3(cwipiObsU);
                 for (int i = 0; i < cwipiObsU; ++i){
@@ -662,7 +662,7 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
                 file_RMS_out << RMSD2 << ' ' << NRMSD2 << ' ';
                 file_RMS_out << RMSD3 << ' ' << NRMSD3 << ' ';
                 file_RMS_out << "\n";
-            }
+}
                 break;
         }
     }
@@ -679,11 +679,11 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
         file_RMS_out << "\n";
     }
     else if (cwipiParamsObs == 2){
-        switch (velocityCase){
+                switch (velocityCase){
             case 1 :
             case 2 :
             case 3 :
-            {
+{
                 ArrayXf MSvals1(cwipiObsU), MSvals4(cwipiObs-cwipiObsU);
                 ArrayXf MSvobs1(cwipiObsU), MSvobs4(cwipiObs-cwipiObsU);
                 for (int i = 0; i < cwipiObsU; ++i){
@@ -701,12 +701,12 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
                 file_RMS_out << RMSD1 << ' ' << NRMSD1 << ' ';
                 file_RMS_out << RMSD4 << ' ' << NRMSD4 << ' ';
                 file_RMS_out << "\n";
-            }
+}
                 break;
             case 4 :
             case 5 :
             case 6 :
-            {
+{
                 ArrayXf MSvals1(cwipiObsU), MSvals2(cwipiObsU), MSvals4(cwipiObs-2*cwipiObsU);
                 ArrayXf MSvobs1(cwipiObsU), MSvobs2(cwipiObsU), MSvobs4(cwipiObs-2*cwipiObsU);
                 for (int i = 0; i < cwipiObsU; ++i){
@@ -729,10 +729,10 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
                 file_RMS_out << RMSD2 << ' ' << NRMSD2 << ' ';
                 file_RMS_out << RMSD4 << ' ' << NRMSD4 << ' ';
                 file_RMS_out << "\n";
-            }
+}
                 break;
             case 7 :
-            {
+{
                 ArrayXf MSvals1(cwipiObsU), MSvals2(cwipiObsU), MSvals3(cwipiObsU), MSvals4(cwipiObs-3*cwipiObsU);
                 ArrayXf MSvobs1(cwipiObsU), MSvobs2(cwipiObsU), MSvobs3(cwipiObsU), MSvobs4(cwipiObs-3*cwipiObsU);
                 for (int i = 0; i < cwipiObsU; ++i){
@@ -760,16 +760,16 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
                 file_RMS_out << RMSD3 << ' ' << NRMSD3 << ' ';
                 file_RMS_out << RMSD4 << ' ' << NRMSD4 << ' ';
                 file_RMS_out << "\n";
-            }
+}
                 break;
         }
     }
     else if (cwipiParamsObs == 3){
-        switch (velocityCase){
+                switch (velocityCase){
             case 1 :
             case 2 :
             case 3 :
-            {
+{
                 ArrayXf MSvals1(cwipiObsU);
                 ArrayXf MSvobs1(cwipiObsU);
                 for (int i = 0; i < cwipiObsU; ++i){
@@ -783,12 +783,12 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
                 file_RMS_out << RMSD1 << ' ' << NRMSD1 << ' ';
                 file_RMS_out << RMSD5 << ' ' << NRMSD5 << ' ';
                 file_RMS_out << "\n";
-            }
+}
                 break;
             case 4 :
             case 5 :
             case 6 :
-            {
+{
                 ArrayXf MSvals1(cwipiObsU), MSvals2(cwipiObsU);
                 ArrayXf MSvobs1(cwipiObsU), MSvobs2(cwipiObsU);
                 for (int i = 0; i < cwipiObsU; ++i){
@@ -807,10 +807,10 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
                 file_RMS_out << RMSD2 << ' ' << NRMSD2 << ' ';
                 file_RMS_out << RMSD5 << ' ' << NRMSD5 << ' ';
                 file_RMS_out << "\n";
-            }
+}
                 break;
             case 7 :
-            {
+{
                 ArrayXf MSvals1(cwipiObsU), MSvals2(cwipiObsU), MSvals3(cwipiObsU);
                 ArrayXf MSvobs1(cwipiObsU), MSvobs2(cwipiObsU), MSvobs3(cwipiObsU);
                 for (int i = 0; i < cwipiObsU; ++i){
@@ -834,7 +834,7 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
                 file_RMS_out << RMSD3 << ' ' << NRMSD3 << ' ';
                 file_RMS_out << RMSD5 << ' ' << NRMSD5 << ' ';
                 file_RMS_out << "\n";
-            }
+}
                 break;
         }
     file_RMS_out.close();
@@ -1076,7 +1076,7 @@ MatrixXf inflation(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, int 
                     }while (gaussample<(mean_params-2*stddev_params) || gaussample>(mean_params+2*stddev_params));
                     
                     if (typeInfl){
-                        stateMatrixInflated(i + nb_cells_cmpnt, j) = stateMatrixUpt.row(i + nb_cells_cmpnt).mean() + (1+stddev_params+(0.1*gaussample))*(stateMatrixUpt(i + nb_cells_cmpnt, j) - stateMatrixUpt.row(i + nb_cells_cmpnt).mean());
+                        stateMatrixInflated(i + nb_cells_cmpnt, j) = stateMatrixUpt.row(i + nb_cells_cmpnt).mean() + (1+stddev_params+(0.1*gaussample))*(stateMatrixUpt(i + nb_cells_cmpnt, j) - stateMatrixUpt.row(i + nb_cells_cmpnt).mean()); //Deterministic
                     }
                     else stateMatrixInflated(i + nb_cells_cmpnt, j) = stateMatrixUpt(i + nb_cells_cmpnt, j) + gaussample*stateMatrixUpt(i + nb_cells_cmpnt, j);  //Stochastic
                 }
@@ -1591,6 +1591,8 @@ MatrixXf EnKF_hyperloc(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, con
     int count_cellsClipsDone = 0;   // Count the number of cells of all the clipping already done in the hyperlocalization
     int count_nbClips = 0;          // Count the number of clippings 
     int cellIndex = 0;              // Retrieve cell index in the clipping file for the loop
+    int IDclippingCell = 0;         // Current cell index of the clipping file
+
 
     MatrixXf stateMatrixUpt = stateMatrix;  // Save orginial state matrix to reconstruct it after hyperlocalization process
 
@@ -1708,11 +1710,12 @@ MatrixXf EnKF_hyperloc(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, con
 
         }
         else{
+            IDclippingCell = clippingCells(i+1);
             //** Retrieve the correct values until reaching the next clipping **
             for (int j = 0; j < cwipiMembers; j++){
-                temp_state(i - count_cellsClipsDone, j) = stateMatrixUpt(clippingCells(i+1), j);
-                temp_state(nb_clipCells + i - count_cellsClipsDone, j) = stateMatrixUpt(nb_cells + clippingCells(i+1), j);
-                temp_state(2*nb_clipCells + i - count_cellsClipsDone, j) = stateMatrixUpt(2*nb_cells + clippingCells(i+1), j);
+                temp_state(i - count_cellsClipsDone, j) = stateMatrixUpt(IDclippingCell, j);
+                temp_state(nb_clipCells + i - count_cellsClipsDone, j) = stateMatrixUpt(nb_cells + IDclippingCell, j);
+                temp_state(2*nb_clipCells + i - count_cellsClipsDone, j) = stateMatrixUpt(2*nb_cells + IDclippingCell, j);
             }
         }
     }
@@ -1733,7 +1736,7 @@ MatrixXf EnKF_hyperloc(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, con
 }
 
 // ====************************ MAIN EnKF Function ************************===
-MatrixXf mainEnKF(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, const fvMesh& mesh, int cwipiMembers, int nb_cells, int cwipiObs, int cwipiObsU, double sigmaUserU, double sigmaUserp, double sigmaUserCf, double sigmaLocX, double sigmaLocY, double sigmaLocZ, float localSwitch, float clippingSwitch, float hyperlocSwitch, int cwipiParams, int cwipiParamsObs, double stateInfl, double paramsInfl, float typeInfl, int typeInputs, int velocityCase, double sigmaUserUa, double sigmaUserUb, double sigmaUserUc, float paramEstSwitch, float cwipiVerbose, std::string stringRootPath, int cwipiTimedObs, double obsTimeStep, double time, double epsilon)
+MatrixXf mainEnKF(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, const fvMesh& mesh, int cwipiMembers, int nb_cells, int cwipiObs, int cwipiObsU, double sigmaUserU, double sigmaUserp, double sigmaUserCf, double sigmaLocX, double sigmaLocY, double sigmaLocZ, float localSwitch, float clippingSwitch, float hyperlocSwitch, int cwipiParams, int cwipiParamsObs, double stateInfl, double paramsInfl, float typeInfl, int typeInputs, int velocityCase, double sigmaUserUa, double sigmaUserUb, double sigmaUserUc, float paramEstSwitch, float stateEstSwitch, float cwipiVerbose, std::string stringRootPath, int cwipiTimedObs, double obsTimeStep, double time, double epsilon)
 {
     if(cwipiVerbose) std::cout << "** ENTERING MAIN EnKF FUNCTION **" << std::endl;
     //** The observation Matrix will be different depending on the high-fidelity observations **
@@ -1771,11 +1774,11 @@ MatrixXf mainEnKF(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, const fv
 
         // ** For basic localization clippings
         if (clippingSwitch == 1 && hyperlocSwitch!=1){
-        if (cwipiVerbose) std::cout << "Creating the clipping ... " << std::endl;
-          stateMatrixUpt = doClipping(stateMatrix, nb_cells, cwipiParams, cwipiMembers, cwipiVerbose, stringRootPath);
-          if (cwipiVerbose) std::cout << "The number of values in each member is " << nb_cells*3 << std::endl;
-          //** Writing values to a txt file **
-          // print_matrix_on_txt(i, numberCwipiPhase, cwipiOutputNb, cwipiMembers, nb_cells, cwipiParams, time, stateVector, "UMat_Clip");
+            if (cwipiVerbose) std::cout << "Creating the clipping ... " << std::endl;
+            stateMatrixUpt = doClipping(stateMatrix, nb_cells, cwipiParams, cwipiMembers, cwipiVerbose, stringRootPath);
+            if (cwipiVerbose) std::cout << "The number of values in each member is " << nb_cells*3 << std::endl;
+            //** Writing values to a txt file **
+            // print_matrix_on_txt(i, numberCwipiPhase, cwipiOutputNb, cwipiMembers, nb_cells, cwipiParams, time, stateVector, "UMat_Clip");
         }
 
         // ** Calculation of the Kalman Gain
@@ -1804,12 +1807,25 @@ MatrixXf mainEnKF(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, const fv
 
         // ** Reconstructing state if clipping
         if (clippingSwitch == 1 && hyperlocSwitch!=1){
-          if (cwipiVerbose) std::cout << "Unclipping the domain ... " << std::endl;
-          //** Writing updated values to a txt file **
-          // print_matrix_on_txt(i, numberCwipiPhase, cwipiOutputNb, cwipiMembers, nb_cells, cwipiParams, time, stateMatrixUpt, "UMat_Clip_upt");
-          stateMatrixUpt = undoClipping(stateMatrixUpt, stateMatrix, inv_nb_cells, nb_cells, cwipiParams, cwipiMembers, cwipiVerbose, stringRootPath);
+            if (cwipiVerbose) std::cout << "Unclipping the domain ... " << std::endl;
+            //** Writing updated values to a txt file **
+            // print_matrix_on_txt(i, numberCwipiPhase, cwipiOutputNb, cwipiMembers, nb_cells, cwipiParams, time, stateMatrixUpt, "UMat_Clip_upt");
+            stateMatrixUpt = undoClipping(stateMatrixUpt, stateMatrix, inv_nb_cells, nb_cells, cwipiParams, cwipiMembers, cwipiVerbose, stringRootPath);
         }
     }
+
+    // ** If State estimation desactivated return to original values
+    if(stateEstSwitch == 0){
+        if (cwipiVerbose) std::cout << "State estimation desactivated, returning to original values ..." << std::endl;
+        for (int j=0;j<cwipiMembers;j++)
+        {
+            for (int i = 0; i < inv_nb_cells*3; i++)
+            {
+                stateMatrixUpt(i,j) = stateMatrix(i,j);
+            }
+        }
+    }
+
     toc();
 
     if (cwipiVerbose) std::cout << "Starting writing outputs from the EnKF..." << std::endl;

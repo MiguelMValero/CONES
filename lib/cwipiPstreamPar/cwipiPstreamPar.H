@@ -25,19 +25,23 @@ void pInterpolation(volScalarField& p, fvMesh& mesh, Time& runTime, int cwipiObs
 
 void UpInterpolation(volVectorField& U, volScalarField& p, fvMesh& mesh, Time& runTime, int cwipiObsU, int cwipiObsp, int nbParts, float cwipiVerbose, std::string globalPath, std::string UpIntPath);
 
-void cwipiSend(const fvMesh& mesh, const volVectorField& vf, const Time& runTime, int cwipiIteration, int nbParts, float cwipiVerbose);
+void cwipiSend(const fvMesh& mesh, const volVectorField& U, const Time& runTime, int cwipiIteration, int nbParts, float cwipiVerbose);
 
 void cwipiSendParams(const fvMesh& mesh, const volVectorField& vf, const Time& runTime, int cwipiIteration, int cwipiParams, int nbParts, float cwipiVerbose);
+
+void cwipiSendParams_sin(const fvMesh& mesh, const volVectorField& U, int cwipiParams, int nbParts, float cwipiVerbose);
 
 void cwipiSendParamsChannel(const fvMesh& mesh, const volScalarField& Ck, const Time& runTime, int cwipiIteration, int cwipiParams, int nbParts, float cwipiVerbose);
 
 void cwipiSendParamsKEps(const fvMesh& mesh, incompressible::momentumTransportModel& turbulence, const Time& runTime, int cwipiIteration, int cwipiParams, int nbParts, float cwipiVerbose);
 
-void cwipiSendParamsKOmegaSST(const fvMesh& mesh, incompressible::momentumTransportModel& turbulence, const Time& runTime, int cwipiIteration, int cwipiParams, int nbParts, float cwipiVerbose);
+void cwipiSendParams_OFRsin(const fvMesh& mesh, const volVectorField& U, int cwipiParams, int nbParts, float cwipiVerbose);
 
 void cwipiRecv(const fvMesh& mesh, volVectorField& U, const Time& runTime, int cwipiIteration, int nbParts, float cwipiVerbose);
 
 void cwipiRecvParams(const fvMesh& mesh, volVectorField& U, int cwipiParams, int nbParts, float cwipiVerbose);
+
+void cwipiRecvParams_sin(fvMesh& mesh, volVectorField& U, int cwipiParams, int nbParts, float cwipiVerbose);
 
 void cwipiRecvParamsChannel(const fvMesh& mesh, volScalarField& Ck, int cwipiParams, int nbParts, float cwipiVerbose);
 
