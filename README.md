@@ -4,7 +4,7 @@ This git repository aims to couple the CFD software OpenFOAM with any other kind
 
 Firstly, clone the directory:
 ```
-git clone https://github.com/MiguelMValero/CWIPI.git
+git clone https://github.com/MiguelMValero/CONES.git
 ```
 
 # Some requirements
