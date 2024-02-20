@@ -24,3 +24,4 @@ tests/mixerVessel2D_test/KF_coupling_functions.o
 tests/mixerVessel2D_test/KF_coupling.exe
 tests/mixerVessel2D_test/log*
 tests/mixerVessel2D_test/dynamicCode
+solvers/cwipiPimplePenFoamPar/Make/linux64GccDPInt32Opt/
