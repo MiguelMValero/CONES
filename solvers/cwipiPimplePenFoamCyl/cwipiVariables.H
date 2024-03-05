@@ -73,6 +73,18 @@ std::string globalCaseName = args.globalCaseName();
 std::string globalRootPath = args.rootPath(); // Root path
 std::string globalCasePath = globalRootPath + "/" + globalCaseName; // For UInt
 
+// Get the start time and convert to string (with a good format) for creating a directory
+char initialTimeString[10];  // maximum expected length of the float
+std::snprintf(initialTimeString, 10, "%.0f", runTime.startTime().value());
+std::string str(initialTimeString);
+
+std::string postProcPath = globalRootPath + "/" + globalCaseName + "/postProcessing"; // postProcessing file path
+std::string fCoeffIBMPath = globalRootPath + "/" + globalCaseName + "/postProcessing/forceCoeffs_IBM";
+std::string writefCoeffPath = fCoeffIBMPath + "/" + initialTimeString; // Path where the forceCoeffs.txt file should be written
+
+std::string command = "mkdir -p " + writefCoeffPath;
+Foam::system(command);
+
 if (cwipiVerbose) if (Pstream::master()){
     Foam::Pout<< "Solving with rank " << myGlobalRank << " the testcase with path " << globalCasePath << endl;
 }

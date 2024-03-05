@@ -6,7 +6,7 @@
 scalar dragCoeff = -drag / (0.5*rhoref*sqr(Uref)*zCoord*diameter);
 scalar liftCoeff = -lift / (0.5*rhoref*sqr(Uref)*zCoord*diameter);
 
-std::string forceCoeffs = globalCasePath + "/forceCoeffs.txt";
+std::string forceCoeffs = writefCoeffPath + "/forceCoeffsIBM.dat";
 
 if (runTime.value() <= runTime.startTime().value()) {
     const char* forceCoeffsChar = forceCoeffs.c_str();
