@@ -1,5 +1,5 @@
 cwipiStep = 2
-cwipiMembers = 40
+cwipiMembers = 2
 subDomains = 1
 cwipiObsU = 8
 cwipiObsp = 0

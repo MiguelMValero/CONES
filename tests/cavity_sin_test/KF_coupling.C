@@ -28,46 +28,143 @@ using namespace Eigen;
 
 int main(int argc, char *argv[])
 {
+   //========== OpenFOAM environment for mesh definition ==========
+
+  char result[PATH_MAX] = {};
+  ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
+  const char *path;
+  if (count != -1)
+  {
+    path = dirname(result);
+  }
+
+  std::string stringRootPath = path;
+  char RunCase[250]= "/";
+  // char RunCase[250] = "/cavity_testPar1";
+
+
+  // Foam::Time runTime(Foam::Time::controlDictName, path, RunCase);
+  Foam::Time runTime(Foam::Time::controlDictName, path, {RunCase});
+
+  // if (cwipiVerbose)
+    std::cout << "Runtime created" << std::endl
+              << "\n";
+
+  Foam::fvMesh mesh(
+      Foam::IOobject
+      (
+        Foam::fvMesh::defaultRegion,
+        runTime.timeName(),
+        runTime,
+        Foam::IOobject::MUST_READ
+      )
+  );
   //========== Parameters from config file ==========
+  IOdictionary conesDict
+  (
+    IOobject
+    (
+      "conesDict",
+      runTime.system(),
+      mesh,
+      IOobject::MUST_READ_IF_MODIFIED,
+      IOobject::NO_WRITE
+    )
+  );
+
+  IOdictionary decomposeParDict
+  (
+    IOobject
+    (
+      "decomposeParDict",
+      runTime.system(),
+      mesh,
+      IOobject::MUST_READ,
+      IOobject::NO_WRITE
+    )
+  );
+
+
+  // Sub dict declaration
+  dictionary observationSubDict = conesDict.subDict("observationSubDict");
+  dictionary inflationSubDict = conesDict.subDict("inflation");
+  dictionary localizationSubDict = conesDict.subDict("localization");
+
+  
+
 
   double *configValues = NULL;
   configValues = (double *)malloc(sizeof(double) * 34);
   configuration(configValues);
 
-  int cwipiStep = configValues[0];         // Number of time step between each DA phase
-  int cwipiMembers = configValues[1];      // Number of members in the ensemble
-  int subdomains = configValues[2];        // Number of subdomains
-  int cwipiObsU = configValues[3];         // Number of observation probes for velocity
-  int cwipiObsp = configValues[4];         // Number of observation probes for pressure
-  int cwipiObsCf = configValues[5];        // Number of observation probes for friction coefficient (default = 1)
-  int cwipiParams = configValues[6];       // Number of parameters to optimize with the DA
-  double geom_tol = configValues[7];       // Geometric tolerance of the cwipi coupling meshes
-  int cwipiOutputNb = configValues[8];     // Number of txt file written beginning from the last one
-  double sigmaUserU = configValues[9];     // sigma of the EnKF (pertubation of the obs and diagonal of R matrix for velocity)
-  double sigmaUserp = configValues[10];    // sigma of the EnKF (pertubation of the obs and diagonal of R matrix for pressure)
-  double sigmaUserCf = configValues[11];   // sigma of the EnKF (pertubation of the obs and diagonal of R matrix for friction coefficient)
-  float cwipiVerbose = configValues[12];   // Print all the debuging messages or not: 1 = printed, 0 = nothing
-  int cwipiTimedObs = configValues[13];    // Switch to for the obs: 1 = obs depends on time, 0 = obs does not depend on time
-  double obsTimeStep = configValues[14];   // The time step of the observations if the case is unsteady
-  int cwipiParamsObs = configValues[15];   // Definition of observation parameter : 0 = vel, 1 = pres, 2 = both, 3 = vel+cf
-  double stateInfl = configValues[16];     // State inflation (default = 1)
-  double paramsInfl = configValues[17];    // Parameters inflation (default = 1)
-  float typeInfl = configValues[18];       // Definition of inflation (0 = stochastic, 1 = deterministic)
-  float clippingSwitch = configValues[19]; // Switch for the clipping
-  float localSwitch = configValues[20];    // Switch for the localisation (basic clipping or hyperlocalisation activated)
-  float hyperlocSwitch = configValues[21]; // Switch for hyperlocalization
-  float paramEstSwitch = configValues[22]; // Switch for parameter estimation
-  float stateEstSwitch = configValues[23]; // Switch for state estimation
-  float Ux = configValues[24];             // Specification if Ux is read or not (cwipiParamsObs needs to be either 0, 2 or 3)
+  // int cwipiStep = configValues[0];         // Number of time step between each DA phase
+  int cwipiStep = floor(conesDict.lookup<scalar>("observationWindow"));         // Number of time step between each DA phase 
+  // int cwipiMembers = configValues[1];      // Number of members in the ensemble
+  int cwipiMembers = floor(conesDict.lookupOrDefault<scalar>("ensemble", 2));
+  // int subdomains = configValues[2];        // Number of subdomains
+  int subdomains = floor(decomposeParDict.lookup<scalar>("numberOfSubdomains"));
+  // int cwipiObsU = configValues[3];         // Number of observation probes for velocity
+  int cwipiObsU = floor(observationSubDict.lookupOrDefault<scalar>("numberObsProbesVelocity", 0));
+  // int cwipiObsp = configValues[4];         // Number of observation probes for pressure
+  int cwipiObsp = floor(observationSubDict.lookupOrDefault<scalar>("numberObsProbesPressure", 0));
+  // int cwipiObsCf = configValues[5];        // Number of observation probes for friction coefficient (default = 1)
+  int cwipiObsCf = floor(observationSubDict.lookupOrDefault<scalar>("numberObsProbesCf", 0));
+  // int cwipiParams = configValues[6];       // Number of parameters to optimize with the DA
+  int cwipiParams = floor(conesDict.lookup<scalar>("numberParameters"));
+  // double geom_tol = configValues[7];       // Geometric tolerance of the cwipi coupling meshes
+  double geom_tol = 0.1;
+  // int cwipiOutputNb = configValues[8];     // Number of txt file written beginning from the last one
+  int cwipiOutputNb = floor(conesDict.lookup<scalar>("numberOutputs"));
+  // double sigmaUserU = configValues[9];     // sigma of the EnKF (pertubation of the obs and diagonal of R matrix for velocity)
+  double sigmaUserU = observationSubDict.lookup<scalar>("velocityObsNoise");
+  // double sigmaUserp = configValues[10];    // sigma of the EnKF (pertubation of the obs and diagonal of R matrix for pressure)
+  double sigmaUserp = observationSubDict.lookup<scalar>("pressureObsNoise");
+  // double sigmaUserCf = configValues[11];   // sigma of the EnKF (pertubation of the obs and diagonal of R matrix for friction coefficient)
+  double sigmaUserCf = observationSubDict.lookupOrDefault<scalar>("cfObsNoise", 0.05)
+  // float cwipiVerbose = configValues[12];   // Print all the debuging messages or not: 1 = printed, 0 = nothing
+  float cwipiVerbose = floor(conesDict.lookup<scalar>("verbosityLevel"));
+  // int cwipiTimedObs = configValues[13];    // Switch to for the obs: 1 = obs depends on time, 0 = obs does not depend on time
+  bool cwipiTimedObs = observationSubDict.lookup<bool>("obsTimeDependency");
+  // double obsTimeStep = configValues[14];   // The time step of the observations if the case is unsteady
+  double obsTimeStep = observationSubDict.lookup<scalar>("obsTimeStep");
+  // int cwipiParamsObs = configValues[15];   // Definition of observation parameter : 0 = vel, 1 = pres, 2 = both, 3 = vel+cf
+  int cwipiParamsObs = floor(observationSubDict.lookup<scalar>("obsType"));
+  // double stateInfl = configValues[16];     // State inflation (default = 1)
+  double stateInfl = inflationSubDict.lookup<scalar>("stateInflation");
+  // double paramsInfl = configValues[17];    // Parameters inflation (default = 1)
+  double paramsInfl = inflationSubDict.lookup<scalar>("parametersInflation");
+  // float typeInfl = configValues[18];       // Definition of inflation (0 = stochastic, 1 = deterministic)
+  word typeInfl = inflationSubDict.lookup<word>("inflationType");
+  // float clippingSwitch = configValues[19]; // Switch for the clipping
+  bool clippingSwitch = localizationSubDict.lookup<bool>("clippingSwitch");
+  // float localSwitch = configValues[20];    // Switch for the localisation (basic clipping or hyperlocalisation activated)
+  bool localSwitch = localizationSubDict.lookup<bool>("covarianceLocalizationSwitch");
+  // float hyperlocSwitch = configValues[21]; // Switch for hyperlocalization
+  bool hyperlocSwitch = localizationSubDict.lookup<bool>("hyperlocalizationSwitch");
+  // float paramEstSwitch = configValues[22]; // Switch for parameter estimation
+  bool paramEstSwitch = conesDict.lookup<bool>("paramEstSwitch");
+  // float stateEstSwitch = configValues[23]; // Switch for state estimation
+  bool stateEstSwitch = conesDict.lookup<bool>("stateEstSwitch");
+  // float Ux = configValues[24];             // Specification if Ux is read or not (cwipiParamsObs needs to be either 0, 2 or 3)
+  vector obsVelocityComponents = observationSubDict.lookup<vector>("obsVelocityComponents");
   float Uy = configValues[25];             // Specification if Uy is read or not (cwipiParamsObs needs to be either 0, 2 or 3)
+  
   float Uz = configValues[26];             // Specification if Uz is read or not (cwipiParamsObs needs to be either 0, 2 or 3)
+  
   int typeInputs = configValues[27];       // Inputs for R are given in absolute values (0), percentage (1) or potential function (2) (default = 0)
+  
   double sigmaLocX = configValues[28];     // eta of the EnKF (pertubation of the Kalman gain to take into consideration the localization in X direction)
+  
   double sigmaLocY = configValues[29];     // eta of the EnKF (pertubation of the Kalman gain to take into consideration the localization in Y direction)
+  
   double sigmaLocZ = configValues[30];     // eta of the EnKF (pertubation of the Kalman gain to take into consideration the localization in Z direction)
+  
   double epsilon = configValues[31];       // Value used to calculate the NSRMD
+  
   double sigmaUserUa = configValues[32];   // sigma of the EnKF given by a+by^c
+  
   double sigmaUserUb = configValues[33];   // sigma of the EnKF given by a+by^c
+  
   double sigmaUserUc = configValues[34];   // sigma of the EnKF given by a+by^c
 
   if (cwipiVerbose) std::cout << "Beginning of the configuration file" << std::endl << "\n";
@@ -196,37 +293,7 @@ int main(int argc, char *argv[])
   cwipi_init(MPI_COMM_WORLD, codeName, &localcomm);
   MPI_Comm_rank(localcomm, &rank);
 
-  //========== OpenFOAM environment for mesh definition ==========
-
-  char result[PATH_MAX] = {};
-  ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
-  const char *path;
-  if (count != -1)
-  {
-    path = dirname(result);
-  }
-
-  std::string stringRootPath = path;
- char RunCase[250]= "/";
-  // char RunCase[250] = "/cavity_testPar1";
-
-
-  // Foam::Time runTime(Foam::Time::controlDictName, path, RunCase);
-  Foam::Time runTime(Foam::Time::controlDictName, path, {RunCase});
-
-  if (cwipiVerbose)
-    std::cout << "Runtime created" << std::endl
-              << "\n";
-
-  Foam::fvMesh mesh(
-      Foam::IOobject
-      (
-        Foam::fvMesh::defaultRegion,
-        runTime.timeName(),
-        runTime,
-        Foam::IOobject::MUST_READ
-      )
-  );
+  //== Retrieve mesh information
 
   int nb_cells = mesh.nCells();
   if (cwipiVerbose) std::cout << "The number of cells from EnKF is " << mesh.nCells() << std::endl << "\n";
