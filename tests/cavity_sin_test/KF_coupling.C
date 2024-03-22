@@ -86,9 +86,9 @@ int main(int argc, char *argv[])
 
 
   // Sub dict declaration
-  dictionary observationSubDict = conesDict.subDict("observationSubDict");
-  dictionary inflationSubDict = conesDict.subDict("inflation");
-  dictionary localizationSubDict = conesDict.subDict("localization");
+  Foam::dictionary observationSubDict = conesDict.subDict("observationSubDict");
+  Foam::dictionary inflationSubDict = conesDict.subDict("inflation");
+  Foam::dictionary localizationSubDict = conesDict.subDict("localization");
 
   
 
@@ -120,9 +120,9 @@ int main(int argc, char *argv[])
   // double sigmaUserp = configValues[10];    // sigma of the EnKF (pertubation of the obs and diagonal of R matrix for pressure)
   double sigmaUserp = observationSubDict.lookup<scalar>("pressureObsNoise");
   // double sigmaUserCf = configValues[11];   // sigma of the EnKF (pertubation of the obs and diagonal of R matrix for friction coefficient)
-  double sigmaUserCf = observationSubDict.lookupOrDefault<scalar>("cfObsNoise", 0.05)
+  double sigmaUserCf = observationSubDict.lookupOrDefault<scalar>("cfObsNoise", 0.05);
   // float cwipiVerbose = configValues[12];   // Print all the debuging messages or not: 1 = printed, 0 = nothing
-  float cwipiVerbose = floor(conesDict.lookup<scalar>("verbosityLevel"));
+  int cwipiVerbose = floor(conesDict.lookup<scalar>("verbosityLevel"));
   // int cwipiTimedObs = configValues[13];    // Switch to for the obs: 1 = obs depends on time, 0 = obs does not depend on time
   bool cwipiTimedObs = observationSubDict.lookup<bool>("obsTimeDependency");
   // double obsTimeStep = configValues[14];   // The time step of the observations if the case is unsteady
@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
   // double paramsInfl = configValues[17];    // Parameters inflation (default = 1)
   double paramsInfl = inflationSubDict.lookup<scalar>("parametersInflation");
   // float typeInfl = configValues[18];       // Definition of inflation (0 = stochastic, 1 = deterministic)
-  word typeInfl = inflationSubDict.lookup<word>("inflationType");
+  Foam::word typeInfl = inflationSubDict.lookup<word>("inflationType");
   // float clippingSwitch = configValues[19]; // Switch for the clipping
   bool clippingSwitch = localizationSubDict.lookup<bool>("clippingSwitch");
   // float localSwitch = configValues[20];    // Switch for the localisation (basic clipping or hyperlocalisation activated)
@@ -147,12 +147,17 @@ int main(int argc, char *argv[])
   bool stateEstSwitch = conesDict.lookup<bool>("stateEstSwitch");
   // float Ux = configValues[24];             // Specification if Ux is read or not (cwipiParamsObs needs to be either 0, 2 or 3)
   vector obsVelocityComponents = observationSubDict.lookup<vector>("obsVelocityComponents");
-  float Uy = configValues[25];             // Specification if Uy is read or not (cwipiParamsObs needs to be either 0, 2 or 3)
+  int Ux = round(obsVelocityComponents.x());
+  int Uy = round(obsVelocityComponents.y());
+  int Uz = round(obsVelocityComponents.z());
   
-  float Uz = configValues[26];             // Specification if Uz is read or not (cwipiParamsObs needs to be either 0, 2 or 3)
+  // float Uy = configValues[25];             // Specification if Uy is read or not (cwipiParamsObs needs to be either 0, 2 or 3)
+  // float Uz = configValues[26];             // Specification if Uz is read or not (cwipiParamsObs needs to be either 0, 2 or 3)
   
-  int typeInputs = configValues[27];       // Inputs for R are given in absolute values (0), percentage (1) or potential function (2) (default = 0)
-  
+  // int typeInputs = configValues[27];       // Inputs for R are given in absolute values (0), percentage (1) or potential function (2) (default = 0)
+  Foam::word typeInputs = observationSubDict.lookup<word>("obsNoiseType");
+  Foam::Info << "observation Noise type is " << typeInputs << Foam::endl;
+
   double sigmaLocX = configValues[28];     // eta of the EnKF (pertubation of the Kalman gain to take into consideration the localization in X direction)
   
   double sigmaLocY = configValues[29];     // eta of the EnKF (pertubation of the Kalman gain to take into consideration the localization in Y direction)
@@ -381,11 +386,11 @@ int main(int argc, char *argv[])
   for (int i = firstCwipiPhase; i < numberCwipiPhase; i++)
   {
     // ========== Reload configurations if needed ===========
-    configuration(configValues);
-    cwipiVerbose = configValues[12]; // Print all the debuging messages or not, 1 printed 0 nothing
-    stateInfl = configValues[16];    // Standard deviation for state inflation
-    paramsInfl = configValues[17];   // Standard deviation for parameters inflation
-    typeInfl = configValues[18];     // Definition of inflation (0 = stochastic, 1 = deterministic)
+    // configuration(configValues);
+    // cwipiVerbose = configValues[12]; // Print all the debuging messages or not, 1 printed 0 nothing
+    // stateInfl = configValues[16];    // Standard deviation for state inflation
+    // paramsInfl = configValues[17];   // Standard deviation for parameters inflation
+    // typeInfl = configValues[18];     // Definition of inflation (0 = stochastic, 1 = deterministic)
 
     time = time + cwipiStep * deltaT;
 

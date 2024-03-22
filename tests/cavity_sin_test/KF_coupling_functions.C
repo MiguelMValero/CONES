@@ -1022,7 +1022,7 @@ MatrixXf hyperlocalisation(const Eigen::Ref<const Eigen::MatrixXf>& KnoCorr, con
 }
 
 //========================== Inflation function =============================
-MatrixXf inflation(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, int cwipiMembers, int nb_cells, int cwipiParams, double stateInfl, double paramsInfl, float typeInfl, float paramEstSwitch, float cwipiVerbose, std::string stringRootPath)
+MatrixXf inflation(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, int cwipiMembers, int nb_cells, int cwipiParams, double stateInfl, double paramsInfl, Foam::word typeInfl, float paramEstSwitch, float cwipiVerbose, std::string stringRootPath)
 {
     //========== Initialisation of the variables ==========
     int nb_cells_cmpnt=nb_cells*3;
@@ -1054,7 +1054,7 @@ MatrixXf inflation(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, int 
                     gaussample=dist_state(generator);
                 }while (gaussample<(mean_state-2*stddev_state) || gaussample>(mean_state+2*stddev_state));
 
-                if (typeInfl){
+                if (typeInfl == "deterministic"){
                     stateMatrixInflated(i,j) = stateMatrixUpt.row(i).mean() + (1+stddev_state+(0.1*gaussample))*(stateMatrixUpt(i,j) - stateMatrixUpt.row(i).mean());  //Deterministic
                 }
                 else stateMatrixInflated(i,j) = stateMatrixUpt(i,j) + gaussample*stateMatrixUpt(i,j);     //Stochastic
@@ -1075,7 +1075,9 @@ MatrixXf inflation(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, int 
                         gaussample=dist_params(generator);
                     }while (gaussample<(mean_params-2*stddev_params) || gaussample>(mean_params+2*stddev_params));
                     
-                    if (typeInfl){
+                    Foam::Info << "typeInfle is " << typeInfl << Foam::endl; 
+                    if (typeInfl == "deterministic"){
+                        Foam::Info << "typeInfl is in if condition " << typeInfl << Foam::endl; 
                         stateMatrixInflated(i + nb_cells_cmpnt, j) = stateMatrixUpt.row(i + nb_cells_cmpnt).mean() + (1+stddev_params+(0.1*gaussample))*(stateMatrixUpt(i + nb_cells_cmpnt, j) - stateMatrixUpt.row(i + nb_cells_cmpnt).mean()); //Deterministic
                     }
                     else stateMatrixInflated(i + nb_cells_cmpnt, j) = stateMatrixUpt(i + nb_cells_cmpnt, j) + gaussample*stateMatrixUpt(i + nb_cells_cmpnt, j);  //Stochastic
@@ -1128,7 +1130,7 @@ MatrixXf inflation(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, int 
 }
 
 //========================== Randomize observations =========================
-MatrixXf randomize_Obs(const Eigen::Ref<const Eigen::ArrayXf>& obsArray, int cwipiMembers, int cwipiObs, int cwipiObsU, int cwipiParamsObs, double sigmaUserU, double sigmaUserp, double sigmaUserCf, int typeInputs, int velocityCase, double sigmaUserUa, double sigmaUserUb, double sigmaUserUc, float cwipiVerbose)
+MatrixXf randomize_Obs(const Eigen::Ref<const Eigen::ArrayXf>& obsArray, int cwipiMembers, int cwipiObs, int cwipiObsU, int cwipiParamsObs, double sigmaUserU, double sigmaUserp, double sigmaUserCf, Foam::word typeInputs, int velocityCase, double sigmaUserUa, double sigmaUserUb, double sigmaUserUc, float cwipiVerbose)
 {
     //========== Initialisation of the variables ==========
     float gaussample;
@@ -1313,15 +1315,15 @@ MatrixXf randomize_Obs(const Eigen::Ref<const Eigen::ArrayXf>& obsArray, int cwi
             //obsMatrix.col(j) = obsArray;
         }
     }
-    if (typeInputs == 0) obsMatrix = obsMatrix + err_mat;
-    else if (typeInputs == 1) obsMatrix = obsMatrix + obsMatrix.cwiseProduct(err_mat);
+    if (typeInputs == "absVal") obsMatrix = obsMatrix + err_mat;
+    else if (typeInputs == "relVal") obsMatrix = obsMatrix + obsMatrix.cwiseProduct(err_mat);
     // if (cwipiVerbose) std::cout << "obsMatrix = "<< obsMatrix << "\n" << std::endl;
 
     return obsMatrix;
 }
 
 //============= Calculate measurments error covariance matrix ===============
-MatrixXf calculate_R(const Eigen::Ref<const Eigen::ArrayXf>& obsArray, int cwipiObs, int cwipiObsU, int cwipiParamsObs, double sigmaUserU, double sigmaUserp, double sigmaUserCf, int typeInputs, int velocityCase, double sigmaUserUa, double sigmaUserUb, double sigmaUserUc, float cwipiVerbose)
+MatrixXf calculate_R(const Eigen::Ref<const Eigen::ArrayXf>& obsArray, int cwipiObs, int cwipiObsU, int cwipiParamsObs, double sigmaUserU, double sigmaUserp, double sigmaUserCf, Foam::word typeInputs, int velocityCase, double sigmaUserUa, double sigmaUserUb, double sigmaUserUc, float cwipiVerbose)
 {
     //========== Initialisation of the variables ==========
     MatrixXf R(cwipiObs,cwipiObs);
@@ -1374,16 +1376,16 @@ MatrixXf calculate_R(const Eigen::Ref<const Eigen::ArrayXf>& obsArray, int cwipi
 
     // === Calculation of R ===
     if (cwipiParamsObs == 0){ 
-        if (typeInputs == 0) R = R*sigmaUserU*sigmaUserU;
-        else if (typeInputs == 1) R.diagonal() = obsArray.cwiseProduct(obsArray)*sigmaUserU*sigmaUserU;
+        if (typeInputs == "absVal") R = R*sigmaUserU*sigmaUserU;
+        else if (typeInputs == "relVal") R.diagonal() = obsArray.cwiseProduct(obsArray)*sigmaUserU*sigmaUserU;
     }
     else if (cwipiParamsObs == 1){
-        if (typeInputs == 0) R = R*sigmaUserp*sigmaUserp;
-        else if (typeInputs == 1) R.diagonal() = obsArray.cwiseProduct(obsArray)*sigmaUserp*sigmaUserp;
+        if (typeInputs == "absVal") R = R*sigmaUserp*sigmaUserp;
+        else if (typeInputs == "relVal") R.diagonal() = obsArray.cwiseProduct(obsArray)*sigmaUserp*sigmaUserp;
     }
     else if (cwipiParamsObs == 2){
-        if (typeInputs == 0) R = R*sigmaUserp*sigmaUserp;
-        else if (typeInputs == 1) R.diagonal() = obsArray.cwiseProduct(obsArray)*sigmaUserp*sigmaUserp;
+        if (typeInputs == "absVal") R = R*sigmaUserp*sigmaUserp;
+        else if (typeInputs == "relVal") R.diagonal() = obsArray.cwiseProduct(obsArray)*sigmaUserp*sigmaUserp;
         switch (velocityCase){
             case 1 :
             case 2 :
@@ -1401,8 +1403,8 @@ MatrixXf calculate_R(const Eigen::Ref<const Eigen::ArrayXf>& obsArray, int cwipi
         }
     } 
     else if (cwipiParamsObs == 3){
-        if (typeInputs == 0) R = R*sigmaUserCf*sigmaUserCf;
-        else if (typeInputs == 1) R.diagonal() = obsArray.cwiseProduct(obsArray)*sigmaUserCf*sigmaUserCf;
+        if (typeInputs == "absVal") R = R*sigmaUserCf*sigmaUserCf;
+        else if (typeInputs == "relVal") R.diagonal() = obsArray.cwiseProduct(obsArray)*sigmaUserCf*sigmaUserCf;
         switch (velocityCase){
             case 1 :
             case 2 :
@@ -1507,7 +1509,7 @@ MatrixXf calculate_K(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, const
 }
 
 //***********=============== Hyper EnKF ============================**********
-MatrixXf EnKF_hyperloc(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, const Eigen::Ref<const Eigen::ArrayXf>& obsArray, const Eigen::Ref<const Eigen::MatrixXf>& sampMatrix, int cwipiMembers, int nb_cells, int cwipiObs, int cwipiObsU, double sigmaUserU, double sigmaUserp, double sigmaUserCf, double sigmaLocX, double sigmaLocY, double sigmaLocZ, float localSwitch, float clippingSwitch, float hyperlocSwitch, int cwipiParams, int cwipiParamsObs, double stateInfl, double paramsInfl, float typeInfl, int typeInputs, int velocityCase, double sigmaUserUa, double sigmaUserUb, double sigmaUserUc, float paramEstSwitch, const fvMesh& mesh, float cwipiVerbose, std::string stringRootPath)
+MatrixXf EnKF_hyperloc(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, const Eigen::Ref<const Eigen::ArrayXf>& obsArray, const Eigen::Ref<const Eigen::MatrixXf>& sampMatrix, int cwipiMembers, int nb_cells, int cwipiObs, int cwipiObsU, double sigmaUserU, double sigmaUserp, double sigmaUserCf, double sigmaLocX, double sigmaLocY, double sigmaLocZ, float localSwitch, float clippingSwitch, float hyperlocSwitch, int cwipiParams, int cwipiParamsObs, double stateInfl, double paramsInfl, Foam::word typeInfl, Foam::word typeInputs, int velocityCase, double sigmaUserUa, double sigmaUserUb, double sigmaUserUc, float paramEstSwitch, const fvMesh& mesh, float cwipiVerbose, std::string stringRootPath)
 {
     if (cwipiVerbose) std::cout << "Entering the Hyperlocalized EnKF function" << std::endl;
     
@@ -1736,7 +1738,7 @@ MatrixXf EnKF_hyperloc(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, con
 }
 
 // ====************************ MAIN EnKF Function ************************===
-MatrixXf mainEnKF(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, const fvMesh& mesh, int cwipiMembers, int nb_cells, int cwipiObs, int cwipiObsU, double sigmaUserU, double sigmaUserp, double sigmaUserCf, double sigmaLocX, double sigmaLocY, double sigmaLocZ, float localSwitch, float clippingSwitch, float hyperlocSwitch, int cwipiParams, int cwipiParamsObs, double stateInfl, double paramsInfl, float typeInfl, int typeInputs, int velocityCase, double sigmaUserUa, double sigmaUserUb, double sigmaUserUc, float paramEstSwitch, float stateEstSwitch, float cwipiVerbose, std::string stringRootPath, int cwipiTimedObs, double obsTimeStep, double time, double epsilon)
+MatrixXf mainEnKF(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, const fvMesh& mesh, int cwipiMembers, int nb_cells, int cwipiObs, int cwipiObsU, double sigmaUserU, double sigmaUserp, double sigmaUserCf, double sigmaLocX, double sigmaLocY, double sigmaLocZ, float localSwitch, float clippingSwitch, float hyperlocSwitch, int cwipiParams, int cwipiParamsObs, double stateInfl, double paramsInfl, Foam::word typeInfl, Foam::word typeInputs, int velocityCase, double sigmaUserUa, double sigmaUserUb, double sigmaUserUc, float paramEstSwitch, float stateEstSwitch, float cwipiVerbose, std::string stringRootPath, int cwipiTimedObs, double obsTimeStep, double time, double epsilon)
 {
     if(cwipiVerbose) std::cout << "** ENTERING MAIN EnKF FUNCTION **" << std::endl;
     //** The observation Matrix will be different depending on the high-fidelity observations **
