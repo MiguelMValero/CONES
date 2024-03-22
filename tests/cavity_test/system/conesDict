@@ -21,15 +21,15 @@ stateEstSwitch true; // Switch for state estimation
 observationWindow 2;
 
 // Number of members in the ensemble
-ensemble 2;
+ensemble 10;
 
 // Number of parameters to optimize with the DA
-numberParameters 13;
+numberParameters 1;
 
 observationSubDict
 {
     // Number of observation probes for velocity
-    numberObsProbesVelocity 8;
+    numberObsProbesVelocity 5;
 
     // Specify velocity components in the observation
     obsVelocityComponents (1 1 0);
@@ -41,7 +41,7 @@ observationSubDict
     numberObsProbesCf 0;
 
     // pertubation of the obs and diagonal of R matrix for velocity
-    velocityObsNoise 0.175;
+    velocityObsNoise 0.2;
 
     // pertubation of the obs and diagonal of R matrix for pressure
     pressureObsNoise 0.05;
@@ -50,21 +50,19 @@ observationSubDict
     // cfObsNoise 0;
 
     // Switch to for the obs: true = obs depends on time, false = obs does not depend on time
-    obsTimeDependency 1;
+    // obsTimeDependency 0;
 
     // The time step of the observations if the case is unsteady
     obsTimeStep 0.0002;
 
-    // Definition of observation parameter : 0 = vel, 1 = pres, 2 = both, 3 = vel+cf
-    // obsType "U";
-    obsType 0;
+    // Definition of observation parameter :  U (velocity only), p (pressure only), Up (velocity and pressure), UCf (velocity and friction coefficient)
+    obsType "U";
 
     // Inputs for R are given in absolute values (absVal), percentage (relVal)
     obsNoiseType "relVal";
 }
 
-// Geometric tolerance of the cwipi coupling meshes
-// geometricTolerance 0.1;
+
 
 
 inflationSubDict
@@ -73,19 +71,19 @@ inflationSubDict
     inflationType "deterministic";
 
     // State inflation (default = 0)
-    stateInflation 0.05;
+    stateInflation 0;
 
     // Parameters inflation (default = 0)
-    parametersInflation 0.01;
+    parametersInflation 0;
 }
 
 localizationSubDict
 {
     // Switch for the clipping
-    clippingSwitch true;
+    clippingSwitch false;
     
     // Switch for the localisation (basic clipping or hyperlocalisation activated)
-    covarianceLocalizationSwitch true;
+    covarianceLocalizationSwitch false;
     
     // Covariance localization type of function
     covarianceLocalizationType "default";
@@ -94,7 +92,7 @@ localizationSubDict
     correlationScale (0.000005429 0.000005429 0.000005429);
 
     // Switch for hyperlocalization
-    hyperlocalizationSwitch true;
+    hyperlocalizationSwitch false;
 }
 
 
@@ -103,6 +101,9 @@ numberOutputs 2;
 
 // Print all the debuging messages or not: 1 = printed, 0 = nothing
 verbosityLevel 1;
+
+// Geometric tolerance of the cwipi coupling meshes
+// geometricTolerance 0.1;
 
 // Value used to calculate the NSRMD when deviding by 0
 // epsilon 0.000000001;

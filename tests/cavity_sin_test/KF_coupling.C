@@ -87,8 +87,8 @@ int main(int argc, char *argv[])
 
   // Sub dict declaration
   Foam::dictionary observationSubDict = conesDict.subDict("observationSubDict");
-  Foam::dictionary inflationSubDict = conesDict.subDict("inflation");
-  Foam::dictionary localizationSubDict = conesDict.subDict("localization");
+  Foam::dictionary inflationSubDict = conesDict.subDict("inflationSubDict");
+  Foam::dictionary localizationSubDict = conesDict.subDict("localizationSubDict");
 
   
 
@@ -146,31 +146,23 @@ int main(int argc, char *argv[])
   // float stateEstSwitch = configValues[23]; // Switch for state estimation
   bool stateEstSwitch = conesDict.lookup<bool>("stateEstSwitch");
   // float Ux = configValues[24];             // Specification if Ux is read or not (cwipiParamsObs needs to be either 0, 2 or 3)
-  vector obsVelocityComponents = observationSubDict.lookup<vector>("obsVelocityComponents");
+  // float Uy = configValues[25];             // Specification if Uy is read or not (cwipiParamsObs needs to be either 0, 2 or 3)
+  // float Uz = configValues[26];             // Specification if Uz is read or not (cwipiParamsObs needs to be either 0, 2 or 3)
+  Foam::vector obsVelocityComponents = observationSubDict.lookup<vector>("obsVelocityComponents");
   int Ux = round(obsVelocityComponents.x());
   int Uy = round(obsVelocityComponents.y());
   int Uz = round(obsVelocityComponents.z());
-  
-  // float Uy = configValues[25];             // Specification if Uy is read or not (cwipiParamsObs needs to be either 0, 2 or 3)
-  // float Uz = configValues[26];             // Specification if Uz is read or not (cwipiParamsObs needs to be either 0, 2 or 3)
-  
   // int typeInputs = configValues[27];       // Inputs for R are given in absolute values (0), percentage (1) or potential function (2) (default = 0)
   Foam::word typeInputs = observationSubDict.lookup<word>("obsNoiseType");
-  Foam::Info << "observation Noise type is " << typeInputs << Foam::endl;
-
-  double sigmaLocX = configValues[28];     // eta of the EnKF (pertubation of the Kalman gain to take into consideration the localization in X direction)
-  
-  double sigmaLocY = configValues[29];     // eta of the EnKF (pertubation of the Kalman gain to take into consideration the localization in Y direction)
-  
-  double sigmaLocZ = configValues[30];     // eta of the EnKF (pertubation of the Kalman gain to take into consideration the localization in Z direction)
-  
-  double epsilon = configValues[31];       // Value used to calculate the NSRMD
-  
-  double sigmaUserUa = configValues[32];   // sigma of the EnKF given by a+by^c
-  
-  double sigmaUserUb = configValues[33];   // sigma of the EnKF given by a+by^c
-  
-  double sigmaUserUc = configValues[34];   // sigma of the EnKF given by a+by^c
+  Foam::vector correlationScale = localizationSubDict.lookup<vector>("correlationScale");
+  double sigmaLocX = correlationScale.x();
+  double sigmaLocY = correlationScale.y();
+  double sigmaLocZ = correlationScale.z();
+  // double sigmaLocX = configValues[28];     // eta of the EnKF (pertubation of the Kalman gain to take into consideration the localization in X direction)
+  // double sigmaLocY = configValues[29];     // eta of the EnKF (pertubation of the Kalman gain to take into consideration the localization in Y direction)
+  // double sigmaLocZ = configValues[30];     // eta of the EnKF (pertubation of the Kalman gain to take into consideration the localization in Z direction)
+  // double epsilon = configValues[31];       // Value used to calculate the NSRMD
+  double epsilon = conesDict.lookupOrDefault<scalar>("epsilon", 1e-10);
 
   if (cwipiVerbose) std::cout << "Beginning of the configuration file" << std::endl << "\n";
   
@@ -466,7 +458,7 @@ int main(int argc, char *argv[])
 
     //==================== Kalman filter code =====================
 
-    stateMatrixUpt = mainEnKF(stateMatrix, mesh, cwipiMembers, nb_cells, cwipiObs, cwipiObsU, sigmaUserU, sigmaUserp, sigmaUserCf, sigmaLocX, sigmaLocY, sigmaLocZ, localSwitch, clippingSwitch, hyperlocSwitch, cwipiParams, cwipiParamsObs, stateInfl, paramsInfl, typeInfl, typeInputs, velocityCase, sigmaUserUa, sigmaUserUb, sigmaUserUc, paramEstSwitch, stateEstSwitch,  cwipiVerbose, stringRootPath, cwipiTimedObs, obsTimeStep, time, epsilon);
+    stateMatrixUpt = mainEnKF(stateMatrix, mesh, cwipiMembers, nb_cells, cwipiObs, cwipiObsU, sigmaUserU, sigmaUserp, sigmaUserCf, sigmaLocX, sigmaLocY, sigmaLocZ, localSwitch, clippingSwitch, hyperlocSwitch, cwipiParams, cwipiParamsObs, stateInfl, paramsInfl, typeInfl, typeInputs, velocityCase, paramEstSwitch, stateEstSwitch,  cwipiVerbose, stringRootPath, cwipiTimedObs, obsTimeStep, time, epsilon);
 
 
     //** Writing values to a txt file if needed **

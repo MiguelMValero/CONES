@@ -42,6 +42,9 @@ Note
 #include <cstring>
 #include <cstdlib>
 #include <csignal>
+#include <libgen.h>         // dirname
+#include <unistd.h>         // readlink
+#include <linux/limits.h>   // PATH_MAX
 
 #if defined(WM_SP)
     #define MPI_SCALAR MPI_FLOAT
@@ -85,37 +88,58 @@ bool Foam::UPstream::init(int& argc, char**& argv, const bool needsThread)
         &provided_thread_support
     );
 
-    std::ifstream cFile ("cwipiConfig");
-
-    int values[33]={0};
-    int k = 0;
-
-    if (cFile.is_open())
+    char result[PATH_MAX] = {};
+    ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
+    const char *path;
+    if (count != -1)
     {
-        std::string line;
-        while(std::getline(cFile, line))
-        {
-            line.erase(std::remove_if(line.begin(), line.end(), ::isspace),line.end());
-            if( line.empty() || line[0] == '#' )
-            {
-                continue;
-            }
-            auto delimiterPos = line.find("=");
-            // auto name = line.substr(0, delimiterPos);
-            auto value = line.substr(delimiterPos + 1);
-
-            values[k] = stod(value);
-            // std::cout << values[k] << '\n';
-            k = k+1;
-        }
-    }
-    else 
-    {
-        std::cerr << "Couldn't open config file for reading.\n";
+        path = dirname(result);
     }
 
-    int nbParts = values[2];
-    float cwipiVerbose = values[12];
+    std::string stringRootPath = path;
+    char RunCase[250]= "/";
+
+    Foam::Info << "Le chemin est : " << stringRootPath << Foam::endl;
+
+    Foam::Time dummyRunTime(Foam::Time::controlDictName, path, {RunCase});
+
+    Foam::fvMesh dummyMesh(
+      Foam::IOobject
+      (
+        Foam::fvMesh::defaultRegion,
+        dummyRunTime.timeName(),
+        dummyRunTime,
+        Foam::IOobject::MUST_READ
+      )
+  );
+
+    IOdictionary dummyDecomposeParDict
+    (
+        IOobject
+        (
+        "decomposeParDict",
+        dummyRunTime.system(),
+        dummyMesh,
+        IOobject::MUST_READ,
+        IOobject::NO_WRITE
+        )
+    );
+
+    IOdictionary conesDict
+    (
+        IOobject
+        (
+        "conesDict",
+        dummyRunTime.system(),
+        dummyMesh,
+        IOobject::MUST_READ,
+        IOobject::NO_WRITE
+        )
+    );
+
+    int nbParts = round(dummyDecomposeParDict.lookup<scalar>("numberOfSubdomains"));
+    int cwipiVerbose = round(conesDict.lookupOrDefault<scalar>("verbosityLevel", 0));
+
     // int numprocs;
     // MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
     int myGlobalRank;
