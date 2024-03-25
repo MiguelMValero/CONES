@@ -3,25 +3,30 @@
 # Source tutorial run functions
 . $WM_PROJECT_DIR/bin/tools/RunFunctions
 
-# We read the number of ensembles from the controlDict
-file=$(pwd)"/cwipiConfig"
+# We read the number of ensembles and subdomains from the configuration file
+conesDict=$(pwd)"/system/conesDict"
+decomposeParDict=$(pwd)"/system/decomposeParDict"
 
 while read -r name num
 do
     if
-    	[[ $name == "cwipiMembers" ]]; then
-     	printf -v ensembles "%s\n" "$num"
+        [[ $name == "ensemble" ]]; then
+        printf -v ensembles "%s\n" "$num"
     fi
+done < $conesDict
+
+while read -r name num
+do
     if
-        [[ $name == "subDomains" ]]; then
+        [[ $name == "numberOfSubdomains" ]]; then
         printf -v subdomains "%s\n" "$num"
     fi
-done < $file
+done < $decomposeParDict
 
-echo 'The number of ensembles we are dealing with is' $ensembles |sed 's/= //'
-cwipiMembers=$(printf "%s" "$ensembles" |sed 's/= //')
-echo 'The number of decompositions we are dealing with is' $subdomains |sed 's/= //'
-cwipiDec=$(printf "%s" "$subdomains" |sed 's/= //')
+echo 'The number of ensembles we are dealing with is' $ensembles |sed 's/;//'
+cwipiMembers=$(printf "%s" "$ensembles" |sed 's/;//')
+echo 'The number of decompositions we are dealing with is' $subdomains |sed 's/;//'
+cwipiDec=$(printf "%s" "$subdomains" |sed 's/;//')
 
 blockMesh
 
@@ -78,7 +83,7 @@ mkdir -p $(pwd)/results
 
 # We run in parallel with the number of ensembles wished
 
-partEnKF="mpirun -np 1 ./KF_coupling.exe"
+partEnKF="mpirun -np 1 ./../../lib/CONES_interface/KF_coupling.exe"
 finalCommand="$partEnKF$command"
 # echo $finalCommand
 
