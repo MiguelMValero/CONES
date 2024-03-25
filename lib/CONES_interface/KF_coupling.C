@@ -420,6 +420,7 @@ int main(int argc, char *argv[])
 
     for (int j = 1; j < cwipiMembers + 1; j++)
     {
+      if (j == 1) tic();
       prepare_sendBack(sendValues, paramsSendValues, values, stateMatrixUpt, nb_cells, cwipiParams, j, cwipiVerbose);
       sprintf(cl_coupling_name, "cwipiFoamCoupling");
 
@@ -453,6 +454,7 @@ int main(int argc, char *argv[])
 
       int going_rank = j*subdomains-(subdomains-1);
       MPI_Send(paramsSendValues, cwipiParams, MPI_DOUBLE, going_rank, sendTag_params, MPI_COMM_WORLD);
+      if (j == 1) toc("send back procedure of one member");
     }
   }
 

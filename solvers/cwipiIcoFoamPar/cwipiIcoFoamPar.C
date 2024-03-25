@@ -138,6 +138,7 @@ int main(int argc, char *argv[])
         //========= Sending Velocity Field and Parameters and creating sampled velocities ==========
         if (cwipiSwitch && cwipiTimestep == cwipiStep)
         {
+            if (Pstream::master()) tic();
             if (cwipiVerbose) if (Pstream::master()) Foam::Pout<< "The remainder between the rank and the number of partitions by simulation " << myGlobalRank << " is " << myGlobalRank % subdomains << nl << endl;
             if (obsType == "U"){
                 UInterpolation(U, mesh, runTime, cwipiObsU, subdomains, cwipiVerbose, globalRootPath, globalCasePath);
@@ -151,7 +152,7 @@ int main(int argc, char *argv[])
             cwipiSend(mesh, U, runTime, cwipiIteration, subdomains, cwipiVerbose);
 
             cwipiSendParams(mesh, U, runTime, cwipiIteration, cwipiParams, subdomains, cwipiVerbose); 
-            //cwipiSendParams_sin(mesh, U, cwipiParams, subdomains, cwipiVerbose);   //For sinusoidal inlets
+            // cwipiSendParams_sin(mesh, U, cwipiParams, subdomains, cwipiVerbose);   //For sinusoidal inlets
 
             cwipiTimestep = 0;
             cwipiPhaseCheck = 1;
@@ -166,7 +167,7 @@ int main(int argc, char *argv[])
             cwipiRecv(mesh, U, runTime, cwipiIteration, subdomains, cwipiVerbose);
             
             cwipiRecvParams(mesh, U, cwipiParams, subdomains, cwipiVerbose);
-            //cwipiRecvParams_sin(mesh, U, cwipiParams, subdomains, cwipiVerbose);       //For sinusoidal inlets
+            // cwipiRecvParams_sin(mesh, U, cwipiParams, subdomains, cwipiVerbose);       //For sinusoidal inlets
 
             // ========== We correct the pressure after the DA cycle 
             //(solve a Poisson equation for the approximate pressure taking into account the
@@ -194,6 +195,8 @@ int main(int argc, char *argv[])
 
             cwipiPhaseCheck = 0;
             cwipiIteration = cwipiIteration + 1;
+
+            if (Pstream::master()) toc();
         }
         //=========================================================
 
