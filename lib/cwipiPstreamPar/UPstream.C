@@ -39,6 +39,7 @@ Note
 #include <mpi.h>
 #include <cwipi.h>
 
+#include <filesystem>
 #include <cstring>
 #include <cstdlib>
 #include <csignal>
@@ -88,20 +89,13 @@ bool Foam::UPstream::init(int& argc, char**& argv, const bool needsThread)
         &provided_thread_support
     );
 
-    char result[PATH_MAX] = {};
-    ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
-    const char *path;
-    if (count != -1)
-    {
-        path = dirname(result);
-    }
+    std::string pathToTestCase = std::filesystem::current_path();
 
-    std::string stringRootPath = path;
     char RunCase[250]= "/";
 
-    Foam::Info << "Le chemin est : " << stringRootPath << Foam::endl;
+    Foam::Info << "Le chemin est : " << pathToTestCase << Foam::endl;
 
-    Foam::Time dummyRunTime(Foam::Time::controlDictName, path, {RunCase});
+    Foam::Time dummyRunTime(Foam::Time::controlDictName, pathToTestCase, {RunCase});
 
     Foam::fvMesh dummyMesh(
       Foam::IOobject

@@ -15,7 +15,9 @@
 #include <cwipi.h>
 
 //===========================================================================
-void configuration(double* configValues);
+void tic(int mode=0, std::string procedure="default");
+
+void toc(std::string procedure="default");
 
 //===========================================================================
 Eigen::MatrixXf doClipping(const Eigen::Ref<const Eigen::MatrixXf>& invStateVector, int& nb_cells, int cwipiParams, int cwipiMembers, float cwipiVerbose, std::string stringRootPath);
@@ -27,40 +29,40 @@ Eigen::MatrixXf undoClipping(Eigen::MatrixXf stateMatrixUpt, const Eigen::Ref<co
 void define_mesh(double* pointsCoords, int* face_index, int* cell_to_face_connectivity, int* face_connectivity_index, int* face_connectivity, int c2fconnec_size, int fconnec_size, const fvMesh& mesh, char cl_coupling_name[20], float cwipiVerbose);
 
 //===========================================================================
-Eigen::ArrayXf obs_Data(int cwipiMembers, int nb_cells, int cwipiObs, int cwipiObsU, int cwipiParamsObs, float cwipiVerbose, std::string stringRootPath);
+Eigen::ArrayXf obs_Data(int cwipiMembers, int nb_cells, int cwipiObs, int cwipiObsU, Foam::word obsType, float cwipiVerbose, std::string stringRootPath);
 
 //===========================================================================
-Eigen::ArrayXf obs_Data_timed(int cwipiMembers, int nb_cells, int cwipiObs, int cwipiObsU, int obsIndex, int cwipiParamsObs, float cwipiVerbose, std::string stringRootPath);
+Eigen::ArrayXf obs_Data_timed(int cwipiMembers, int nb_cells, int cwipiObs, int cwipiObsU, int obsIndex, Foam::word obsType, float cwipiVerbose, std::string stringRootPath);
 
 //===========================================================================
-Eigen::MatrixXf samp_Data(int cwipiMembers, int cwipiObs, int cwipiObsU, int velocityCase, int cwipiParamsObs, float cwipiVerbose, std::string stringRootPath);
+Eigen::MatrixXf samp_Data(int cwipiMembers, int cwipiObs, int cwipiObsU, int velocityCase, Foam::word obsType, float cwipiVerbose, std::string stringRootPath);
 
 //===========================================================================
-void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const Eigen::Ref<const Eigen::MatrixXf>& sampMatrix, const Eigen::Ref<const Eigen::ArrayXf>& obsArray, int cwipiMembers, int nb_cells, double time, int cwipiParams, int cwipiObsU, int cwipiObs, int cwipiParamsObs, int velocityCase, int index, float cwipiVerbose, double epsilon);
+void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const Eigen::Ref<const Eigen::MatrixXf>& sampMatrix, const Eigen::Ref<const Eigen::ArrayXf>& obsArray, int cwipiMembers, int nb_cells, double time, int cwipiParams, int cwipiObsU, int cwipiObs, Foam::word obsType, int velocityCase, int index, float cwipiVerbose, double epsilon);
 
 //========================== Simple localization ============================
-Eigen::MatrixXf localisation(const Eigen::Ref<const Eigen::MatrixXf>& KnoCorr, int nb_cells, int cwipiParams, int cwipiObs, double sigmaLocX, double sigmaLocY, double sigmaLocZ, float clippingSwitch, float hyperlocSwitch, const fvMesh& mesh, float cwipiVerbose, std::string stringRootPath);
+Eigen::MatrixXf localisation(const Eigen::Ref<const Eigen::MatrixXf>& KnoCorr, int nb_cells, int cwipiParams, int cwipiObs, double sigmaLocX, double sigmaLocY, double sigmaLocZ, bool clippingSwitch, bool hyperlocSwitch, const fvMesh& mesh, float cwipiVerbose, std::string stringRootPath);
 
 //========================== Hyper-localization =============================
 Eigen::MatrixXf hyperlocalisation(const Eigen::Ref<const Eigen::MatrixXf>& KnoCorr, const Eigen::Ref<const Eigen::ArrayXf>& clippingCells, int nb_clipCells, int clipCellIndex, int cwipiParams, int count_obs, int obs_hyperloc, double sigmaLocX, double sigmaLocY, double sigmaLocZ, const fvMesh& mesh, float cwipiVerbose, std::string stringRootPath);
 
 //========================== Inflation function =============================
-Eigen::MatrixXf inflation(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, int cwipiMembers, int nb_cells, int cwipiParams, double stateInfl, double paramsInfl, Foam::word typeInfl, float paramEstSwitch, float cwipiVerbose, std::string stringRootPath);
+Eigen::MatrixXf inflation(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, int cwipiMembers, int nb_cells, int cwipiParams, double stateInfl, double paramsInfl, Foam::word typeInfl, bool paramEstSwitch, float cwipiVerbose, std::string stringRootPath);
 
 //========================== Randomize observations =============================
-Eigen::MatrixXf randomize_Obs(const Eigen::Ref<const Eigen::ArrayXf>& obsArray, int cwipiMembers, int cwipiObs, int cwipiObsU, int cwipiParamsObs, double sigmaUserU, double sigmaUserp, double sigmaUserCf, Foam::word typeInputs, int velocityCase, float cwipiVerbose);
+Eigen::MatrixXf randomize_Obs(const Eigen::Ref<const Eigen::ArrayXf>& obsArray, int cwipiMembers, int cwipiObs, int cwipiObsU, Foam::word obsType, double sigmaUserU, double sigmaUserp, double sigmaUserCf, Foam::word typeInputs, int velocityCase, float cwipiVerbose);
 
 //========================== Randomize observations =============================
-Eigen::MatrixXf calculate_R(const Eigen::Ref<const Eigen::ArrayXf>& obsArray, int cwipiObs, int cwipiObsU, int cwipiParamsObs, double sigmaUserU, double sigmaUserp, double sigmaUserCf, Foam::word typeInputs, int velocityCase, float cwipiVerbose);
+Eigen::MatrixXf calculate_R(const Eigen::Ref<const Eigen::ArrayXf>& obsArray, int cwipiObs, int cwipiObsU, Foam::word obsType, double sigmaUserU, double sigmaUserp, double sigmaUserCf, Foam::word typeInputs, int velocityCase, float cwipiVerbose);
 
 //**********================= Base EnKF =============================*********
 Eigen::MatrixXf calculate_K(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, const Eigen::Ref<const Eigen::MatrixXf>& obsMatrix, const Eigen::Ref<const Eigen::MatrixXf>& sampMatrix, const Eigen::Ref<const Eigen::MatrixXf>& R, int cwipiMembers, int nb_cells, int cwipiObs, int cwipiParams, float cwipiVerbose);
 
 //***********=============== Hyper EnKF ============================**********
-Eigen::MatrixXf EnKF_hyperloc(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, const Eigen::Ref<const Eigen::ArrayXf>& obsArray, const Eigen::Ref<const Eigen::MatrixXf>& sampMatrix, int cwipiMembers, int nb_cells, int cwipiObs, int cwipiObsU, double sigmaUserU, double sigmaUserp, double sigmaUserCf, double sigmaLocX, double sigmaLocY, double sigmaLocZ, float localSwitch, float clippingSwitch, float hyperlocSwitch, int cwipiParams, int cwipiParamsObs, double stateInfl, double paramsInfl, Foam::word typeInfl, Foam::word typeInputs, int velocityCase, float paramEstSwitch, const fvMesh& mesh, float cwipiVerbose, std::string stringRootPath);
+Eigen::MatrixXf EnKF_hyperloc(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, const Eigen::Ref<const Eigen::ArrayXf>& obsArray, const Eigen::Ref<const Eigen::MatrixXf>& sampMatrix, int cwipiMembers, int nb_cells, int cwipiObs, int cwipiObsU, double sigmaUserU, double sigmaUserp, double sigmaUserCf, double sigmaLocX, double sigmaLocY, double sigmaLocZ, bool localSwitch, bool clippingSwitch, bool hyperlocSwitch, int cwipiParams, Foam::word obsType, double stateInfl, double paramsInfl, Foam::word typeInfl, Foam::word typeInputs, int velocityCase, bool paramEstSwitch, const fvMesh& mesh, float cwipiVerbose, std::string stringRootPath);
 
 // *************************** MAIN EnKF Function *******************************
-Eigen::MatrixXf mainEnKF(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, const fvMesh& mesh, int cwipiMembers, int nb_cells, int cwipiObs, int cwipiObsU, double sigmaUserU, double sigmaUserp, double sigmaUserCf, double sigmaLocX, double sigmaLocY, double sigmaLocZ, float localSwitch, float clippingSwitch, float hyperlocSwitch, int cwipiParams, int cwipiParamsObs, double stateInfl, double paramsInfl, Foam::word typeInfl, Foam::word typeInputs, int velocityCase, float paramEstSwitch, float stateEstSwitch, float cwipiVerbose, std::string stringRootPath, int cwipiTimedObs, double obsTimeStep, double time, double epsilon);
+Eigen::MatrixXf mainEnKF(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, const fvMesh& mesh, int cwipiMembers, int nb_cells, int cwipiObs, int cwipiObsU, double sigmaUserU, double sigmaUserp, double sigmaUserCf, double sigmaLocX, double sigmaLocY, double sigmaLocZ, bool localSwitch, bool clippingSwitch, bool hyperlocSwitch, int cwipiParams, Foam::word obsType, double stateInfl, double paramsInfl, Foam::word typeInfl, Foam::word typeInputs, int velocityCase, bool paramEstSwitch, bool stateEstSwitch, float cwipiVerbose, std::string stringRootPath, bool cwipiTimedObs, double obsTimeStep, double time, double epsilon, double obsStartTime);
 
 //===========================================================================
 void prepare_sendBack(double *sendValues, double *paramsSendValues, double *values, const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, int nb_cells, int cwipiParams, int index, float cwipiVerbose);

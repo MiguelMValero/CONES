@@ -20,47 +20,20 @@
 using namespace Eigen;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-void configuration(double* configValues){
-
-    std::ifstream cFile ("cwipiConfig");
-    int k = 0;
-
-    if (cFile.is_open())
-    {
-        std::string line;
-        while(std::getline(cFile, line))
-        {
-            line.erase(std::remove_if(line.begin(), line.end(), ::isspace),line.end());
-            if( line.empty() || line[0] == '#' )
-            {
-                continue;
-            }
-            auto delimiterPos = line.find("=");
-            auto value = line.substr(delimiterPos + 1);
-
-            configValues[k] = stod(value);
-            k = k+1;
-        }
-    }
-    else 
-    {
-        std::cerr << "Couldn't open configuration file for reading.\n";
-    }
-}
-
 //===========================================================================
-void tic(int mode=0) {
-	static std::chrono::_V2::system_clock::time_point t_start;
+void tic(int mode=0, std::string procedure="default") {
+        static std::chrono::_V2::system_clock::time_point t_start;
 
-	if (mode==0)
-		t_start = std::chrono::high_resolution_clock::now();
-	else {
-		auto t_end = std::chrono::high_resolution_clock::now();
-		std::cout << "Elapsed time for the EnKF selected procedure is " << (t_end - t_start).count()*1E-9 << " seconds\n";
-	}
+        if (mode==0)
+                t_start = std::chrono::high_resolution_clock::now();
+        else {
+              	auto t_end = std::chrono::high_resolution_clock::now();
+                std::cout << "Elapsed time for the " << procedure << " is " << (t_end - t_start).count()*1E-9 << " seconds\n";
+        }
 }
 
-void toc() { tic(1); }
+void toc(std::string procedure) { tic(1, procedure); }
+
 
 //===========================================================================
 MatrixXf doClipping(const Eigen::Ref<const Eigen::MatrixXf>& invStateMatrix, int& nb_cells, int cwipiParams, int cwipiMembers, float cwipiVerbose, std::string stringRootPath)
@@ -321,7 +294,7 @@ void define_mesh(double* pointCoords, int* face_index, int* cell_to_face_connect
 }
 
 //===========================================================================
-ArrayXf obs_Data(int cwipiMembers, int nb_cells, int cwipiObs, int cwipiObsU, int cwipiParamsObs, float cwipiVerbose, std::string stringRootPath)
+ArrayXf obs_Data(int cwipiMembers, int nb_cells, int cwipiObs, int cwipiObsU, Foam::word obsType, float cwipiVerbose, std::string stringRootPath)
 {        
     //========== Not depending on time : Read the observation data from a file named "obs_field.txt" only and return the values
     // in a eigen array. The txt file has to contain 
@@ -373,7 +346,7 @@ ArrayXf obs_Data(int cwipiMembers, int nb_cells, int cwipiObs, int cwipiObsU, in
 }
 
 //===========================================================================
-ArrayXf obs_Data_timed(int cwipiMembers, int nb_cells, int cwipiObs, int cwipiObsU, int obsIndex, int cwipiParamsObs, float cwipiVerbose, std::string stringRootPath)
+ArrayXf obs_Data_timed(int cwipiMembers, int nb_cells, int cwipiObs, int cwipiObsU, int obsIndex, Foam::word obsType, float cwipiVerbose, std::string stringRootPath)
 {        
     //========== Depending on time : Read the observations data from a file named "obs_field.txt" only and return the values 
     // of the specific time step in a eigen array. The txt file has to contain velocity values with X Y and Z in the same column
@@ -423,7 +396,7 @@ ArrayXf obs_Data_timed(int cwipiMembers, int nb_cells, int cwipiObs, int cwipiOb
 }
 
 //===========================================================================
-MatrixXf samp_Data(int cwipiMembers, int cwipiObs, int cwipiObsU, int velocityCase, int cwipiParamsObs, float cwipiVerbose, std::string stringRootPath)
+MatrixXf samp_Data(int cwipiMembers, int cwipiObs, int cwipiObsU, int velocityCase, Foam::word obsType, float cwipiVerbose, std::string stringRootPath)
 {
     //========== Read the sampled velocities from the files created by each OF instance. Return of matrix 
     // with all the sampled velocities organised in a X Y Z manner, each colunm corresponding to 
@@ -438,7 +411,7 @@ MatrixXf samp_Data(int cwipiMembers, int cwipiObs, int cwipiObsU, int velocityCa
     {
         char ensemble[50];
         char member[50];
-        if (cwipiParamsObs == 0){
+        if (obsType == "U"){
             std::string UInt;
             sprintf(IntGenChar, "%i", i+1);
             sprintf(ensemble, "/UInt%i", i+1);
@@ -449,7 +422,7 @@ MatrixXf samp_Data(int cwipiMembers, int cwipiObs, int cwipiObsU, int velocityCa
             if (cwipiVerbose) std::cout << "Opening " << UInt << std::endl;
             file.open(UInt);
         }
-        else if (cwipiParamsObs == 1){
+        else if (obsType == "p"){
             std::string pInt;
             sprintf(ensemble, "/pInt%i", i+1);
             sprintf(member, "%i", i+1);
@@ -459,7 +432,7 @@ MatrixXf samp_Data(int cwipiMembers, int cwipiObs, int cwipiObsU, int velocityCa
             if (cwipiVerbose) std::cout << "Opening " << pInt << std::endl;
             file.open(pInt);
         }
-        else if (cwipiParamsObs == 2){
+        else if (obsType == "Up"){
             std::string UpInt;
             sprintf(ensemble, "/UpInt%i", i+1);
             sprintf(member, "%i", i+1);
@@ -469,7 +442,7 @@ MatrixXf samp_Data(int cwipiMembers, int cwipiObs, int cwipiObsU, int velocityCa
             if (cwipiVerbose) std::cout << "Opening " << UpInt << std::endl;
             file.open(UpInt);
         }
-        else if (cwipiParamsObs == 3){
+        else if (obsType == "UCf"){
             std::string UCfInt;
             sprintf(ensemble, "/UCfInt%i", i);
             sprintf(member, "%i", i);
@@ -490,7 +463,7 @@ MatrixXf samp_Data(int cwipiMembers, int cwipiObs, int cwipiObsU, int velocityCa
                 std::string IntValue;
                 std::getline(ss, IntValue, ' ');
                 
-                if (cwipiParamsObs == 0){
+                if (obsType == "U"){
                     switch (velocityCase){
                         case 1 :
                             if (count < cwipiObsU) sampMatrix(count, i) = std::stod(IntValue);
@@ -516,10 +489,10 @@ MatrixXf samp_Data(int cwipiMembers, int cwipiObs, int cwipiObsU, int velocityCa
                             break;
                     }
                 }
-                else if (cwipiParamsObs == 1){
+                else if (obsType == "p"){
                     sampMatrix(count, i) = std::stod(IntValue);
                 }
-                else if (cwipiParamsObs == 2 || cwipiParamsObs == 3){
+                else if (obsType == "Up" || obsType == "UCf"){
                     switch (velocityCase){
                         case 1 :
                             if (count < cwipiObsU) sampMatrix(count, i) = std::stod(IntValue);
@@ -575,7 +548,7 @@ MatrixXf samp_Data(int cwipiMembers, int cwipiObs, int cwipiObsU, int velocityCa
 }
 
 //===========================================================================
-void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const Eigen::Ref<const Eigen::MatrixXf>& sampMatrix, const Eigen::Ref<const Eigen::ArrayXf>& obsArray, int cwipiMembers, int nb_cells, double time, int cwipiParams, int cwipiObsU, int cwipiObs, int cwipiParamsObs, int velocityCase, float cwipiVerbose, double epsilon)
+void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const Eigen::Ref<const Eigen::MatrixXf>& sampMatrix, const Eigen::Ref<const Eigen::ArrayXf>& obsArray, int cwipiMembers, int nb_cells, double time, int cwipiParams, int cwipiObsU, int cwipiObs, Foam::word obsType, int velocityCase, float cwipiVerbose, double epsilon)
 {
     //========== We do an output of all optimized coefficients to evaluate convergence ==========//
     std::fstream file_coeffs_out;
@@ -600,7 +573,7 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
     file_RMS_out << time << ' ';
     double RMSD1, RMSD2, RMSD3, RMSD4, RMSD5;
     double NRMSD1, NRMSD2, NRMSD3, NRMSD4, NRMSD5;
-    if (cwipiParamsObs == 0){
+    if (obsType == "U"){
                 switch (velocityCase){
             case 1 :
             case 2 :
@@ -666,7 +639,7 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
                 break;
         }
     }
-    else if (cwipiParamsObs == 1){
+    else if (obsType == "p"){
         ArrayXf MSvals4(cwipiObs);
         ArrayXf MSvobs4(cwipiObs);
         for (int i = 0; i < (cwipiObs-cwipiObsU); ++i){
@@ -678,7 +651,7 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
         file_RMS_out << RMSD4 << ' ' << NRMSD4 << ' ';
         file_RMS_out << "\n";
     }
-    else if (cwipiParamsObs == 2){
+    else if (obsType == "Up"){
                 switch (velocityCase){
             case 1 :
             case 2 :
@@ -764,7 +737,7 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
                 break;
         }
     }
-    else if (cwipiParamsObs == 3){
+    else if (obsType == "UCf"){
                 switch (velocityCase){
             case 1 :
             case 2 :
@@ -842,7 +815,7 @@ void EnKF_outputs(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, const
 }
 
 //========================== Simple localization ============================
-MatrixXf localisation(const Eigen::Ref<const Eigen::MatrixXf>& KnoCorr, int nb_cells, int cwipiParams, int cwipiObs, double sigmaLocX, double sigmaLocY, double sigmaLocZ, float clippingSwitch, float hyperlocSwitch, const fvMesh& mesh, float cwipiVerbose, std::string stringRootPath)
+MatrixXf localisation(const Eigen::Ref<const Eigen::MatrixXf>& KnoCorr, int nb_cells, int cwipiParams, int cwipiObs, double sigmaLocX, double sigmaLocY, double sigmaLocZ, bool clippingSwitch, bool hyperlocSwitch, const fvMesh& mesh, float cwipiVerbose, std::string stringRootPath)
 {
     //========= Definition of the cells affected by localisation
     std::string obs_file = stringRootPath + "/obs_coordinates.txt";
@@ -886,7 +859,7 @@ MatrixXf localisation(const Eigen::Ref<const Eigen::MatrixXf>& KnoCorr, int nb_c
         std::cerr << "Couldn't open observation file for localisation.\n";
     }
 
-    if (clippingSwitch == 1 && hyperlocSwitch!=1){
+    if (clippingSwitch && !hyperlocSwitch){
         std::string clipping_file = stringRootPath + "/clippingCells.txt";
         std::ifstream clippingCells;
         clippingCells.open(clipping_file);
@@ -923,9 +896,10 @@ MatrixXf localisation(const Eigen::Ref<const Eigen::MatrixXf>& KnoCorr, int nb_c
                 double deltaX = coordXobs[j] - coordXdom;
                 double deltaY = coordYobs[j] - coordYdom;
                 double deltaZ = coordZobs[j] - coordZdom;
-                loc(i, j) = std::exp(-std::pow(deltaX, 2)/sigmaLocX);
-                loc(i + nb_cells, j) = std::exp(-std::pow(deltaY, 2)/sigmaLocY);
-                loc(i + 2*nb_cells, j) = std::exp(-std::pow(deltaZ, 2)/sigmaLocZ);
+                double deltaRNorm = std::pow(deltaX/sigmaLocX, 2) + std::pow(deltaY/sigmaLocY, 2) + std::pow(deltaZ/sigmaLocZ, 2);
+                loc(i, j)              = std::exp(-0.5*deltaRNorm);
+                loc(i + nb_cells, j)   = std::exp(-0.5*deltaRNorm);
+                loc(i + 2*nb_cells, j) = std::exp(-0.5*deltaRNorm);
             }
         }
     }
@@ -938,9 +912,10 @@ MatrixXf localisation(const Eigen::Ref<const Eigen::MatrixXf>& KnoCorr, int nb_c
                 double deltaX = coordXobs[j] - coordXdom;
                 double deltaY = coordYobs[j] - coordYdom;
                 double deltaZ = coordZobs[j] - coordZdom;
-                loc(i, j) = std::exp(-std::pow(deltaX, 2)/sigmaLocX);
-                loc(i + nb_cells, j) = std::exp(-std::pow(deltaY, 2)/sigmaLocY);
-                loc(i + 2*nb_cells, j) = std::exp(-std::pow(deltaZ, 2)/sigmaLocZ);
+                double deltaRNorm = std::pow(deltaX/sigmaLocX, 2) + std::pow(deltaY/sigmaLocY, 2) + std::pow(deltaZ/sigmaLocZ, 2);
+                loc(i, j)              = std::exp(-0.5*deltaRNorm);
+                loc(i + nb_cells, j)   = std::exp(-0.5*deltaRNorm);
+                loc(i + 2*nb_cells, j) = std::exp(-0.5*deltaRNorm);
             }
         }
     }
@@ -1006,11 +981,13 @@ MatrixXf hyperlocalisation(const Eigen::Ref<const Eigen::MatrixXf>& KnoCorr, con
         double deltaX = coordXobs[count_obs] - coordXdom;
         double deltaY = coordYobs[count_obs] - coordYdom;
         double deltaZ = coordZobs[count_obs] - coordZdom;
+        double deltaRNorm = std::pow(deltaX/sigmaLocX, 2) + std::pow(deltaY/sigmaLocY, 2) + std::pow(deltaZ/sigmaLocZ, 2);
         for (int j = 0; j < obs_hyperloc; ++j){
-            loc(i, j) = std::exp(-std::pow(deltaX, 2)/sigmaLocX);
-            loc(i + nb_clipCells, j) = std::exp(-std::pow(deltaY, 2)/sigmaLocY);
-            loc(i + 2*nb_clipCells, j) = std::exp(-std::pow(deltaZ, 2)/sigmaLocZ);
+            loc(i, j)                  = std::exp(-0.5*deltaRNorm);
+            loc(i + nb_clipCells, j)   = std::exp(-0.5*deltaRNorm);
+            loc(i + 2*nb_clipCells, j) = std::exp(-0.5*deltaRNorm);
         }
+
     }
 
     // std::cout << "The localisation matrix is " << std::endl;
@@ -1022,7 +999,7 @@ MatrixXf hyperlocalisation(const Eigen::Ref<const Eigen::MatrixXf>& KnoCorr, con
 }
 
 //========================== Inflation function =============================
-MatrixXf inflation(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, int cwipiMembers, int nb_cells, int cwipiParams, double stateInfl, double paramsInfl, Foam::word typeInfl, float paramEstSwitch, float cwipiVerbose, std::string stringRootPath)
+MatrixXf inflation(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, int cwipiMembers, int nb_cells, int cwipiParams, double stateInfl, double paramsInfl, Foam::word typeInfl, bool paramEstSwitch, float cwipiVerbose, std::string stringRootPath)
 {
     //========== Initialisation of the variables ==========
     int nb_cells_cmpnt=nb_cells*3;
@@ -1130,7 +1107,7 @@ MatrixXf inflation(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrixUpt, int 
 }
 
 //========================== Randomize observations =========================
-MatrixXf randomize_Obs(const Eigen::Ref<const Eigen::ArrayXf>& obsArray, int cwipiMembers, int cwipiObs, int cwipiObsU, int cwipiParamsObs, double sigmaUserU, double sigmaUserp, double sigmaUserCf, Foam::word typeInputs, int velocityCase, float cwipiVerbose)
+MatrixXf randomize_Obs(const Eigen::Ref<const Eigen::ArrayXf>& obsArray, int cwipiMembers, int cwipiObs, int cwipiObsU, Foam::word obsType, double sigmaUserU, double sigmaUserp, double sigmaUserCf, Foam::word typeInputs, int velocityCase, float cwipiVerbose)
 {
     //========== Initialisation of the variables ==========
     float gaussample;
@@ -1155,7 +1132,7 @@ MatrixXf randomize_Obs(const Eigen::Ref<const Eigen::ArrayXf>& obsArray, int cwi
     //========== Add Gaussian noise to create random velocity field and observation matrix ===========
     for (int j=0;j<cwipiMembers;j++)
     {
-        if (cwipiParamsObs == 0){
+        if (obsType == "U"){
             for (int i=0;i<cwipiObs;i++)
             {
                 do
@@ -1166,7 +1143,7 @@ MatrixXf randomize_Obs(const Eigen::Ref<const Eigen::ArrayXf>& obsArray, int cwi
                 obsMatrix(i,j)=obsArray(i);
             }
         }
-        else if (cwipiParamsObs == 1){
+        else if (obsType == "p"){
             for (int i=0;i<cwipiObs;i++)
             {
                 do
@@ -1177,7 +1154,7 @@ MatrixXf randomize_Obs(const Eigen::Ref<const Eigen::ArrayXf>& obsArray, int cwi
                 obsMatrix(i,j)=obsArray(i);
             }
         }
-        else if (cwipiParamsObs == 2){
+        else if (obsType == "Up"){
             switch (velocityCase){
                 case 1 :
                 case 2 :
@@ -1245,7 +1222,7 @@ MatrixXf randomize_Obs(const Eigen::Ref<const Eigen::ArrayXf>& obsArray, int cwi
                     break;
             }
         }
-        else if (cwipiParamsObs == 3){
+        else if (obsType == "UCf"){
             switch (velocityCase){
                 case 1 :
                 case 2 :
@@ -1323,22 +1300,22 @@ MatrixXf randomize_Obs(const Eigen::Ref<const Eigen::ArrayXf>& obsArray, int cwi
 }
 
 //============= Calculate measurments error covariance matrix ===============
-MatrixXf calculate_R(const Eigen::Ref<const Eigen::ArrayXf>& obsArray, int cwipiObs, int cwipiObsU, int cwipiParamsObs, double sigmaUserU, double sigmaUserp, double sigmaUserCf, Foam::word typeInputs, int velocityCase, float cwipiVerbose)
+MatrixXf calculate_R(const Eigen::Ref<const Eigen::ArrayXf>& obsArray, int cwipiObs, int cwipiObsU, Foam::word obsType, double sigmaUserU, double sigmaUserp, double sigmaUserCf, Foam::word typeInputs, int velocityCase, float cwipiVerbose)
 {
     //========== Initialisation of the variables ==========
     MatrixXf R(cwipiObs,cwipiObs);
     R.setIdentity();
 
     // === Calculation of R ===
-    if (cwipiParamsObs == 0){ 
+    if (obsType == "U"){ 
         if (typeInputs == "absVal") R = R*sigmaUserU*sigmaUserU;
         else if (typeInputs == "relVal") R.diagonal() = obsArray.cwiseProduct(obsArray)*sigmaUserU*sigmaUserU;
     }
-    else if (cwipiParamsObs == 1){
+    else if (obsType == "p"){
         if (typeInputs == "absVal") R = R*sigmaUserp*sigmaUserp;
         else if (typeInputs == "relVal") R.diagonal() = obsArray.cwiseProduct(obsArray)*sigmaUserp*sigmaUserp;
     }
-    else if (cwipiParamsObs == 2){
+    else if (obsType == "Up"){
         if (typeInputs == "absVal") R = R*sigmaUserp*sigmaUserp;
         else if (typeInputs == "relVal") R.diagonal() = obsArray.cwiseProduct(obsArray)*sigmaUserp*sigmaUserp;
         switch (velocityCase){
@@ -1357,7 +1334,7 @@ MatrixXf calculate_R(const Eigen::Ref<const Eigen::ArrayXf>& obsArray, int cwipi
                 break;
         }
     } 
-    else if (cwipiParamsObs == 3){
+    else if (obsType == "UCf"){
         if (typeInputs == "absVal") R = R*sigmaUserCf*sigmaUserCf;
         else if (typeInputs == "relVal") R.diagonal() = obsArray.cwiseProduct(obsArray)*sigmaUserCf*sigmaUserCf;
         switch (velocityCase){
@@ -1464,7 +1441,7 @@ MatrixXf calculate_K(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, const
 }
 
 //***********=============== Hyper EnKF ============================**********
-MatrixXf EnKF_hyperloc(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, const Eigen::Ref<const Eigen::ArrayXf>& obsArray, const Eigen::Ref<const Eigen::MatrixXf>& sampMatrix, int cwipiMembers, int nb_cells, int cwipiObs, int cwipiObsU, double sigmaUserU, double sigmaUserp, double sigmaUserCf, double sigmaLocX, double sigmaLocY, double sigmaLocZ, float localSwitch, float clippingSwitch, float hyperlocSwitch, int cwipiParams, int cwipiParamsObs, double stateInfl, double paramsInfl, Foam::word typeInfl, Foam::word typeInputs, int velocityCase, float paramEstSwitch, const fvMesh& mesh, float cwipiVerbose, std::string stringRootPath)
+MatrixXf EnKF_hyperloc(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, const Eigen::Ref<const Eigen::ArrayXf>& obsArray, const Eigen::Ref<const Eigen::MatrixXf>& sampMatrix, int cwipiMembers, int nb_cells, int cwipiObs, int cwipiObsU, double sigmaUserU, double sigmaUserp, double sigmaUserCf, double sigmaLocX, double sigmaLocY, double sigmaLocZ, bool localSwitch, bool clippingSwitch, bool hyperlocSwitch, int cwipiParams, Foam::word obsType, double stateInfl, double paramsInfl, Foam::word typeInfl, Foam::word typeInputs, int velocityCase, bool paramEstSwitch, const fvMesh& mesh, float cwipiVerbose, std::string stringRootPath)
 {
     if (cwipiVerbose) std::cout << "Entering the Hyperlocalized EnKF function" << std::endl;
     
@@ -1617,11 +1594,11 @@ MatrixXf EnKF_hyperloc(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, con
 
             // if (cwipiVerbose) std::cout << "Observations and samples selected according to velocityCase " << std::endl;
             // ** Extend observations to all the members via perturbations addition **
-            MatrixXf temp_obsMatrix = randomize_Obs(temp_obsArray, cwipiMembers, obs_hyperloc, cwipiObsU, cwipiParamsObs, sigmaUserU, sigmaUserp, sigmaUserCf, typeInputs, velocityCase, cwipiVerbose);
+            MatrixXf temp_obsMatrix = randomize_Obs(temp_obsArray, cwipiMembers, obs_hyperloc, cwipiObsU, obsType, sigmaUserU, sigmaUserp, sigmaUserCf, typeInputs, velocityCase, cwipiVerbose);
             // if (cwipiVerbose) std::cout << "temp_obsMatrix filled = \n " << temp_obsMatrix << std::endl;
 
             //** Calculate R **
-            MatrixXf temp_R = calculate_R(temp_obsArray, obs_hyperloc, cwipiObsU, cwipiParamsObs, sigmaUserU, sigmaUserp, sigmaUserCf, typeInputs, velocityCase, cwipiVerbose);
+            MatrixXf temp_R = calculate_R(temp_obsArray, obs_hyperloc, cwipiObsU, obsType, sigmaUserU, sigmaUserp, sigmaUserCf, typeInputs, velocityCase, cwipiVerbose);
             // if (cwipiVerbose) std::cout << "temp_R filled = \n " << temp_R << std::endl;
 
             // //** Calculate the Kalman gain for temp_state **
@@ -1693,7 +1670,7 @@ MatrixXf EnKF_hyperloc(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, con
 }
 
 // ====************************ MAIN EnKF Function ************************===
-MatrixXf mainEnKF(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, const fvMesh& mesh, int cwipiMembers, int nb_cells, int cwipiObs, int cwipiObsU, double sigmaUserU, double sigmaUserp, double sigmaUserCf, double sigmaLocX, double sigmaLocY, double sigmaLocZ, float localSwitch, float clippingSwitch, float hyperlocSwitch, int cwipiParams, int cwipiParamsObs, double stateInfl, double paramsInfl, Foam::word typeInfl, Foam::word typeInputs, int velocityCase, float paramEstSwitch, float stateEstSwitch, float cwipiVerbose, std::string stringRootPath, int cwipiTimedObs, double obsTimeStep, double time, double epsilon)
+MatrixXf mainEnKF(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, const fvMesh& mesh, int cwipiMembers, int nb_cells, int cwipiObs, int cwipiObsU, double sigmaUserU, double sigmaUserp, double sigmaUserCf, double sigmaLocX, double sigmaLocY, double sigmaLocZ, bool localSwitch, bool clippingSwitch, bool hyperlocSwitch, int cwipiParams, Foam::word obsType, double stateInfl, double paramsInfl, Foam::word typeInfl, Foam::word typeInputs, int velocityCase, bool paramEstSwitch, bool stateEstSwitch, float cwipiVerbose, std::string stringRootPath, bool cwipiTimedObs, double obsTimeStep, double time, double epsilon, double obsStartTime)
 {
     if(cwipiVerbose) std::cout << "** ENTERING MAIN EnKF FUNCTION **" << std::endl;
     //** The observation Matrix will be different depending on the high-fidelity observations **
@@ -1704,33 +1681,33 @@ MatrixXf mainEnKF(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, const fv
     // ================= Retrieve observations informations ================
     if (cwipiVerbose) std::cout << "Opening observation file function " << std::endl;
     if (cwipiTimedObs){
-      int obsIndex = time / obsTimeStep - 1;
-      obsArray = obs_Data_timed(cwipiMembers, nb_cells, cwipiObs, cwipiObsU, obsIndex, cwipiParamsObs, cwipiVerbose, stringRootPath);
+      int obsIndex = (time-obsStartTime) / obsTimeStep - 1;
+      obsArray = obs_Data_timed(cwipiMembers, nb_cells, cwipiObs, cwipiObsU, obsIndex, obsType, cwipiVerbose, stringRootPath);
     }
-    else obsArray = obs_Data(cwipiMembers, nb_cells, cwipiObs, cwipiObsU, cwipiParamsObs, cwipiVerbose, stringRootPath);
+    else obsArray = obs_Data(cwipiMembers, nb_cells, cwipiObs, cwipiObsU, obsType, cwipiVerbose, stringRootPath);
 
     // ================= Retrieve sampled informations ===================
     if (cwipiVerbose) std::cout << "Opening sampled data function " << std::endl;
-    MatrixXf sampMatrix = samp_Data(cwipiMembers, cwipiObs, cwipiObsU, velocityCase, cwipiParamsObs, cwipiVerbose, stringRootPath);
+    MatrixXf sampMatrix = samp_Data(cwipiMembers, cwipiObs, cwipiObsU, velocityCase, obsType, cwipiVerbose, stringRootPath);
 
     // ================= Begin calculation of the EnKF ===================
     tic();
     // **** Case using hyperlocalization 
-    if (hyperlocSwitch == 1){
-        stateMatrixUpt = EnKF_hyperloc(stateMatrix, obsArray, sampMatrix, cwipiMembers, nb_cells, cwipiObs, cwipiObsU, sigmaUserU, sigmaUserp, sigmaUserCf, sigmaLocX, sigmaLocY, sigmaLocZ, localSwitch, clippingSwitch, hyperlocSwitch, cwipiParams, cwipiParamsObs, stateInfl, paramsInfl, typeInfl, typeInputs, velocityCase, paramEstSwitch, mesh, cwipiVerbose, stringRootPath);
+    if (hyperlocSwitch){
+        stateMatrixUpt = EnKF_hyperloc(stateMatrix, obsArray, sampMatrix, cwipiMembers, nb_cells, cwipiObs, cwipiObsU, sigmaUserU, sigmaUserp, sigmaUserCf, sigmaLocX, sigmaLocY, sigmaLocZ, localSwitch, clippingSwitch, hyperlocSwitch, cwipiParams, obsType, stateInfl, paramsInfl, typeInfl, typeInputs, velocityCase, paramEstSwitch, mesh, cwipiVerbose, stringRootPath);
     }
     // **** Normal cases
     else{
         // ** Extend observations to all the members via perturbations addition
         if (cwipiVerbose) std::cout << "Randomizing observations ... " << std::endl;
-        MatrixXf obsMatrix = randomize_Obs(obsArray, cwipiMembers, cwipiObs, cwipiObsU, cwipiParamsObs, sigmaUserU, sigmaUserp, sigmaUserCf, typeInputs, velocityCase, cwipiVerbose);
+        MatrixXf obsMatrix = randomize_Obs(obsArray, cwipiMembers, cwipiObs, cwipiObsU, obsType, sigmaUserU, sigmaUserp, sigmaUserCf, typeInputs, velocityCase, cwipiVerbose);
         
         // ** Calculate the measurment errors covariance matrix
         if (cwipiVerbose) std::cout << "Calculating measurements error covariance matrix ... " << std::endl;
-        MatrixXf R = calculate_R(obsArray, cwipiObs, cwipiObsU, cwipiParamsObs, sigmaUserU, sigmaUserp, sigmaUserCf, typeInputs, velocityCase, cwipiVerbose);
+        MatrixXf R = calculate_R(obsArray, cwipiObs, cwipiObsU, obsType, sigmaUserU, sigmaUserp, sigmaUserCf, typeInputs, velocityCase, cwipiVerbose);
 
         // ** For basic localization clippings
-        if (clippingSwitch == 1 && hyperlocSwitch!=1){
+        if (clippingSwitch && !hyperlocSwitch){
             if (cwipiVerbose) std::cout << "Creating the clipping ... " << std::endl;
             stateMatrixUpt = doClipping(stateMatrix, nb_cells, cwipiParams, cwipiMembers, cwipiVerbose, stringRootPath);
             if (cwipiVerbose) std::cout << "The number of values in each member is " << nb_cells*3 << std::endl;
@@ -1744,7 +1721,7 @@ MatrixXf mainEnKF(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, const fv
         // if (cwipiVerbose) std::cout << "Knoloc = " <<  K << std::endl;
         
         // ** If covariance localization needed
-        if (localSwitch == 1 && hyperlocSwitch !=1){
+        if (localSwitch && !hyperlocSwitch){
             if (cwipiVerbose) std::cout << "Applying localization on the Kalman gain ... " << std::endl;
             K = localisation(K, nb_cells, cwipiParams, cwipiObs, sigmaLocX, sigmaLocY, sigmaLocZ, clippingSwitch, hyperlocSwitch, mesh, cwipiVerbose, stringRootPath);
             // if (cwipiVerbose) std::cout << "New K = " <<  K << std::endl;
@@ -1763,7 +1740,7 @@ MatrixXf mainEnKF(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, const fv
         stateMatrixUpt = inflation(stateMatrixUpt, cwipiMembers, nb_cells, cwipiParams, stateInfl, paramsInfl, typeInfl, paramEstSwitch, cwipiVerbose, stringRootPath);
 
         // ** Reconstructing state if clipping
-        if (clippingSwitch == 1 && hyperlocSwitch!=1){
+        if (clippingSwitch && !hyperlocSwitch){
             if (cwipiVerbose) std::cout << "Unclipping the domain ... " << std::endl;
             //** Writing updated values to a txt file **
             // print_matrix_on_txt(i, numberCwipiPhase, cwipiOutputNb, cwipiMembers, nb_cells, cwipiParams, time, stateMatrixUpt, "UMat_Clip_upt");
@@ -1772,7 +1749,7 @@ MatrixXf mainEnKF(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, const fv
     }
 
     // ** If State estimation desactivated return to original values
-    if(stateEstSwitch == 0){
+    if(!stateEstSwitch){
         if (cwipiVerbose) std::cout << "State estimation desactivated, returning to original values ..." << std::endl;
         for (int j=0;j<cwipiMembers;j++)
         {
@@ -1783,10 +1760,10 @@ MatrixXf mainEnKF(const Eigen::Ref<const Eigen::MatrixXf>& stateMatrix, const fv
         }
     }
 
-    toc();
+    toc("EnKF analysis (from buidling R to inflation)");
 
     if (cwipiVerbose) std::cout << "Starting writing outputs from the EnKF..." << std::endl;
-    EnKF_outputs(stateMatrixUpt, sampMatrix, obsArray, cwipiMembers, nb_cells, time, cwipiParams, cwipiObsU, cwipiObs, cwipiParamsObs, velocityCase, cwipiVerbose, epsilon);
+    EnKF_outputs(stateMatrixUpt, sampMatrix, obsArray, cwipiMembers, nb_cells, time, cwipiParams, cwipiObsU, cwipiObs, obsType, velocityCase, cwipiVerbose, epsilon);
 
     if (cwipiVerbose) std::cout << "** End of Kalman Filter **" << std::endl << "\n";
 

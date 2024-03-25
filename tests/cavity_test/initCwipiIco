@@ -1,33 +1,29 @@
 #! /bin/bash
 
-# Source tutorial run functions
-. $WM_PROJECT_DIR/bin/tools/RunFunctions
-
 # We read the number of ensembles and subdomains from the configuration file
-file=$(pwd)"/cwipiConfig"
+conesDict=$(pwd)"/system/conesDict"
+decomposeParDict=$(pwd)"/system/decomposeParDict"
 
 while read -r name num
 do
     if
-        [[ $name == "cwipiMembers" ]]; then
+        [[ $name == "ensemble" ]]; then
         printf -v ensembles "%s\n" "$num"
     fi
+done < $conesDict
+
+while read -r name num
+do
     if
-        [[ $name == "subDomains" ]]; then
+        [[ $name == "numberOfSubdomains" ]]; then
         printf -v subdomains "%s\n" "$num"
     fi
-    if
-        [[ $name == "mainsubDomain" ]]; then
-        printf -v mainsubdomain "%s\n" "$num"
-    fi
-done < $file
+done < $decomposeParDict
 
-echo 'The number of ensembles we are dealing with is' $ensembles |sed 's/= //'
-cwipiMembers=$(printf "%s" "$ensembles" |sed 's/= //')
-echo 'The number of decompositions we are dealing with is' $subdomains |sed 's/= //'
-cwipiDec=$(printf "%s" "$subdomains" |sed 's/= //')
-echo 'The decomposition region where we change the top boundary condition is' $mainsubdomain |sed 's/= //'
-cwipiSubd=$(printf "%s" "$mainsubdomain" |sed 's/= //')
+echo 'The number of ensembles we are dealing with is' $ensembles |sed 's/;//'
+cwipiMembers=$(printf "%s" "$ensembles" |sed 's/;//')
+echo 'The number of decompositions we are dealing with is' $subdomains |sed 's/;//'
+cwipiDec=$(printf "%s" "$subdomains" |sed 's/;//')
 
 blockMesh
 
@@ -50,21 +46,19 @@ do
 
     # We decompose the domain in all the members
     cd $caseName
-    runApplication decomposePar -force
+    decomposePar -force
     cd ..
 
     partCommand=" : -np $cwipiDec cwipiIcoFoamPar -case member$i -parallel"
     command="$command$partCommand"
 done
 
-# We clean the root directory
-rm -rf results postProcessing log
 mkdir -p $(pwd)/results
 
 
 # Run the application from the specification in the appConfig file
 # mpirun -np 1 ./KF_coupling.exe : -np $cwipiDec cwipiIcoFoamPar -case cavity_testPar1 -parallel : -np $cwipiDec cwipiIcoFoamPar -case cavity_testPar2 -parallel : -np $cwipiDec cwipiIcoFoamPar -case cavity_testPar3 -parallel : -np $cwipiDec cwipiIcoFoamPar -case cavity_testPar4 -parallel | tee log
-partEnKF="mpirun -np 1 ./KF_coupling.exe"
+partEnKF="mpirun -np 1 ./../../lib/CONES_interface/KF_coupling.exe"
 finalCommand="$partEnKF$command"
 # echo $finalCommand
 

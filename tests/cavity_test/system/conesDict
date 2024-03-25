@@ -29,7 +29,7 @@ numberParameters 1;
 observationSubDict
 {
     // Number of observation probes for velocity
-    numberObsProbesVelocity 5;
+    numberObsProbesVelocity 4;
 
     // Specify velocity components in the observation
     obsVelocityComponents (1 1 0);
@@ -55,15 +55,15 @@ observationSubDict
     // The time step of the observations if the case is unsteady
     obsTimeStep 0.0002;
 
+    // The start time for the observation data
+    obsStartTime 0;
+
     // Definition of observation parameter :  U (velocity only), p (pressure only), Up (velocity and pressure), UCf (velocity and friction coefficient)
     obsType "U";
 
     // Inputs for R are given in absolute values (absVal), percentage (relVal)
     obsNoiseType "relVal";
 }
-
-
-
 
 inflationSubDict
 {
@@ -89,7 +89,7 @@ localizationSubDict
     covarianceLocalizationType "default";
 
     // Pertubation of the Kalman gain to take into consideration the localization direction
-    correlationScale (0.000005429 0.000005429 0.000005429);
+    correlationScale (0.003295 0.003295 0.003295);
 
     // Switch for hyperlocalization
     hyperlocalizationSwitch false;
@@ -97,7 +97,7 @@ localizationSubDict
 
 
 // Number of txt file written beginning from the last one
-numberOutputs 2; 
+numberOutputs 1; 
 
 // Print all the debuging messages or not: 1 = printed, 0 = nothing
 verbosityLevel 1;
