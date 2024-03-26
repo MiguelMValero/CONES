@@ -42,35 +42,35 @@ volScalarField Ck
     mesh
 );
 
-//****** For hand made RST averaging ******
-Info<< "Reading field UMean\n" << endl;
-volVectorField UMean
-(
-    IOobject
-    (
-        "UMean",
-        runTime.timeName(),
-        mesh,
-        IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
-    ),
-    U
-);
+// //****** For hand made RST averaging ******
+// Info<< "Reading field UMean\n" << endl;
+// volVectorField UMean
+// (
+//     IOobject
+//     (
+//         "UMean",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::READ_IF_PRESENT,
+//         IOobject::AUTO_WRITE
+//     ),
+//     U
+// );
 
-Info << "Reading U2Mean.\n" << endl;
-volSymmTensorField U2Mean
-(
-    IOobject
-    (
-        "U2Mean",
-        runTime.timeName(),
-        mesh,
-        IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
-    ),
-    sqr(U)
-);
-//****************************************
+// Info << "Reading U2Mean.\n" << endl;
+// volSymmTensorField U2Mean
+// (
+//     IOobject
+//     (
+//         "U2Mean",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::READ_IF_PRESENT,
+//         IOobject::AUTO_WRITE
+//     ),
+//     sqr(U)
+// );
+// //****************************************
 
 
 #include "createPhi.H"

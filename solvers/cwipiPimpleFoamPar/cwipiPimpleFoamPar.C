@@ -61,7 +61,6 @@ int main(int argc, char *argv[])
     #include "postProcess.H"
 
     #include "setRootCaseLists.H"
-    // #include "cwipiCreateTime.H"
     #include "createTime.H"
     #include "createDynamicFvMesh.H"
     #include "initContinuityErrs.H"
@@ -87,7 +86,7 @@ int main(int argc, char *argv[])
     {
         addControlParams(numberCwipiPhase, runTime.deltaTValue(), runTime.value());
         cwipiCoupling(mesh, pointCoords, face_index, face_connectivity_index, cell_to_face_connectivity, face_connectivity, 
-        c2fconnec_size, fconnec_size, nbParts, cwipiVerbose, geom_tol);
+        c2fconnec_size, fconnec_size, subdomains, cwipiVerbose, geometricTolerance);
     }
     // Info << "After if" << nl << endl;
 
@@ -158,19 +157,20 @@ int main(int argc, char *argv[])
         //========= Sending Velocity Field and Parameters and creating sampled velocities ==========
         if (cwipiSwitch && cwipiTimestep == cwipiStep)
         {
-            if (cwipiVerbose) if (Pstream::master()) Foam::Pout<< "The remainder between the rank and the number of partitions by simulation " << myGlobalRank << " is " << myGlobalRank % nbParts << nl << endl;
-            if (cwipiParamsObs == 0){
-                UInterpolation(U, mesh, runTime, cwipiObsU, nbParts, cwipiVerbose, globalRootPath, globalCasePath);
+            tic();
+            if (cwipiVerbose) if (Pstream::master()) Foam::Pout<< "The remainder between the rank and the number of partitions by simulation " << myGlobalRank << " is " << myGlobalRank % subdomains << nl << endl;
+            if (obsType == "U"){
+                UInterpolation(U, mesh, runTime, cwipiObsU, subdomains, cwipiVerbose, globalRootPath, globalCasePath);
             }
-            else if (cwipiParamsObs == 1){
-                pInterpolation(p, mesh, runTime, cwipiObsp, nbParts, cwipiVerbose, globalRootPath, globalCasePath);
+            else if (obsType == "p"){
+                pInterpolation(p, mesh, runTime, cwipiObsp, subdomains, cwipiVerbose, globalRootPath, globalCasePath);
             }
-            else if (cwipiParamsObs == 2){
-                UpInterpolation(U, p, mesh, runTime, cwipiObsU, cwipiObsp, nbParts, cwipiVerbose, globalRootPath, globalCasePath);
+            else if (obsType == "Up"){
+                UpInterpolation(U, p, mesh, runTime, cwipiObsU, cwipiObsp, subdomains, cwipiVerbose, globalRootPath, globalCasePath);
             }
             
-            cwipiSend(mesh, U, runTime, cwipiIteration, nbParts, cwipiVerbose);
-            cwipiSendParamsChannel(mesh, Ck, runTime, cwipiIteration, cwipiParams, nbParts, cwipiVerbose);
+            cwipiSend(mesh, U, runTime, cwipiIteration, subdomains, cwipiVerbose);
+            cwipiSendParamsChannel(mesh, Ck, runTime, cwipiIteration, cwipiParams, subdomains, cwipiVerbose);
 
             cwipiTimestep = 0;
             cwipiPhaseCheck = 1;
@@ -182,8 +182,8 @@ int main(int argc, char *argv[])
         //========= Receiving back updated Velocity Field and parameters ==========
         if (cwipiSwitch && cwipiPhaseCheck == 1)
         {
-            cwipiRecv(mesh, U, runTime, cwipiIteration, nbParts, cwipiVerbose);
-            cwipiRecvParamsChannel(mesh, Ck, cwipiParams, nbParts, cwipiVerbose);
+            cwipiRecv(mesh, U, runTime, cwipiIteration, subdomains, cwipiVerbose);
+            cwipiRecvParamsChannel(mesh, Ck, cwipiParams, subdomains, cwipiVerbose);
 
             cwipiPhaseCheck = 0;
             cwipiIteration = cwipiIteration + 1;
@@ -216,10 +216,11 @@ int main(int argc, char *argv[])
             
             Ck.write();
             turbulence->read();
+            toc();
         }
         //=========================================================
 
-        #include "RSTcalculation.H"
+        // #include "RSTcalculation.H"
 
         runTime.write();
     }
@@ -227,7 +228,7 @@ int main(int argc, char *argv[])
     //========== Delete Cwipi Coupling and allocated arrays ===========
     if (cwipiSwitch)
     {
-        cwipideleteCoupling(pointCoords, face_index, face_connectivity_index, cell_to_face_connectivity, face_connectivity, nbParts, cwipiVerbose);
+        cwipideleteCoupling(pointCoords, face_index, face_connectivity_index, cell_to_face_connectivity, face_connectivity, subdomains, cwipiVerbose);
     }
     
     Info<< "End\n" << endl;

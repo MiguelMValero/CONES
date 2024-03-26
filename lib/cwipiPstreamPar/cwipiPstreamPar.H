@@ -14,6 +14,10 @@
 namespace Foam
 {
 
+void tic(int mode=0);
+
+void toc();
+
 void addControlParams(int numberCwipiPhase, double deltaT, double currentTime);
 
 void cwipiCoupling(const fvMesh& mesh, double* pointCoords, int* face_index, int* face_connectivity_index, int* cell_to_face_connectivity, int* face_connectivity, 

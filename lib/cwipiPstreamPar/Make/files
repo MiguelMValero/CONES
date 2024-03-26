@@ -6,6 +6,7 @@ interpolation.C
 cwipiPstreamPar.C
 
 cavity_test.C
+cavity_sin_test.C
 pitzDaily_test.C
 channel_test.C
 
