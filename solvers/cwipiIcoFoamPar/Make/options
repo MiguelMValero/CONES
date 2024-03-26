@@ -13,4 +13,6 @@ EXE_LIBS = $(PLIBS) \
     -lincompressibleMomentumTransportModels \
     -lfiniteVolume \
     -lmeshTools \
+    -lcwp \
+    -lcwpf \
     -L$(FOAM_USER_LIBBIN) -lcwipiPstreamPar

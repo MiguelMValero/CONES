@@ -24,15 +24,15 @@ observationWindow 2;
 ensemble 3;
 
 // Number of parameters to optimize with the DA
-numberParameters 1;
+numberParameters 9;
 
 observationSubDict
 {
     // Number of observation probes for velocity
-    numberObsProbesVelocity 4;
+    numberObsProbesVelocity 93;
 
     // Specify velocity components in the observation
-    obsVelocityComponents (1 1 0);
+    obsVelocityComponents (1 1 1);
 
     // Number of observation probes for pressure
     numberObsProbesPressure 0;
@@ -62,7 +62,7 @@ observationSubDict
     obsType "U";
 
     // Inputs for R are given in absolute values (absVal), percentage (relVal)
-    obsNoiseType "relVal";
+    obsNoiseType "absVal";
 }
 
 inflationSubDict

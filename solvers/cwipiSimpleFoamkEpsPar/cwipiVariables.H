@@ -2,43 +2,52 @@ if (Pstream::master()) Foam::Pout << "Read cwipi variables" << endl;
 
 Switch cwipiSwitch = runTime.controlDict().lookup("cwipiSwitch");
 
-std::ifstream cFile ("cwipiConfig");
+//========== Parameters from config file ==========
+IOdictionary conesDict
+(
+IOobject
+(
+    "conesDict",
+    runTime.system(),
+    mesh,
+    IOobject::MUST_READ_IF_MODIFIED,
+    IOobject::NO_WRITE
+)
+);
 
-double values[34]={0};
-int k = 0;
+IOdictionary decomposeParDict
+(
+IOobject
+(
+    "decomposeParDict",
+    runTime.system(),
+    mesh,
+    IOobject::MUST_READ,
+    IOobject::NO_WRITE
+)
+);
 
-if (cFile.is_open())
-{
-    std::string line;
-    while(std::getline(cFile, line))
-    {
-        line.erase(std::remove_if(line.begin(), line.end(), ::isspace),line.end());
-        if( line.empty() || line[0] == '#' )
-        {
-            continue;
-        }
-        auto delimiterPos = line.find("=");
-        // auto name = line.substr(0, delimiterPos);
-        auto value = line.substr(delimiterPos + 1);
+// Sub dict declaration
+Foam::dictionary observationSubDict = conesDict.subDict("observationSubDict");
+Foam::dictionary inflationSubDict = conesDict.subDict("inflationSubDict");
+Foam::dictionary localizationSubDict = conesDict.subDict("localizationSubDict");
 
-        values[k] = stod(value);
-        // std::cout << values[k] << '\n';
-        k = k+1;
-    }
-}
-else 
-{
-    std::cerr << "Couldn't open config file for reading.\n";
-}
-
-int cwipiStep = values[0];
-int nbParts = values[2];
-int cwipiObsU = values[3];
-int cwipiObsp = values[4];
-int cwipiParams = values[6];
-double geom_tol = values[7];
-float cwipiVerbose = values[12];
-int cwipiParamsObs = values[15];
+// int cwipiStep = values[0];
+int cwipiStep = round(conesDict.lookupOrDefault<scalar>("observationWindow", 1));                         // Number of time step between each DA phase 
+// int nbParts = values[2];
+int subdomains = round(decomposeParDict.lookup<scalar>("numberOfSubdomains"));                            // Number of subdomains    
+// int cwipiObsU = values[3];
+int cwipiObsU = round(observationSubDict.lookupOrDefault<scalar>("numberObsProbesVelocity", 0));          // Number of observation probes for velocity  
+// int cwipiObsp = values[4];
+int cwipiObsp = round(observationSubDict.lookupOrDefault<scalar>("numberObsProbesPressure", 0));          // Number of observation probes for pressure 
+// int cwipiParams = values[6];
+int cwipiParams = round(conesDict.lookup<scalar>("numberParameters"));                                    // Number of parameters to optimize with the DA
+// double geom_tol = values[7];
+double geometricTolerance = conesDict.lookupOrDefault<scalar>("geometricTolerance", 0.1);                 // Geometric tolerance of the cwipi coupling meshes
+// float cwipiVerbose = values[12];
+int cwipiVerbose = round(conesDict.lookupOrDefault<scalar>("verbosityLevel", 0));                         // Print all the debuging messages or not: 1 = printed, 0 = nothing
+// int cwipiParamsObs = values[15];
+Foam::word obsType = observationSubDict.lookupOrDefault<word>("obsType", "U");
 
 if (cwipiVerbose) if (Pstream::master()) Foam::Pout << "Information about decomposition read" << endl;
 

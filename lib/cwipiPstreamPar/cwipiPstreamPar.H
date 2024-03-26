@@ -35,6 +35,8 @@ void cwipiSendParamsChannel(const fvMesh& mesh, const volScalarField& Ck, const 
 
 void cwipiSendParamsKEps(const fvMesh& mesh, incompressible::momentumTransportModel& turbulence, const Time& runTime, int cwipiIteration, int cwipiParams, int nbParts, float cwipiVerbose);
 
+void cwipiSendParamsKOmegaSST(const fvMesh& mesh, incompressible::momentumTransportModel& turbulence, const Time& runTime, int cwipiIteration, int cwipiParams, int nbParts, float cwipiVerbose);
+
 void cwipiSendParams_OFRsin(const fvMesh& mesh, const volVectorField& U, int cwipiParams, int nbParts, float cwipiVerbose);
 
 void cwipiRecv(const fvMesh& mesh, volVectorField& U, const Time& runTime, int cwipiIteration, int nbParts, float cwipiVerbose);
