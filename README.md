@@ -13,13 +13,14 @@ In order to use CONES, you need to have OpenFOAM-v9 (OpenFOAM-v8 if using the br
 
 **1) OpenFOAM-v9:** https://openfoam.org/download/9-ubuntu/
 
-**2) cwipi-0.12.0:** you can install it from the compressed file you will find in /libs/cwipi-0.12.0.tar.xz. Compiled files are also located in /libs/cwipi0.12.0. To compile CWIPI go to the folder and:
+**2) cwipi-1.1.0:** you can install it from the compressed file you will find in https://w3.onera.fr/cwipi/fr/telechargement . Compiled files are also located in /libs/cwipi-0.1.1. For Ubuntu 22.04 and higher, to compile CWIPI go to the folder and:
 ```
 mkdir build && cd build
 cmake -DCWP_ENABLE_Fortran=ON -DCMAKE_C_COMPILER=mpicc -DCMAKE_CXX_COMPILER=mpicxx -DCMAKE_Fortran_COMPILER=mpif90 -DMPI_C_COMPILER=mpicc -DMPI_CXX_COMPILER=mpicxx -DMPI_Fortran_COMPILER=mpif90 -DCMAKE_INSTALL_PREFIX=/complete_path/cwipi-0.12.0/build ..
 make
 make install
 ```
+For Ubuntu 20.04 and lower, there is an incompatibility with the Fortran compiler. You can repeat the steps above by setting `DCWP_ENABLE_FORTRAN=OFF`.
 
 **3) Eigen:** (version 3.3.7 or higher)
 ```
