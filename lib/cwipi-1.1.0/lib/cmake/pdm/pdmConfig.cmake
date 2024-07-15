@@ -1,0 +1,33 @@
+set(PDM_ENABLE_SHARED                   ON)
+set(PDM_ENABLE_STATIC                   ON)
+set(PDM_ENABLE_Fortran                  ON)
+set(pdm_VERSION                         2.4.1)
+set(PDM_ENABLE_SHARED_Fortran_INTERFACE ON)
+set(PDM_ENABLE_STATIC_Fortran_INTERFACE ON)
+
+include("${CMAKE_CURRENT_LIST_DIR}/pdmTargets.cmake")
+if(PDM_ENABLE_Fortran)
+  include("${CMAKE_CURRENT_LIST_DIR}/../pdmf/pdmfTargets.cmake")
+endif()
+
+if(PDM_ENABLE_SHARED)
+  include("${CMAKE_CURRENT_LIST_DIR}/../pdm_io_shared/pdm_io_sharedTargets.cmake")
+  include("${CMAKE_CURRENT_LIST_DIR}/../pdm_no_mpi_shared/pdm_no_mpi_sharedTargets.cmake")
+  include("${CMAKE_CURRENT_LIST_DIR}/../pdm_mpi_shared/pdm_mpi_sharedTargets.cmake")
+  include("${CMAKE_CURRENT_LIST_DIR}/../pdm_shared/pdm_sharedTargets.cmake")
+endif()
+if(PDM_ENABLE_SHARED_Fortran_INTERFACE)
+  include("${CMAKE_CURRENT_LIST_DIR}/../pdmf_shared/pdmf_sharedTargets.cmake")
+endif()
+
+
+if(PDM_ENABLE_STATIC)
+  include("${CMAKE_CURRENT_LIST_DIR}/../pdm_io_static/pdm_io_staticTargets.cmake")
+  include("${CMAKE_CURRENT_LIST_DIR}/../pdm_no_mpi_static/pdm_no_mpi_staticTargets.cmake")
+  include("${CMAKE_CURRENT_LIST_DIR}/../pdm_mpi_static/pdm_mpi_staticTargets.cmake")
+  include("${CMAKE_CURRENT_LIST_DIR}/../pdm_static/pdm_staticTargets.cmake")
+endif()
+if(PDM_ENABLE_STATIC_Fortran_INTERFACE)
+  include("${CMAKE_CURRENT_LIST_DIR}/../pdmf_static/pdmf_staticTargets.cmake")
+endif()
+
