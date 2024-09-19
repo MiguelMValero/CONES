@@ -1,0 +1,61 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  8
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+libs ("libDASmagorinsky.so")
+
+application     cwipiPimpleFoamPar;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         12;
+
+deltaT          0.02;
+
+writeControl    runTime;
+
+writeInterval   0.12;
+
+purgeWrite      3;
+
+writeFormat     ascii;
+
+writePrecision  6;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
+cwipiSwitch   true;
+
+RSTSwitch    true;
+
+functions
+{
+    // #include "fieldAverage"
+    // #include "userFieldAverage"
+    // #include "forceCoeffs"
+}
+
+// ************************************************************************* //

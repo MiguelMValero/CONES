@@ -1,0 +1,3 @@
+#!/bin/bash
+
+@PDM_RUN_PRELOAD_SRUN@ @PDM_RUN_LSAN@ @PDM_RUN_PATH@  $@

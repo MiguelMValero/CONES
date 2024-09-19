@@ -1,0 +1,21 @@
+find_package(pdm)
+
+set(PDM_ENABLE_SHARED                   @PDM_ENABLE_SHARED@)
+set(PDM_ENABLE_STATIC                   @PDM_ENABLE_STATIC@)
+set(PDM_ENABLE_SHARED_Fortran_INTERFACE @PDM_ENABLE_SHARED_Fortran_INTERFACE@)
+set(PDM_ENABLE_STATIC_Fortran_INTERFACE @PDM_ENABLE_STATIC_Fortran_INTERFACE@)
+
+if(PDM_ENABLE_SHARED)
+  include("${CMAKE_CURRENT_LIST_DIR}/../pdma_shared/pdma_sharedTargets.cmake")
+endif()
+if(PDM_ENABLE_SHARED_Fortran_INTERFACE)
+  include("${CMAKE_CURRENT_LIST_DIR}/../pdmaf_shared/pdmaf_sharedTargets.cmake")
+endif()
+
+
+if(PDM_ENABLE_STATIC)
+  include("${CMAKE_CURRENT_LIST_DIR}/../pdma_static/pdma_staticTargets.cmake")
+endif()
+if(PDM_ENABLE_STATIC_Fortran_INTERFACE)
+  include("${CMAKE_CURRENT_LIST_DIR}/../pdmaf_static/pdmaf_staticTargets.cmake")
+endif()

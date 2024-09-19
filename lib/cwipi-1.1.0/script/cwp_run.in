@@ -1,0 +1,548 @@
+#!/bin/bash
+
+listTest=( @PDM_LIST_TEST@ )
+listNRank=( @PDM_LIST_NRANK@ )
+
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+GREEN='\033[0;32m'
+PURPLE='\033[0;35m'
+
+Help()
+{
+  echo "Run a pdm test case. (without \"-t\" option, run all tests with default rank number)"
+  echo
+  echo "Syntax: cwp_run [-m|mpiexec|no_log_vtk|h|n_avail_rank] -n <number of ranks> -t <test name and its options>"
+  echo "options:"
+  echo "-u                                  Print Python without buffer"
+  echo "-ws <Work directory>                Work space directory (default : current directory)"                                  
+  echo "-m                                  Make test before run"
+  echo "-ics                                Ignore client/server tests"
+  echo "-h                                  Print this Help"
+  echo "-mpiexec                            Run with mpiexec command (default : mpirun)"
+  echo "-srun                               Run with srun command (default : mpirun)"
+  echo "-no_log_vtk                         Exit on error if test writes some log and vtk files"
+  echo "-n_avail_rank                       Number of available ranks to run cases"
+  echo "-t <\"test name and its options\">    Test name (Name of the executable) "
+  echo "-n <\"number of ranks\">            Number of ranks of executables (template : n_rannks_exe1:...:n_rannks_exen)"
+  echo "-args <\"options of executables\">    Arguments of each executable (template : arg1exe1;...;argnexe1:...:arg1exen;...;argnexen) "
+  echo "-output-junit  <file>               Export to Format XML JUnit"
+  echo "-timeout       <time>               time (minute) (default 1)"
+  echo
+}
+
+# IN="bla@some.com;john@home.com"
+
+# mails=$(echo $IN | tr ";" "\n")
+
+# for addr in $mails
+# do
+#     echo "> [$addr]"
+# done
+
+Dump_mem()
+{
+  max="-1"
+  min="10000000"
+  
+  minRank=-1
+  maxRank=-1
+  rank=0
+
+  if [ ${IsIntelMPI} -gt 0 ] || [ ${IsSrunMPI} -gt 0 ]
+  then
+    listErrFile=$(ls $1.*)
+  else
+    listErrFile=$(find $2 -name stderr)
+  fi
+
+  for file in ${listErrFile}
+  do
+    v=$(grep -m 1 "Maximum Resident Memory" $file | awk '{print $5}')
+    maxRank=$(echo "if($v>$max) $rank else $maxRank" | bc)
+    minRank=$(echo "if($v<$min) $rank else $minRank" | bc)
+    max=$(echo "if($v>$max) $v else $max" | bc)
+    min=$(echo "if($v<$min) $v else $min" | bc)
+    rank=$((rank+1))
+  done
+  
+  maxM=$(echo "scale=2; $max/1000" | bc)
+  minM=$(echo "scale=2; $min/1000" | bc)
+  
+  echo "    Maximum of Maximum Resident Memory: ${maxM} Mb on rank ${maxRank}"
+  echo "    Minimum of Maximum Resident Memory: ${minM} Mb on rank ${minRank}"
+}
+
+Dump_time()
+{
+  max="-1"
+
+  maxRank=-1
+  rank=0
+  
+  if [ ${IsIntelMPI} -gt 0 ] || [ ${IsSrunMPI} -gt 0 ]
+  then
+    listErrFile=$(ls $1.*)
+  else
+    listErrFile=$(find $2 -name stderr)
+  fi
+
+  for file in ${listErrFile}
+  do
+    v=$(grep -m 1 "Real time :" $file | awk '{print $4}')
+    max=$(echo "if($v>$max) $v else $max" | bc)
+    rank=$((rank+1))
+  done
+  
+  echo $max
+}
+
+Dump_nb_log_vtk_file()
+{
+  val_vtk=`ls -l *.vtk  2> /dev/null | wc -l`;
+  val_log=`ls -l *.log  2> /dev/null | wc -l`;
+
+  if [ $val_vtk -gt 0 ] || [ $val_log -gt 0 ]
+  then
+    ((ivtk=ivtk+1))
+    testWithOutput=(${testWithOutput[@]} "$i1")
+    echo "    Number of vtk files = ${val_vtk}"
+    echo "    Number of log files = ${val_log}"
+  fi
+}
+
+Wait_job()
+{
+  i1=$Indextest
+  for pid in "${pids[@]}"
+  do
+    Testoutput=0
+    i2=${testSelected[$i1]}
+    ((j1=i2+1))
+    TestPath1=$(echo ${listComputedTest[$i2]} | awk '{print $1}')
+    TestName1=$(basename ${TestPath1})
+    TestDir1=$(dirname ${TestPath1})
+    TestNamel1=($(echo ${TestName1} | tr ":" " "))
+
+    OutputFile1=$(echo ${TestNamel1[0]}${postOutput})
+    ErrFile1=$(echo ${TestNamel1[0]}${postErr})
+
+    printf  "${PURPLE}[%3.3d/%3.3d] - %s: Finalize${NC}\n" ${j1} ${nTest} ${TestNamel1[0]} 
+    wait $pid
+
+    if [ "$?" -ne "0" ]
+    then
+      Testoutput=1
+
+      printf  "${PURPLE}[%3.3d/%3.3d] - %s: ${RED}Failed${NC}\n" ${j1} ${nTest} ${TestNamel1[0]}
+      failedTest=(${failedTest[@]} "$i2")
+ 
+      ((ifailed=ifailed+1))
+    else        
+
+      if [[ "${Ws}" != "" ]]
+      then
+        wdir="${Ws}/${TestNamel1[0]}_d"
+      else  
+        wdir="${TestDir1}/${TestNamel1[0]}_d"
+      fi  
+      cd ${wdir}
+
+      #
+      # Compute elapsed time
+      
+      elapsed=$(Dump_time $ErrFile1 $OutputFile1)
+
+      #
+      # Check Maximum Resident memory
+
+      Dump_mem $ErrFile1 $OutputFile1
+
+      #
+      # Check *vtk and *log file
+      
+      Dump_nb_log_vtk_file ${TestName1}
+    
+      if [ "${ForbidVtk}" -eq "1" ]
+      then
+        if [ ${val_vtk} -gt 0 ] || [ ${val_log} -gt 0 ]
+        then
+          printf  "${PURPLE}[%3.3d/%3.3d] - %s: ${RED}Failed due to *vtk or *log files${NC}\n" ${j1} ${nTest} ${TestNamel1[0]}
+          Testoutput=1
+        else
+          printf  "${PURPLE}[%3.3d/%3.3d] - %s: ${GREEN}Passed${NC} - %s s\n" ${j1} ${nTest} ${TestNamel1[0]} ${elapsed} 
+        fi
+      else
+        printf  "${PURPLE}[%3.3d/%3.3d] - %s: ${GREEN}Passed${NC} - %s s\n" ${j1} ${nTest} ${TestNamel1[0]} ${elapsed} 
+      fi
+
+      cd - 1>/dev/null 2>/dev/null
+  
+    fi
+    ((i1=i1+1))
+#    ((j1=j1+1))
+  
+    scriptOutput=$(echo "if($Testoutput>$scriptOutput) $Testoutput else $scriptOutput" | bc)
+  done
+
+  IndexRank=0  
+  pids=() 
+
+}
+
+start=$(($(date +%s%N)/1000000))
+
+# Get the options 
+
+ExeMPI="mpirun"
+Testoutput=0
+ForbidVtk=0
+NrankUser=0
+runMake=0
+Test=""
+IsSrunMPI=0
+NAvailRank=24
+failedTest=()
+testWithOutput=()
+testIgnored=()
+testSelected=()
+exportjunit=1
+JUnitFile=""
+TestOption=""
+Timeout=1
+Ws=""
+PythonUnbuffered=""
+Ics=0
+
+while [ -n "$1" ]
+do
+case "$1" in
+    -m) runMake=1;;
+    -n) NrankUser="$2"
+        shift;;
+    -ws) Ws="$2"
+        shift;;
+    -t) Test="$2"
+        shift;;
+    -ics) Ics=1;;
+    -args) TestOption="$2"
+        shift;;
+    -mpiexec) ExeMPI="mpiexec";;
+    -srun) ExeMPI="srun"
+              IsSrunMPI=1;;
+    -no_log_vtk) ForbidVtk=1;;
+    -n_avail_rank) NAvailRank="$2"
+        shift;;
+    -exportjunit) JUnitFile="$2"
+        shift;;
+    -timeout) Timeout="$2"
+        shift;;
+    -u) PythonUnbuffered="-u";;
+    -h) Help
+        exit 1;;
+    *) echo "Error : $1 is not an option"
+        exit 1;;
+esac
+shift
+done
+
+if [[ "${Test}" == "" ]]
+then
+  listComputedTest=( "${listTest[@]}" )
+  listComputedNRank=( "${listNRank[@]}" )
+else
+  testFound=0
+  TestPath=$(echo $Test | awk '{print $1}')
+  TestName1=$(basename ${TestPath})
+  TestDir=$(dirname ${TestPath})
+  i=0
+  for value in "${listTest[@]}" ; do    #print the new array
+    valuePath=$(echo $value | awk '{print $1}')
+    valueName1=($(basename ${valuePath} | tr ":" " "))
+    valueDir=$(dirname ${valuePath})
+    if [[ ${valueName1[0]} =~ ^${TestName1}$ ]]
+    then
+      listComputedTest=( "${listTest[${i}]}" ) 
+      if [[ "${NrankUser}" != "0" ]]
+      then
+        listComputedNRank=( "${NrankUser}" ) # 3:4:5 if
+      else  
+        listComputedNRank=( "${listNRank[${i}]}" )
+      fi
+      testFound=1;
+      break;
+    fi
+    ((i=i+1))
+  done
+
+  if [ ${testFound} -eq 0 ]
+  then  
+    echo -e "${RED}Error${NC}: '${TestName1}' is not a test' "
+    exit 1
+  fi
+fi 
+
+IsIntelMPI=$(echo $(${ExeMPI} --version) | grep -c Intel)
+
+i=0
+ifailed=0
+iignored=0
+iselected=0
+ivtk=0
+nTest=${#listComputedTest[@]}
+
+scriptOutput=0
+pids=()
+
+IndexRank=0
+Indextest=0
+cptRank=0
+
+for x in "${listComputedTest[@]}"
+do
+
+  TestPath=$(echo $x | awk '{print $1}')
+  TestName=$(basename ${TestPath})
+  TestDir=$(dirname ${TestPath})
+  TestNamel=($(echo ${TestName} | tr ":" " "))
+  TestOptionl=($(echo ${TestOption} | tr ":" " "))
+
+  Nrank=${listComputedNRank[i]}
+  if [[ "${Test}" != "" ]]
+  then  
+    if [[ "${NrankUser}" != "0" ]]
+    then    
+      Nrank=${NrankUser}
+    fi  
+  fi 
+  Nrankl=($(echo ${Nrank} | tr ":" " "))
+
+  postOutput="_o"
+  postErr="_e"
+  
+  OutputFile=$(echo ${TestNamel[0]}${postOutput})
+  ErrFile=$(echo ${TestNamel[0]}${postErr})
+  
+  if [ ${runMake} -eq 1 ]
+  then
+    if [[ "${Test}" != "" ]]
+    then  
+      echo -e "${PURPLE}${TestNamel[0]}: Compile${NC}"
+      make ${TestNamel[0]}
+      if [ "$?" -ne "0" ]
+      then
+        echo -e "${PURPLE}${TestNamel[0]}: Compile${NC} - ${RED}Failed${NC}"
+        exit 1
+      fi
+      echo -e "${PURPLE}${TestNamel[0]}: Compile${NC} - ${GREEN}Passed${NC}"
+    else
+      if [ $i -eq 0 ]
+      then
+        echo -e "${PURPLE}Compile${NC}"
+        make
+        if [ "$?" -ne "0" ]
+        then
+          echo -e "${PURPLE}Compile${NC} - ${RED}Failed${NC}"
+          exit 1
+        fi
+        echo -e "${PURPLE}Compile${NC} - ${GREEN}Passed${NC}"     
+      fi  
+    fi 
+  fi
+  
+  ((j=i+1))
+  printf  "${PURPLE}[%3.3d/%3.3d] - %s: Start${NC}\n" ${j} ${nTest} ${TestNamel[0]}
+  
+  #
+  # Run test
+
+  Testoutput=0
+
+  PDM_RUN_LSAN=@PDM_RUN_LSAN@ 
+  PDM_RUN_PYTHONPATH=@PDM_RUN_PYTHONPATH@ 
+#  PDM_RUN_PRELOAD=@PDM_RUN_PRELOAD@ 
+  PROJECT_BINARY_DIR=@PROJECT_BINARY_DIR@
+
+
+  Nranks=0 
+  for nr in "${Nrankl[@]}"
+  do
+    ((Nranks=Nranks+nr)) 
+  done
+
+
+  #
+  # Cleanup
+
+  if [[ "${Ws}" != "" ]]
+  then
+    wdir="${Ws}/${TestNamel[0]}_d"
+  else  
+    wdir="${TestDir}/${TestNamel[0]}_d"
+  fi  
+  mkdir -p ${wdir}
+  cd ${wdir}
+  
+  rm -rf *.vtk *.log core.* *_ens ${OutputFile}* ${ErrFile}* 
+
+  if [ ${IsSrunMPI} -gt 0 ]
+  then
+
+    CmdLine="${ExeMPI}"
+    k=0
+    sep=""
+    for ex in "${TestNamel[@]}"
+    do
+      OptExe=$(echo ${TestOptionl[k]} | tr ";" " ")
+      CmdLine="${CmdLine} ${sep}  --time=${Timeout} --output=$OutputFile.%t --error=$ErrFile.%t -N 1 -n ${Nrankl[k]} --exact /usr/bin/time  -f \"Maximum Resident Memory : %M Kb\nReal time : %e s\""
+      if [ -f "${TestDir}/${ex}.py" ]; then
+        CmdLine="${CmdLine} ${PROJECT_BINARY_DIR}/pdm_launch_python ${PythonUnbuffered} ${TestDir}/$ex.py ${optExe}"
+      else
+        CmdLine="${CmdLine} ${PROJECT_BINARY_DIR}/pdm_launch ${TestDir}/$ex ${OptExe}"
+      fi
+      sep=":"
+      ((k=k+1))
+    done 
+
+    CmdLine="${CmdLine} 2>/dev/null &"
+
+    if ( [ $(grep -ic client_server <<< $CmdLine) -ge 1 ] || [ $(grep -ic c_new_api_callback_sendrecv_sol <<< $CmdLine) -ge 1 ] ) && [ ${Ics} -eq 1 ]
+    then
+      testIgnored=(${testIgnored[@]} "$i")
+      ((iignored=iignored+1))
+    else
+      testSelected=(${testSelected[@]} "$i")
+      ((iselected=iselected+1))
+      eval "${CmdLine}"
+      pids=(${pids[@]} "$!")
+    fi
+  else  
+    ((TimeOutS=Timeout*60))
+    if [ $Nranks -gt $NAvailRank ]
+    then
+      echo "Error CWP_run : Number of requested ranks is greater then the number of available ranks"
+      exit 1
+    fi  
+
+    ((cptRank=IndexRank+Nranks)) 
+    
+    if [ $cptRank -gt $NAvailRank ]
+    then
+      Wait_job
+      Indextest=$iselected
+    fi
+
+    if [ ${IsIntelMPI} -gt 0 ]
+    then
+      CmdLine="I_MPI_JOB_TIMEOUT=${TimeOutS} ${ExeMPI} -outfile-pattern $OutputFile.%r -errfile-pattern $ErrFile.%r"
+      k=0
+      sep=""
+      for ex in "${TestNamel[@]}"
+      do
+        OptExe=$(echo ${TestOptionl[k]} | tr ";" " ")
+        CmdLine="${CmdLine} ${sep} -n ${Nrankl[k]} /usr/bin/time  -f \"Maximum Resident Memory : %M Kb\nReal time : %e s\""
+        if [ -f "${TestDir}/${ex}.py" ]; then
+          CmdLine="${CmdLine} ${PROJECT_BINARY_DIR}/pdm_launch_python ${PythonUnbuffered} ${TestDir}/$ex.py ${optExe}"
+        else
+          CmdLine="${CmdLine} ${PROJECT_BINARY_DIR}/pdm_launch ${TestDir}/$ex ${OptExe}"
+        fi
+        sep=":"
+        ((k=k+1))
+      done 
+
+      CmdLine="${CmdLine} 2>/dev/null &"
+
+      if ( [ $(grep -ic client_server <<< $CmdLine) -ge 1 ] || [ $(grep -ic c_new_api_callback_sendrecv_sol <<< $CmdLine) -ge 1 ] ) && [ ${Ics} -eq 1 ]
+      then
+        testIgnored=(${testIgnored[@]} "$i")
+        ((iignored=iignored+1))
+      else
+        testSelected=(${testSelected[@]} "$i")
+        ((iselected=iselected+1))
+        eval "${CmdLine}"
+        pids=(${pids[@]} "$!")
+      fi
+
+    else
+      CmdLine="${ExeMPI} --timeout ${TimeOutS} --output-filename $OutputFile"
+      k=0
+      sep=""
+      for ex in "${TestNamel[@]}"
+      do
+        OptExe=$(echo ${TestOptionl[k]} | tr ";" " ")
+        CmdLine="${CmdLine} ${sep} -n ${Nrankl[k]} /usr/bin/time  -f \"Maximum Resident Memory : %M Kb\nReal time : %e s\""
+        if [ -f "${TestDir}/${ex}.py" ]; then
+          CmdLine="${CmdLine} ${PROJECT_BINARY_DIR}/pdm_launch_python ${PythonUnbuffered} ${TestDir}/$ex.py ${optExe}"
+        else
+          CmdLine="${CmdLine} ${PROJECT_BINARY_DIR}/pdm_launch ${TestDir}/$ex ${OptExe}"
+        fi
+        sep=":"
+        ((k=k+1))
+      done 
+
+      CmdLine="${CmdLine} 2>/dev/null >/dev/null &"
+
+      if ( [ $(grep -ic client_server <<< $CmdLine) -ge 1 ] || [ $(grep -ic c_new_api_callback_sendrecv_sol <<< $CmdLine) -ge 1 ] ) && [ ${Ics} -eq 1 ]
+      then
+        testIgnored=(${testIgnored[@]} "$i")
+        ((iignored=iignored+1))
+      else
+        testSelected=(${testSelected[@]} "$i")
+        ((iselected=iselected+1))
+        eval "${CmdLine}"
+        pids=(${pids[@]} "$!")
+      fi
+
+    fi
+    ((IndexRank=IndexRank+Nranks)) 
+  
+  fi  
+  cd - 1>/dev/null 2>/dev/null
+
+  ((i=i+1))
+done
+
+if [ ${IsSrunMPI} -gt 0 ]
+then
+  Indextest=0
+  ifailed=0 
+fi
+
+Wait_job
+
+printf  "\n      ${PURPLE}%3.3d tests failed out of %3.3d : \n${NC}" ${ifailed} ${nTest} 
+for i in "${failedTest[@]}"
+do
+  TestPath=$(echo ${listComputedTest[$i]} | awk '{print $1}')
+  TestName=$(basename ${TestPath})
+  TestNamel=($(echo ${TestName} | tr ":" " "))
+  TestDir=$(dirname ${TestPath})
+  printf "          - ${RED}%s\n${NC}" ${TestNamel[0]}  
+done
+
+printf  "\n      ${PURPLE}%3.3d tests produce vtk or log files out of %3.3d : \n${NC}" ${ivtk} ${nTest} 
+for i in "${testWithOutput[@]}"
+do
+  TestPath=$(echo ${listComputedTest[$i]} | awk '{print $1}')
+  TestName=$(basename ${TestPath})
+  TestNamel=($(echo ${TestName} | tr ":" " "))
+  TestDir=$(dirname ${TestPath})
+  printf "          - ${RED}%s\n${NC}" ${TestNamel[0]}  
+done
+
+printf  "\n      ${PURPLE}%3.3d ignored tests of %3.3d : \n${NC}" ${iignored} ${nTest} 
+for i in "${testIgnored[@]}"
+do
+  TestPath=$(echo ${listComputedTest[$i]} | awk '{print $1}')
+  TestName=$(basename ${TestPath})
+  TestNamel=($(echo ${TestName} | tr ":" " "))
+  TestDir=$(dirname ${TestPath})
+  printf "          - ${RED}%s\n${NC}" ${TestNamel[0]}  
+done
+
+end=$(($(date +%s%N)/1000000))
+elapsed=$(echo "scale=2; ($end-$start)/1000" | bc)
+echo
+echo "    elapsed cwp_run = ${elapsed} s"
+
+exit $scriptOutput

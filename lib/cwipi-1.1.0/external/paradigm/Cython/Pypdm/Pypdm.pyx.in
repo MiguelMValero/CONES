@@ -1,0 +1,676 @@
+# cython: c_string_type=str, c_string_encoding=ascii
+
+# Import Section (Python) :
+# ------------------------
+import numpy     as NPY
+from mpi4py import MPI
+
+# Import Section (Cython) :
+# ------------------------
+from libc.stdlib       cimport malloc, free
+from libc.stdint       cimport uintptr_t
+from cpython.ref       cimport PyObject, Py_INCREF, Py_DECREF, Py_XDECREF
+from cpython.pycapsule cimport PyCapsule_New, PyCapsule_GetPointer, PyCapsule_IsValid, PyCapsule_GetName
+cimport cython
+cimport numpy as NPY
+
+from mpi4py cimport MPI
+# -----------------------------------------------------------------
+
+cdef extern from "pdm_config.h":
+    # trick from: https://stackoverflow.com/questions/5697479/how-can-a-defined-c-value-be-exposed-to-python-in-a-cython-module
+    cdef int _PDM_VERSION_MAKOR "PDM_VERSION_MAJOR"
+    cdef int _PDM_VERSION_MINOR "PDM_MINOR_VERSION"
+    cdef int _PDM_VERSION_RELEASE "PDM_RELEASE_VERSION"
+    cdef char* _PDM_VERSION "PDM_VERSION"
+
+__version__ = _PDM_VERSION
+
+
+cdef extern from "numpy/arrayobject.h":
+  void PyArray_ENABLEFLAGS(NPY.ndarray arr, int flags)
+cdef extern from "Python.h":
+  int PyTraceMalloc_Track(unsigned int domain, uintptr_t ptr, size_t size)
+  int PyTraceMalloc_Untrack(unsigned int domain, uintptr_t ptr)
+
+# MANDATORY :
+# ---------
+NPY.import_array()
+
+# PDM Specific type :
+# -----------------
+
+ctypedef @PYX_NPY_G_NUM@ npy_pdm_gnum_t
+ctypedef @PYX_NPY_L_NUM@ npy_pdm_lnum_t
+npy_pdm_gnum_dtype = @PYX_NPY_G_NUM_DTYPE@
+pdm_has_parmetis   = @PYX_PDM_HAS_PARMETIS@
+pdm_has_ptscotch   = @PYX_PDM_HAS_PTSCOTCH@
+pdm_has_pdma       = @PYX_PDM_HAS_PDMA@
+ctypedef @PYX_G_NUM@ PDM_g_num_t
+ctypedef @PYX_L_NUM@ PDM_l_num_t
+ctypedef double PDM_real_t 
+
+ctypedef enum PDM_g_num_npy_t:
+  PDM_G_NUM_NPY_INT = @PDM_G_NUM_NPY_INT@
+
+# -----------------------------------------------------------------
+
+cdef extern from "pdm.h":
+    ctypedef enum PDM_data_t:
+        PDM_INT
+        PDM_DOUBLE
+
+    ctypedef enum PDM_field_kind_t:
+        PDM_FIELD_KIND_SCALAR     = 1
+        PDM_FIELD_KIND_COORDS     = 2
+        PDM_FIELD_KIND_VECTOR     = 3
+        PDM_FIELD_KIND_TENSOR_SYM = 4
+
+   
+    ctypedef enum PDM_stride_t:
+        PDM_STRIDE_CST_INTERLACED  = 0
+        PDM_STRIDE_CST_INTERLEAVED = 1
+        PDM_STRIDE_VAR_INTERLACED  = 2
+
+    ctypedef enum PDM_mesh_nature_t:
+        PDM_MESH_NATURE_NODAL_SHARED
+        PDM_MESH_NATURE_MESH_SETTED
+
+    ctypedef enum PDM_mesh_intersection_kind_t:
+        PDM_MESH_INTERSECTION_KIND_PREPROCESS    = 0
+        PDM_MESH_INTERSECTION_KIND_WEIGHT        = 1
+        PDM_MESH_INTERSECTION_KIND_UNMERGED_POLY = 2
+        PDM_MESH_INTERSECTION_KIND_MESH          = 3
+
+    ctypedef enum PDM_mesh_entities_t:
+        PDM_MESH_ENTITY_CELL
+        PDM_MESH_ENTITY_FACE
+        PDM_MESH_ENTITY_EDGE
+        PDM_MESH_ENTITY_VTX
+
+    ctypedef enum PDM_geometry_kind_t:
+        PDM_GEOMETRY_KIND_VOLUMIC  = 0,
+        PDM_GEOMETRY_KIND_SURFACIC = 1,
+        PDM_GEOMETRY_KIND_RIDGE    = 2,
+        PDM_GEOMETRY_KIND_CORNER   = 3,
+        PDM_GEOMETRY_KIND_MAX      = 4
+
+    ctypedef enum PDM_bool_t:
+        PDM_FALSE = 0
+        PDM_TRUE  = 1
+
+    ctypedef enum PDM_ownership_t:
+        PDM_OWNERSHIP_KEEP                 = 0
+        PDM_OWNERSHIP_USER                 = 1
+        PDM_OWNERSHIP_UNGET_RESULT_IS_FREE = 2
+
+    ctypedef enum PDM_extract_part_kind_t:
+        PDM_EXTRACT_PART_KIND_LOCAL         = 0
+        PDM_EXTRACT_PART_KIND_REEQUILIBRATE = 1
+        PDM_EXTRACT_PART_KIND_FROM_TARGET   = 2
+
+    ctypedef enum PDM_connectivity_type_t:
+       PDM_CONNECTIVITY_TYPE_CELL_ELMT   = 0,
+       PDM_CONNECTIVITY_TYPE_CELL_CELL   = 1,
+       PDM_CONNECTIVITY_TYPE_CELL_FACE   = 2,
+       PDM_CONNECTIVITY_TYPE_CELL_EDGE   = 3,
+       PDM_CONNECTIVITY_TYPE_CELL_VTX    = 4,
+       PDM_CONNECTIVITY_TYPE_FACE_ELMT   = 5,
+       PDM_CONNECTIVITY_TYPE_FACE_CELL   = 6,
+       PDM_CONNECTIVITY_TYPE_FACE_FACE   = 7,
+       PDM_CONNECTIVITY_TYPE_FACE_EDGE   = 8,
+       PDM_CONNECTIVITY_TYPE_FACE_VTX    = 9,
+       PDM_CONNECTIVITY_TYPE_EDGE_ELMT   = 10,
+       PDM_CONNECTIVITY_TYPE_EDGE_CELL   = 11,
+       PDM_CONNECTIVITY_TYPE_EDGE_FACE   = 12,
+       PDM_CONNECTIVITY_TYPE_EDGE_EDGE   = 13,
+       PDM_CONNECTIVITY_TYPE_EDGE_VTX    = 14,
+       PDM_CONNECTIVITY_TYPE_VTX_ELMT    = 15,
+       PDM_CONNECTIVITY_TYPE_VTX_CELL    = 16,
+       PDM_CONNECTIVITY_TYPE_VTX_FACE    = 17,
+       PDM_CONNECTIVITY_TYPE_VTX_EDGE    = 18,
+       PDM_CONNECTIVITY_TYPE_VTX_VTX     = 19,
+       PDM_CONNECTIVITY_TYPE_ELMT_CELL   = 20,
+       PDM_CONNECTIVITY_TYPE_ELMT_FACE   = 21,
+       PDM_CONNECTIVITY_TYPE_ELMT_EDGE   = 22,
+       PDM_CONNECTIVITY_TYPE_ELMT_VTX    = 23,
+       PDM_CONNECTIVITY_TYPE_MAX         = 24
+
+    ctypedef enum PDM_bound_type_t:
+       PDM_BOUND_TYPE_ELMT   = 0,
+       PDM_BOUND_TYPE_CELL   = 1,
+       PDM_BOUND_TYPE_FACE   = 2,
+       PDM_BOUND_TYPE_EDGE   = 3,
+       PDM_BOUND_TYPE_VTX    = 4,
+       PDM_BOUND_TYPE_MAX    = 5,
+
+    ctypedef enum PDM_mesh_location_method_t:
+      PDM_MESH_LOCATION_OCTREE         = 0
+      PDM_MESH_LOCATION_DBBTREE        = 1
+      PDM_MESH_LOCATION_LOCATE_ALL_TGT = 2
+      PDM_MESH_LOCATION_DOCTREE        = 3
+
+    ctypedef enum PDM_iso_surface_kind_t:
+      PDM_ISO_SURFACE_KIND_PLANE   = 0
+      PDM_ISO_SURFACE_KIND_SPHERE  = 1
+      PDM_ISO_SURFACE_KIND_FIELD   = 2
+      PDM_ISO_SURFACE_KIND_ELLIPSE = 3
+      PDM_ISO_SURFACE_KIND_QUADRIC = 4
+      PDM_ISO_SURFACE_KIND_HEART   = 5
+
+    ctypedef enum PDM_cell_to_vtx_interp_kind_t:
+      PDM_CELL_TO_VTX_INTERP_KIND_IDW  = 0
+      PDM_CELL_TO_VTX_INTERP_KIND_RBF  = 1
+      PDM_CELL_TO_VTX_INTERP_KIND_LSQ  = 2
+      PDM_CELL_TO_VTX_INTERP_KIND_USER = 3
+
+    ctypedef enum PDM_mpi_comm_kind_t:
+      PDM_MPI_COMM_KIND_P2P                                = 0
+      PDM_MPI_COMM_KIND_COLLECTIVE                         = 1
+      PDM_MPI_COMM_KIND_NEIGHBOR_COLLECTIVE                = 2
+      PDM_MPI_COMM_KIND_WIN_SHARED_AND_P2P                 = 3
+      PDM_MPI_COMM_KIND_WIN_SHARED_AND_COLLECTIVE          = 4
+      PDM_MPI_COMM_KIND_WIN_SHARED_AND_NEIGHBOR_COLLECTIVE = 5
+      PDM_MPI_COMM_KIND_WIN_RMA                            = 6
+
+
+    void PDM_Finalize ()
+
+cdef extern from "pdm_dmesh_nodal.h":
+    ctypedef enum PDM_Mesh_nodal_elt_t:
+      PDM_MESH_NODAL_POINT    = 0
+      PDM_MESH_NODAL_BAR2     = 1
+      PDM_MESH_NODAL_TRIA3    = 2
+      PDM_MESH_NODAL_QUAD4    = 3
+      PDM_MESH_NODAL_POLY_2D  = 4
+      PDM_MESH_NODAL_TETRA4   = 5
+      PDM_MESH_NODAL_PYRAMID5 = 6
+      PDM_MESH_NODAL_PRISM6   = 7
+      PDM_MESH_NODAL_HEXA8    = 8
+      PDM_MESH_NODAL_POLY_3D  = 9
+
+cdef extern from "pdm_para_graph_dual.h":
+    ctypedef enum PDM_split_dual_t:
+        PDM_SPLIT_DUAL_WITH_PARMETIS = 1
+        PDM_SPLIT_DUAL_WITH_PTSCOTCH = 2
+        PDM_SPLIT_DUAL_WITH_HILBERT  = 3
+        PDM_SPLIT_DUAL_WITH_IMPLICIT = 4
+
+cdef extern from "pdm_part_to_part.h":
+    ctypedef enum PDM_part_to_part_data_def_t:
+       PDM_PART_TO_PART_DATA_DEF_ORDER_PART1           = 0
+       PDM_PART_TO_PART_DATA_DEF_ORDER_PART1_TO_PART2  = 1
+       PDM_PART_TO_PART_DATA_DEF_ORDER_PART2           = 2
+       PDM_PART_TO_PART_DATA_DEF_ORDER_GNUM1_COME_FROM = 3
+
+
+
+
+def Finalize ():
+    PDM_Finalize
+
+cdef extern from "pdm_mpi.h":
+    ctypedef int PDM_MPI_Comm
+    PDM_MPI_Comm PDM_MPI_mpi_2_pdm_mpi_comm(void *pt_comm)
+# -----------------------------------------------------------------
+
+_PDM_MESH_ENTITY_CELL = PDM_MESH_ENTITY_CELL
+_PDM_MESH_ENTITY_FACE = PDM_MESH_ENTITY_FACE
+_PDM_MESH_ENTITY_EDGE = PDM_MESH_ENTITY_EDGE
+_PDM_MESH_ENTITY_VTX  = PDM_MESH_ENTITY_VTX
+
+_PDM_MESH_INTERSECTION_KIND_PREPROCESS    = PDM_MESH_INTERSECTION_KIND_PREPROCESS
+_PDM_MESH_INTERSECTION_KIND_WEIGHT        = PDM_MESH_INTERSECTION_KIND_WEIGHT
+_PDM_MESH_INTERSECTION_KIND_UNMERGED_POLY = PDM_MESH_INTERSECTION_KIND_UNMERGED_POLY
+_PDM_MESH_INTERSECTION_KIND_MESH          = PDM_MESH_INTERSECTION_KIND_MESH
+
+_PDM_GEOMETRY_KIND_VOLUMIC  = PDM_GEOMETRY_KIND_VOLUMIC
+_PDM_GEOMETRY_KIND_SURFACIC = PDM_GEOMETRY_KIND_SURFACIC
+_PDM_GEOMETRY_KIND_RIDGE    = PDM_GEOMETRY_KIND_RIDGE
+_PDM_GEOMETRY_KIND_CORNER   = PDM_GEOMETRY_KIND_CORNER
+_PDM_GEOMETRY_KIND_MAX      = PDM_GEOMETRY_KIND_MAX
+
+_PDM_CONNECTIVITY_TYPE_CELL_ELMT = PDM_CONNECTIVITY_TYPE_CELL_ELMT
+_PDM_CONNECTIVITY_TYPE_CELL_CELL = PDM_CONNECTIVITY_TYPE_CELL_CELL
+_PDM_CONNECTIVITY_TYPE_CELL_FACE = PDM_CONNECTIVITY_TYPE_CELL_FACE
+_PDM_CONNECTIVITY_TYPE_CELL_EDGE = PDM_CONNECTIVITY_TYPE_CELL_EDGE
+_PDM_CONNECTIVITY_TYPE_CELL_VTX  = PDM_CONNECTIVITY_TYPE_CELL_VTX
+_PDM_CONNECTIVITY_TYPE_FACE_ELMT = PDM_CONNECTIVITY_TYPE_FACE_ELMT
+_PDM_CONNECTIVITY_TYPE_FACE_CELL = PDM_CONNECTIVITY_TYPE_FACE_CELL
+_PDM_CONNECTIVITY_TYPE_FACE_FACE = PDM_CONNECTIVITY_TYPE_FACE_FACE
+_PDM_CONNECTIVITY_TYPE_FACE_EDGE = PDM_CONNECTIVITY_TYPE_FACE_EDGE
+_PDM_CONNECTIVITY_TYPE_FACE_VTX  = PDM_CONNECTIVITY_TYPE_FACE_VTX
+_PDM_CONNECTIVITY_TYPE_EDGE_ELMT = PDM_CONNECTIVITY_TYPE_EDGE_ELMT
+_PDM_CONNECTIVITY_TYPE_EDGE_CELL = PDM_CONNECTIVITY_TYPE_EDGE_CELL
+_PDM_CONNECTIVITY_TYPE_EDGE_FACE = PDM_CONNECTIVITY_TYPE_EDGE_FACE
+_PDM_CONNECTIVITY_TYPE_EDGE_EDGE = PDM_CONNECTIVITY_TYPE_EDGE_EDGE
+_PDM_CONNECTIVITY_TYPE_EDGE_VTX  = PDM_CONNECTIVITY_TYPE_EDGE_VTX
+_PDM_CONNECTIVITY_TYPE_VTX_ELMT  = PDM_CONNECTIVITY_TYPE_VTX_ELMT
+_PDM_CONNECTIVITY_TYPE_VTX_CELL  = PDM_CONNECTIVITY_TYPE_VTX_CELL
+_PDM_CONNECTIVITY_TYPE_VTX_FACE  = PDM_CONNECTIVITY_TYPE_VTX_FACE
+_PDM_CONNECTIVITY_TYPE_VTX_EDGE  = PDM_CONNECTIVITY_TYPE_VTX_EDGE
+_PDM_CONNECTIVITY_TYPE_VTX_VTX   = PDM_CONNECTIVITY_TYPE_VTX_VTX
+_PDM_CONNECTIVITY_TYPE_ELMT_CELL = PDM_CONNECTIVITY_TYPE_ELMT_CELL
+_PDM_CONNECTIVITY_TYPE_ELMT_FACE = PDM_CONNECTIVITY_TYPE_ELMT_FACE
+_PDM_CONNECTIVITY_TYPE_ELMT_EDGE = PDM_CONNECTIVITY_TYPE_ELMT_EDGE
+_PDM_CONNECTIVITY_TYPE_ELMT_VTX  = PDM_CONNECTIVITY_TYPE_ELMT_VTX
+_PDM_CONNECTIVITY_TYPE_MAX       = PDM_CONNECTIVITY_TYPE_MAX
+
+
+_PDM_STRIDE_CST_INTERLACED       = PDM_STRIDE_CST_INTERLACED
+_PDM_STRIDE_CST_INTERLEAVED      = PDM_STRIDE_CST_INTERLEAVED
+_PDM_STRIDE_VAR_INTERLACED       = PDM_STRIDE_VAR_INTERLACED
+
+_PDM_FIELD_KIND_SCALAR     =  PDM_FIELD_KIND_SCALAR
+_PDM_FIELD_KIND_COORDS     =  PDM_FIELD_KIND_COORDS
+_PDM_FIELD_KIND_VECTOR     =  PDM_FIELD_KIND_VECTOR
+_PDM_FIELD_KIND_TENSOR_SYM =  PDM_FIELD_KIND_TENSOR_SYM
+
+
+_PDM_BOUND_TYPE_ELMT   = PDM_BOUND_TYPE_ELMT
+_PDM_BOUND_TYPE_CELL   = PDM_BOUND_TYPE_CELL
+_PDM_BOUND_TYPE_FACE   = PDM_BOUND_TYPE_FACE
+_PDM_BOUND_TYPE_EDGE   = PDM_BOUND_TYPE_EDGE
+_PDM_BOUND_TYPE_VTX    = PDM_BOUND_TYPE_VTX
+_PDM_BOUND_TYPE_MAX    = PDM_BOUND_TYPE_MAX
+
+_PDM_EXTEND_FROM_FACE   = PDM_EXTEND_FROM_FACE
+_PDM_EXTEND_FROM_EDGE   = PDM_EXTEND_FROM_EDGE
+_PDM_EXTEND_FROM_VTX    = PDM_EXTEND_FROM_VTX
+
+_PDM_MESH_NODAL_POINT    = PDM_MESH_NODAL_POINT
+_PDM_MESH_NODAL_BAR2     = PDM_MESH_NODAL_BAR2
+_PDM_MESH_NODAL_TRIA3    = PDM_MESH_NODAL_TRIA3
+_PDM_MESH_NODAL_QUAD4    = PDM_MESH_NODAL_QUAD4
+_PDM_MESH_NODAL_POLY_2D  = PDM_MESH_NODAL_POLY_2D
+_PDM_MESH_NODAL_TETRA4   = PDM_MESH_NODAL_TETRA4
+_PDM_MESH_NODAL_PYRAMID5 = PDM_MESH_NODAL_PYRAMID5
+_PDM_MESH_NODAL_PRISM6   = PDM_MESH_NODAL_PRISM6
+_PDM_MESH_NODAL_HEXA8    = PDM_MESH_NODAL_HEXA8
+_PDM_MESH_NODAL_POLY_3D  = PDM_MESH_NODAL_POLY_3D
+
+_PDM_IO_KIND_MPIIO_EO   = PDM_IO_KIND_MPIIO_EO
+_PDM_IO_KIND_MPIIO_IP   = PDM_IO_KIND_MPIIO_IP
+_PDM_IO_KIND_MPI_SIMPLE = PDM_IO_KIND_MPI_SIMPLE
+_PDM_IO_KIND_SEQ        = PDM_IO_KIND_SEQ
+
+_PDM_WRITER_OFF = PDM_WRITER_OFF
+_PDM_WRITER_ON  = PDM_WRITER_ON
+
+_PDM_WRITER_POINT    = PDM_MESH_NODAL_POINT
+_PDM_WRITER_BAR2     = PDM_MESH_NODAL_BAR2
+_PDM_WRITER_TRIA3    = PDM_MESH_NODAL_TRIA3
+_PDM_WRITER_QUAD4    = PDM_MESH_NODAL_QUAD4
+_PDM_WRITER_POLY_2D  = PDM_MESH_NODAL_POLY_2D
+_PDM_WRITER_TETRA4   = PDM_MESH_NODAL_TETRA4
+_PDM_WRITER_PYRAMID5 = PDM_MESH_NODAL_PYRAMID5
+_PDM_WRITER_PRISM6   = PDM_MESH_NODAL_PRISM6
+_PDM_WRITER_HEXA8    = PDM_MESH_NODAL_HEXA8
+_PDM_WRITER_POLY_3D  = PDM_MESH_NODAL_POLY_3D
+
+
+_PDM_WRITER_FMT_BIN   = PDM_WRITER_FMT_BIN
+_PDM_WRITER_FMT_ASCII = PDM_WRITER_FMT_ASCII
+
+_PDM_WRITER_VAR_CST           = PDM_WRITER_VAR_CST
+_PDM_WRITER_VAR_SCALAR        = PDM_WRITER_VAR_SCALAR
+_PDM_WRITER_VAR_VECTOR        = PDM_WRITER_VAR_VECTOR
+_PDM_WRITER_VAR_TENSOR_SYM    = PDM_WRITER_VAR_TENSOR_SYM
+_PDM_WRITER_VAR_TENSOR_ASYM   = PDM_WRITER_VAR_TENSOR_ASYM
+
+_PDM_WRITER_VAR_VERTICES     = PDM_WRITER_VAR_VERTICES
+_PDM_WRITER_VAR_ELEMENTS     = PDM_WRITER_VAR_ELEMENTS
+_PDM_WRITER_VAR_PARTICLES    = PDM_WRITER_VAR_PARTICLES
+
+_PDM_WRITER_TOPO_CST         = PDM_WRITER_TOPO_CST
+_PDM_WRITER_TOPO_DEFORMABLE  = PDM_WRITER_TOPO_DEFORMABLE
+_PDM_WRITER_TOPO_VARIABLE    = PDM_WRITER_TOPO_VARIABLE
+
+_PDM_ISO_SURFACE_KIND_PLANE   = PDM_ISO_SURFACE_KIND_PLANE
+_PDM_ISO_SURFACE_KIND_SPHERE  = PDM_ISO_SURFACE_KIND_SPHERE
+_PDM_ISO_SURFACE_KIND_FIELD   = PDM_ISO_SURFACE_KIND_FIELD
+_PDM_ISO_SURFACE_KIND_ELLIPSE = PDM_ISO_SURFACE_KIND_ELLIPSE
+_PDM_ISO_SURFACE_KIND_QUADRIC = PDM_ISO_SURFACE_KIND_QUADRIC
+_PDM_ISO_SURFACE_KIND_HEART   = PDM_ISO_SURFACE_KIND_HEART
+
+_PDM_CELL_TO_VTX_INTERP_KIND_IDW  = PDM_CELL_TO_VTX_INTERP_KIND_IDW
+_PDM_CELL_TO_VTX_INTERP_KIND_RBF  = PDM_CELL_TO_VTX_INTERP_KIND_RBF
+_PDM_CELL_TO_VTX_INTERP_KIND_LSQ  = PDM_CELL_TO_VTX_INTERP_KIND_LSQ
+_PDM_CELL_TO_VTX_INTERP_KIND_USER = PDM_CELL_TO_VTX_INTERP_KIND_USER
+
+_PDM_MESH_LOCATION_OCTREE         =  PDM_MESH_LOCATION_OCTREE
+_PDM_MESH_LOCATION_DBBTREE        =  PDM_MESH_LOCATION_DBBTREE
+_PDM_MESH_LOCATION_LOCATE_ALL_TGT =  PDM_MESH_LOCATION_LOCATE_ALL_TGT
+_PDM_MESH_LOCATION_DOCTREE        =  PDM_MESH_LOCATION_DOCTREE
+
+_PDM_SPLIT_DUAL_WITH_PARMETIS = PDM_SPLIT_DUAL_WITH_PARMETIS
+_PDM_SPLIT_DUAL_WITH_PTSCOTCH = PDM_SPLIT_DUAL_WITH_PTSCOTCH
+_PDM_SPLIT_DUAL_WITH_HILBERT  = PDM_SPLIT_DUAL_WITH_HILBERT
+_PDM_SPLIT_DUAL_WITH_IMPLICIT = PDM_SPLIT_DUAL_WITH_IMPLICIT
+
+_PDM_EXTRACT_PART_KIND_LOCAL         = PDM_EXTRACT_PART_KIND_LOCAL
+_PDM_EXTRACT_PART_KIND_REEQUILIBRATE = PDM_EXTRACT_PART_KIND_REEQUILIBRATE
+_PDM_EXTRACT_PART_KIND_FROM_TARGET   = PDM_EXTRACT_PART_KIND_FROM_TARGET
+
+_PDM_PART_TO_PART_DATA_DEF_ORDER_PART1           = PDM_PART_TO_PART_DATA_DEF_ORDER_PART1
+_PDM_PART_TO_PART_DATA_DEF_ORDER_PART1_TO_PART2  = PDM_PART_TO_PART_DATA_DEF_ORDER_PART1_TO_PART2
+_PDM_PART_TO_PART_DATA_DEF_ORDER_PART2           = PDM_PART_TO_PART_DATA_DEF_ORDER_PART2
+_PDM_PART_TO_PART_DATA_DEF_ORDER_GNUM1_COME_FROM = PDM_PART_TO_PART_DATA_DEF_ORDER_GNUM1_COME_FROM
+
+_PDM_MPI_COMM_KIND_P2P                                = PDM_MPI_COMM_KIND_P2P
+_PDM_MPI_COMM_KIND_COLLECTIVE                         = PDM_MPI_COMM_KIND_COLLECTIVE
+_PDM_MPI_COMM_KIND_NEIGHBOR_COLLECTIVE                = PDM_MPI_COMM_KIND_NEIGHBOR_COLLECTIVE
+_PDM_MPI_COMM_KIND_WIN_SHARED_AND_P2P                 = PDM_MPI_COMM_KIND_WIN_SHARED_AND_P2P
+_PDM_MPI_COMM_KIND_WIN_SHARED_AND_COLLECTIVE          = PDM_MPI_COMM_KIND_WIN_SHARED_AND_COLLECTIVE
+_PDM_MPI_COMM_KIND_WIN_SHARED_AND_NEIGHBOR_COLLECTIVE = PDM_MPI_COMM_KIND_WIN_SHARED_AND_NEIGHBOR_COLLECTIVE
+_PDM_MPI_COMM_KIND_WIN_RMA                            = PDM_MPI_COMM_KIND_WIN_RMA
+
+@COMMENT_NOT_PDMA@
+@COMMENT_NOT_PDMA@cdef extern from "pdm_plugin.h":
+@COMMENT_NOT_PDMA@    void PDM_plugin_load ()
+# @COMMENT_NOT_PDMA@print(f"Pypdm : load plugin (PDM_plugin_load).")
+@COMMENT_NOT_PDMA@PDM_plugin_load()
+@COMMENT_NOT_PDMA@
+
+py_mem_domain = 42440
+# -----------------------------------------------------------------
+cdef assert_single_dim_np(NPY.ndarray tab, dtype, int size=-1):
+  assert isinstance(tab, NPY.ndarray) and (tab.ndim == 1 or (tab.ndim == 2 and (tab.shape[0] <= 1 or tab.shape[1] <= 1))) and tab.dtype == dtype
+  if size >= 0:
+    assert tab.size == size
+
+cdef recover_dtype(list np_array_list, MPI.Comm py_comm):
+  """ Check that numpy dtype is consistent across all partitions and return it """
+  dtypes = [array.dtype for array in np_array_list]
+
+  rank_if = py_comm.Get_rank() if len(np_array_list) > 0 else -1
+  master = py_comm.allreduce(rank_if, op=MPI.MAX)
+
+  ref_dtype = dtypes[0] if py_comm.Get_rank() == master else None
+  ref_dtype = py_comm.bcast(ref_dtype, master)
+
+  assert all(dtype == ref_dtype for dtype in dtypes), "Inconsistent dtype for arrays"
+  return ref_dtype
+
+cdef int* list_to_int_pointer(list data):
+  cdef int* array = <int *> malloc(len(data) * sizeof(int))
+  for i,d in enumerate(data):
+    array[i] = <int> d
+  return array
+
+cdef void** np_list_to_void_pointers(list datas):
+  cdef NPY.ndarray numpy_void
+  cdef void** array = <void **> malloc(len(datas) * sizeof(void*))
+  for i, numpy_void in enumerate(datas):
+    array[i] = <void *> numpy_void.data
+  return array
+
+cdef int** np_list_to_int_pointers(list datas):
+  cdef NPY.ndarray[NPY.int32_t, ndim=1, mode='c'] numpy_int
+  cdef int** array = <int **> malloc(len(datas) * sizeof(int*))
+  for i, numpy_int in enumerate(datas):
+    array[i] = <int *> numpy_int.data
+  return array
+
+cdef PDM_g_num_t** np_list_to_gnum_pointers(list datas):
+  cdef NPY.ndarray[npy_pdm_gnum_t, ndim=1, mode='c'] numpy_gnum
+  cdef PDM_g_num_t** array = <PDM_g_num_t **> malloc(len(datas) * sizeof(PDM_g_num_t*))
+  for i, numpy_gnum in enumerate(datas):
+    array[i] = <PDM_g_num_t *> numpy_gnum.data
+  return array
+
+cdef double** np_list_to_double_pointers(list datas):
+  cdef NPY.ndarray[double, ndim=1, mode='c'] numpy_double
+  cdef double** array = <double **> malloc(len(datas) * sizeof(double*))
+  for i, numpy_double in enumerate(datas):
+    array[i] = <double *> numpy_double.data
+  return array
+
+cdef void dealloc_array_capsule(object capsule):
+    data = PyCapsule_GetPointer(capsule, NULL)
+    PyTraceMalloc_Untrack(py_mem_domain, <uintptr_t> data)
+    free(data)
+
+cdef create_numpy(void* array, int nptype, int size, bint flag_owndata=True):
+    dim = <NPY.npy_intp> size
+    nparray = NPY.PyArray_SimpleNewFromData(1, &dim, nptype, array)
+    if flag_owndata and array != NULL:
+        # PyArray_ENABLEFLAGS(nparray, NPY.NPY_OWNDATA)
+        capsule = PyCapsule_New(array, NULL, &dealloc_array_capsule)
+        NPY.set_array_base(nparray, capsule)
+        PyTraceMalloc_Track(py_mem_domain, <uintptr_t> array, nparray.nbytes)
+    return nparray
+
+cdef create_numpy_i(int* array, int size, bint flag_owndata=True):
+    return create_numpy(<void *> array, NPY.NPY_INT32, size, flag_owndata)
+
+cdef create_numpy_g(PDM_g_num_t* array, int size, bint flag_owndata=True):
+    return create_numpy(<void *> array, PDM_G_NUM_NPY_INT, size, flag_owndata)
+
+cdef create_numpy_d(double* array, int size, bint flag_owndata=True):
+    return create_numpy(<void *> array, NPY.NPY_DOUBLE, size, flag_owndata)
+
+cdef create_numpy_or_none(void* array, int nptype, int size, bint flag_owndata=True):
+    if array == NULL:
+        return None
+    else:
+        return create_numpy(array, nptype, size, flag_owndata)
+
+cdef create_numpy_or_none_i(int* array, int size, bint flag_owndata=True):
+    return create_numpy_or_none(<void *> array, NPY.NPY_INT32, size, flag_owndata)
+
+cdef create_numpy_or_none_g(PDM_g_num_t* array, int size, bint flag_owndata=True):
+    return create_numpy_or_none(<void *> array, PDM_G_NUM_NPY_INT, size, flag_owndata)
+
+cdef create_numpy_or_none_d(double* array, int size, bint flag_owndata=True):
+    return create_numpy_or_none(<void *> array, NPY.NPY_DOUBLE, size, flag_owndata)
+
+# PDM_dmesh :
+# --------------------
+include "pdm_dmesh.pxi"
+
+# PDM_dmesh_nodal :
+# ----------------
+include "pdm_dmesh_nodal.pxi"
+
+# PDM_part_dmesh_nodal :
+# ----------------
+include "pdm_part_mesh_nodal.pxi"
+
+# PDM_dmesh_nodal_to_dmesh :
+# ----------------
+include "pdm_dmesh_nodal_to_dmesh.pxi"
+
+# PDM_part :
+# ----------
+include "pdm_part.pxi"
+
+# PDM_multi_part :
+# ----------
+include "pdm_multi_part.pxi"
+
+# PDM_part_coarse :
+# ----------
+include "pdm_part_coarse.pxi"
+
+# PDM_part_to_block :
+# ------------------
+include "pdm_part_to_block.pxi"
+
+# PDM_block_to_part :
+# ------------------
+include "pdm_block_to_part.pxi"
+include "pdm_mblock_to_part.pxi"
+
+# PDM_block_to_block :
+# ------------------
+include "pdm_block_to_block.pxi"
+
+# PDM_cellface_orient :
+# --------------------
+include "pdm_cellface_orient.pxi"
+
+# PDM_cellface_orient :
+# --------------------
+include "pdm_mesh_intersection.pxi"
+
+# PDM_dist_cloud_surf :
+# --------------------
+include "pdm_dist_cloud_surf.pxi"
+
+# PDM_geom :
+# --------------------
+include "pdm_geom.pxi"
+
+# PDM_dist_cellcenter_surf :
+# --------------------
+@COMMENT_NOT_PDMA@include "pdm_dist_cellcenter_surf.pxi"
+
+# PDM_delaunay :
+# --------------------
+@COMMENT_NOT_PDMA@include "pdm_delaunay.pxi"
+
+# PDM_remesh :
+# --------------------
+@COMMENT_NOT_PDMA@include "pdm_remesh.pxi"
+
+# PDM_iso_surface :
+# --------------------
+@COMMENT_NOT_PDMA@include "pdm_iso_surface.pxi"
+
+# PDM_mesh_metric :
+# --------------------
+@COMMENT_NOT_PDMA@include "pdm_mesh_metric.pxi"
+
+# PDM_inside_cloud_surf :
+# --------------------
+@COMMENT_NOT_PDMA@include "pdm_inside_cloud_surf.pxi"
+
+# PDM_mesh_adaptation :
+# --------------------
+#@COMMENT_NOT_PDMA@include "pdm_mesh_adaptation.pxi"
+
+# PDM_points_merge :
+# --------------------
+include "pdm_points_merge.pxi"
+
+# PDM_distant_neighbor :
+# --------------------
+include "pdm_distant_neighbor.pxi"
+
+# PDM_gnum_location :
+# --------------------
+include "pdm_gnum_location.pxi"
+
+# PDM_gnum :
+# --------------------
+include "pdm_gnum.pxi"
+
+# PDM_mesh_location :
+# --------------------
+include "pdm_mesh_location.pxi"
+
+# PDM_interpolate_from_mesh_location :
+# --------------------
+include "pdm_interpolate_from_mesh_location.pxi"
+
+# PDM_closest_points :
+# --------------------
+include "pdm_closest_points.pxi"
+
+# PDM_overlay :
+# --------------------
+include "pdm_overlay.pxi"
+
+# PDM_dcube_gen :
+# --------------------
+include "pdm_dcube_gen.pxi"
+
+# PDM_dcube_nodal_gen :
+# --------------------
+include "pdm_dcube_nodal_gen.pxi"
+
+# PDM_poly_mesh_surf :
+# --------------------
+include "pdm_poly_mesh_surf.pxi"
+
+# PDM_partitioning_algorithm :
+# --------------------
+include "pdm_partitioning_algorithm.pxi"
+
+# PDM_part_extension :
+# --------------------
+include "pdm_part_extension.pxi"
+
+# PDM_dconnectivity_transform :
+# --------------------
+include "pdm_dconnectivity_transform.pxi"
+
+# PDM_domain_interface:
+# --------------------
+include "pdm_domain_interface.pxi"
+
+# PDM_domain_merge:
+# --------------------
+include "pdm_domain_merge.pxi"
+
+# PDM_connectivities :
+# --------------------
+include "pdm_connectivities.pxi"
+
+# PDM_connectivities :
+# --------------------
+include "pdm_extract_part.pxi"
+
+# PDM_writer :
+# --------------------
+include "pdm_writer.pxi"
+
+# PDM_writer :
+# --------------------
+include "pdm_part_to_part.pxi"
+
+# PDM_part_domain_interface :
+# --------------------
+include "pdm_part_domain_interface.pxi"
+
+# PDM_inria_mesh_fmt :
+# --------------------
+include "pdm_inria_mesh_fmt.pxi"
+
+# PDM_global_mean :
+# --------------------
+include "pdm_global_mean.pxi"
+
+# PDM_geom :
+# --------------------
+include "pdm_field_cell_to_vtx.pxi"
+
+# PDM_sphere_surf_gen :
+# --------------------
+include "pdm_sphere_surf_gen.pxi"
+
+# PDM_sphere_vol_gen :
+# --------------------
+include "pdm_sphere_vol_gen.pxi"
+
+# PDM_generate_mesh :
+# --------------------
+include "pdm_generate_mesh.pxi"
+
+# PDM_point_cloud_gen :
+# --------------------
+include "pdm_point_cloud_gen.pxi"
+
+
+# PDM_dextract_part :
+# -------------------
+include "pdm_dmesh_extract.pxi"
+
+# PDM_distrib:
+# -------------------
+include "pdm_distrib.pxi"
+
+# PDM_vtk:
+# -------------------
+include "pdm_vtk.pxi"

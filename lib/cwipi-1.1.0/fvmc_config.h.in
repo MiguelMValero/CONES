@@ -1,0 +1,47 @@
+#ifndef __FVMC_CONFIG_H__
+#define __FVMC_CONFIG_H__
+
+/* Complete version number */
+#define FVMC_VERSION "0.15.1-onera-6"
+
+/* Major version number */
+#define FVMC_MAJOR_VERSION 0
+
+/* Minor version number */
+#define FVMC_MINOR_VERSION 15
+
+/* Release version number */
+#define FVMC_RELEASE_VERSION 1
+
+/* The size of a 'void *', as computed by sizeof. */
+#define FVMC_SIZEOF_VOID_P @SIZEOF_VOID_P@
+
+/* The size of a 'short', as computed by sizeof. */
+#define FVMC_SIZEOF_SHORT @SIZEOF_SHORT@
+
+/* The size of a 'int', as computed by sizeof. */
+#define FVMC_SIZEOF_INT @SIZEOF_INT@
+
+/* The size of a 'long', as computed by sizeof. */
+#define FVMC_SIZEOF_LONG @SIZEOF_LONG@
+
+/* The size of a 'long long', as computed by sizeof. */
+#define FVMC_SIZEOF_LONG_LONG @SIZEOF_LONG_LONG@
+
+/* The size of a 'float', as computed by sizeof. */
+#define FVMC_SIZEOF_FLOAT @SIZEOF_FLOAT@
+
+/* The size of a 'double', as computed by sizeof. */
+#define FVMC_SIZEOF_DOUBLE @SIZEOF_DOUBLE@
+
+/* FVM library configured with MPI support ? */
+#define FVMC_HAVE_MPI @MPI_C_FOUND@
+
+/* FVM library configured with MPI IO support ? */
+#define FVMC_HAVE_MPI_IO @MPI_C_FOUND@
+
+/* FVM library configured with MPI One-sided support ? */
+#define FVMC_HAVE_MPI_ONE_SIDED @MPI_C_FOUND@
+
+#endif /* __FVMC_CONFIG_H__ */
+

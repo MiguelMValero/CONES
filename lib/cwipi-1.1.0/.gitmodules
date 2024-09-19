@@ -1,0 +1,3 @@
+[submodule "external/paradigm"]
+	path = external/paradigm
+	url = git@gitlab.onera.net:numerics/mesh/paradigm.git

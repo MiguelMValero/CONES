@@ -1,0 +1,45 @@
+Original Authors
+----------------
+
+Eric Quémerais (ONERA, France) <eric.quemerais@onera.fr>
+
+Major contributors
+------------------
+
+Bastien Andrieu (ONERA, France) <bastien.andrieu@onera.fr>
+Julien Coulet (ONERA, France) <julien.coulet@onera.fr>
+Karmijn Hoogveld (ONERA, France) <karmijn.hoogveld@onera.fr>
+Stéphanie Lala (ONERA, France) <stephanie.lala@onera.fr>
+Bruno Maugars (ONERA, France) <bruno.maugars@onera.fr>
+
+Contributors
+------------
+
+Clément Benazet (ONERA, France) <clement.benazet@onera.fr>
+Bérenger Berthoul (ONERA, France) <berenger.berthoul@onera.fr>
+Sébastien Bourasseau (ONERA, France) <sebastien.bourasseau@onera.fr>
+Nicolas Dellinger (ONERA, France) <nicolas.dellinger@onera.fr>
+Jérôme Esbrat (EOLEN) <jerome.esbrat-ext@onera.fr>
+Nicolas Lantos (ONERA, France) <nicolas.lantos@onera.fr>
+Niels Guilbert (ONERA, France) <niels.guilbert@onera.fr>
+Julien Magnenet (ONERA, France) <julien.magnenet@onera.fr>
+Lucas Manueco (ONERA, France) <lucas.manueco@onera.fr> 
+Lionel Matuszewski (ONERA, France) <lionel.matuszewski@onera.fr>
+Yacine Mezemate (ONERA, France) <yacine.mezemate@onera.fr>
+Bertrand Michel (ONERA, France) <bertrand.michel@onera.fr>
+Victor Pacotte (EOLEN) <victor.pacotte-ext@onera.fr>
+Christina Paulin (ONERA, France) <christina.paulin@onera.fr>
+Bruno Peres (EOLEN) <bruno.peres-ext@onera.fr>
+Christophe Peyret (ONERA, France) <christophe.peyret@onera.fr>
+Mickael Philit (Safran, France) <mickael.philit@safrangroup.com>
+Julien Vanharen (ONERA, France) <julien.vanharen@onera.fr>
+
+Derived libraries
+-----------------
+
+FVM :
+
+A part of this work is derived from "Finite Volume Mesh" library (FVM 0.15.5).
+FVM is licensed under LGPL 2.1. It is a piece of the CFD software code_saturne 2.0
+Major authors are Yvan Fournier <yvan.fournier@edf.fr> and Jerome Bonelle <jerome.bonelle@edf.fr>.
+This library can be downloaded from http://code-saturne.org/cms/download/2.0.

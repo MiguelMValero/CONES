@@ -1,0 +1,14 @@
+Instructions to add unit tests
+******************************
+
+> Before main of your test add parameters like this
+   """
+   // @@@param[n_proc] : 1,2,3,4
+   // @@@param[n] : 20,40
+   """
+> Open /script/prepare_ci/parse_test_file_and_generate_base_test.py
+> Add a parameter or an argument at line 54
+> Go to /paradigm
+> Launch parse_test_file_and_generate_base_test.py create unit test matrix bash file
+> Open /script/prepare_ci/run_top_test_base.sh
+> Add test name at line 95

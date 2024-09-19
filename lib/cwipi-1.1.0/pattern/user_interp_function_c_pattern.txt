@@ -1,0 +1,150 @@
+/*=============================================================================
+ * This file contains the functions in C to be called in a user interpolation
+ * function (ie. callback) to retrieve local geometric data.
+ *============================================================================*/
+
+static void
+user_interp_function_c
+(
+ const char           *local_code_name,
+ const char           *cpl_id,
+ const char           *field_id,
+       int             i_part,
+       double         *buffer_in,
+       double         *buffer_out
+)
+{
+
+  // GENERAL GEOMETRIC DATA
+
+  // Get the number of components of the field
+
+  int n_components = CWP_Field_n_components_get(local_code_name,
+                                                cpl_id,
+                                                field_id);
+
+  // Get the field data storage type
+
+  CWP_Field_storage_t storage = CWP_Field_storage_get(local_code_name,
+                                                      cpl_id,
+                                                      field_id);
+
+  // Get the location of the degrees of freedom
+
+  CWP_Dof_location_t dof_location = CWP_Field_dof_location_get(local_code_name,
+                                                               cpl_id,
+                                                               field_id);
+
+  // Get data from the source of the exchange
+
+  int  n_elt_src      = 0;
+  int *src_to_tgt_idx = NULL;
+
+  CWP_Field_src_data_properties_get(local_code_name,
+                                    cpl_id,
+                                    field_id,
+                                    i_part,
+                                    &n_elt_src,
+                                    &src_to_tgt_idx);
+
+  // Get data from the target of the exchange
+
+  int n_elt_tgt      = 0;
+  int n_computed_tgt = 0;
+
+  int *computed_tgt   = NULL;
+  int *tgt_to_src_idx = NULL;
+
+  CWP_Field_tgt_data_properties_get(local_code_name,
+                                    cpl_id,
+                                    field_id,
+                                    i_part,
+                                    &n_elt_tgt,
+                                    &n_computed_tgt,
+                                    &computed_tgt,
+                                    &tgt_to_src_idx);
+
+  // LOCATION SPATIAL INTERPOLATION ALGORITHM
+
+  // Get the weights computed by the location spatial interpolation algorithm
+
+  double *weights = NULL;
+
+  CWP_Field_location_weights_get(local_code_name,
+                                 cpl_id,
+                                 field_id,
+                                 i_part,
+                                 &weights);
+
+  // Get the point data
+
+  double *points_coords           = NULL;
+  double *points_uvw              = NULL;
+  double *points_dist2            = NULL;
+  double *points_projected_coords = NULL;
+
+  CWP_Field_location_point_data_get(local_code_name,
+                                    cpl_id,
+                                    field_id,
+                                    i_part,
+                                    &points_coords,
+                                    &points_uvw,
+                                    &points_dist2,
+                                    &points_projected_coords);
+
+  // Get the spatial interpolation internal cell->vertex connectivity
+
+  int *cell_vtx_idx = NULL;
+  int *cell_vtx     = NULL;
+
+  CWP_Field_location_internal_cell_vtx_get(local_code_name,
+                                           cpl_id,
+                                           field_id,
+                                           i_part,
+                                           &cell_vtx_idx,
+                                          &cell_vtx);
+
+  // INTERSECTION SPATIAL INTERPOLATION ALGORITHM
+
+  // Get the intersection volumes
+
+  double *volumes = NULL;
+
+  CWP_Field_intersection_volumes_get(local_code_name,
+                                     cpl_id,
+                                     field_id,
+                                     i_part,
+                                     &volumes);
+
+  // Get local target elements volumes
+
+  double *tgt_elt_volumes = NULL;
+
+  CWP_Field_intersection_tgt_elt_volumes_get(local_code_name,
+                                             cpl_id,
+                                             field_id,
+                                             i_part,
+                                             &tgt_elt_volumes);
+
+  // NEAREST NEIGHBORS SPATIAL INTERPOLATION ALGORITHM
+
+  // Get squared distances to nearest source points
+
+  double *distances2 = NULL;
+
+  CWP_Field_nearest_neighbors_distances_get(local_code_name,
+                                            cpl_id,
+                                            field_id,
+                                            i_part,
+                                            &distances2);
+
+  // Get coordinates of nearest source points
+
+  double *nearest_src_coord = NULL;
+
+  CWP_Field_nearest_neighbors_coord_get(local_code_name,
+                                        cpl_id,
+                                        field_id,
+                                        i_part,
+                                        &nearest_src_coord);
+}

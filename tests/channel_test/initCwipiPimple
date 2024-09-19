@@ -1,0 +1,75 @@
+#! /bin/bash
+
+# Source tutorial run functions
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+# We read the number of ensembles and subdomains from the configuration file
+conesDict=$(pwd)"/system/conesDict"
+decomposeParDict=$(pwd)"/system/decomposeParDict"
+
+while read -r name num
+do
+    if
+        [[ $name == "ensemble" ]]; then
+        printf -v ensembles "%s\n" "$num"
+    fi
+done < $conesDict
+
+while read -r name num
+do
+    if
+        [[ $name == "numberOfSubdomains" ]]; then
+        printf -v subdomains "%s\n" "$num"
+    fi
+done < $decomposeParDict
+
+echo 'The number of ensembles we are dealing with is' $ensembles |sed 's/;//'
+cwipiMembers=$(printf "%s" "$ensembles" |sed 's/;//')
+echo 'The number of decompositions we are dealing with is' $subdomains |sed 's/;//'
+cwipiDec=$(printf "%s" "$subdomains" |sed 's/;//')
+
+# We run the mesh
+blockMesh
+
+mkdir results
+touch results/initConditions.txt
+
+# We create the "processor" folders with all information they need
+for ((i=1; i<(cwipiMembers+1); i++));
+do
+    #We copy the information from the root directory
+    caseName=$(pwd)"/member$i"
+    rm -rf $caseName
+    mkdir $caseName
+    cp -r 0/ $caseName/
+    cp -r constant/ $caseName/
+    cp -r system/ $caseName/
+    echo $caseName
+
+    #cp -r dynamicCode/ processor$i/
+    #Python default ubuntu version must be python 3 in order to use numpy for random normal distrib
+    j=$(python3 -c "import scipy.stats as stats; print('{:.4f}'.format(stats.truncnorm.rvs((0.034-0.094)/0.03, (0.154-0.094)/0.03, loc=0.094, scale=0.03)))")
+    echo $j
+    echo $j >> results/initConditions.txt
+    sed -i -e "s/0.094/$j/g" $caseName/0/Ck
+
+    # We decompose the domain in all the members
+    cd $caseName
+    runApplication decomposePar -force
+    cd ..
+
+    partCommand=" : -np $cwipiDec cwipiHLPimpleFoamPar -case $caseName -parallel"
+    command="$command$partCommand"
+done
+# sed -i -e 's|// #include "forceCoeffs"|#include "forceCoeffs"|g' processor0/system/controlDict
+
+# Run the application from the specification in the appConfig file
+# mpirun -np 1 ./KF_coupling.exe : -np $cwipiDec cwipiIcoFoamPar -case cavity_testPar1 -parallel : -np $cwipiDec cwipiIcoFoamPar -case cavity_testPar2 -parallel : -np $cwipiDec cwipiIcoFoamPar -case cavity_testPar3 -parallel : -np $cwipiDec cwipiIcoFoamPar -case cavity_testPar4 -parallel | tee log
+partEnKF="mpirun -output-filename logs -np 1 ./../../build/HLEnKF_main.exe"
+finalCommand="$partEnKF$command"
+# echo $finalCommand
+
+# $finalCommand | tee log
+$finalCommand
+
+echo $finalCommand

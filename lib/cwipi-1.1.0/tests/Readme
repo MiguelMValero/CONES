@@ -1,0 +1,4 @@
+- Test2D_1 : 
+   Sample of running command : "mpiexec -n n1 test2D_1_c1 : -n n2 test2D_2_c2" 
+
+- Test3D_1

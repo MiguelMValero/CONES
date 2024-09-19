@@ -1,0 +1,67 @@
+#! /bin/bash
+
+# We read the number of ensembles and subdomains from the configuration file
+conesDict=$(pwd)"/system/conesDict"
+decomposeParDict=$(pwd)"/system/decomposeParDict"
+
+while read -r name num
+do
+    if
+        [[ $name == "ensemble" ]]; then
+        printf -v ensembles "%s\n" "$num"
+    fi
+done < $conesDict
+
+while read -r name num
+do
+    if
+        [[ $name == "numberOfSubdomains" ]]; then
+        printf -v subdomains "%s\n" "$num"
+    fi
+done < $decomposeParDict
+
+echo 'The number of ensembles we are dealing with is' $ensembles |sed 's/;//'
+cwipiMembers=$(printf "%s" "$ensembles" |sed 's/;//')
+echo 'The number of decompositions we are dealing with is' $subdomains |sed 's/;//'
+cwipiDec=$(printf "%s" "$subdomains" |sed 's/;//')
+
+blockMesh
+
+for ((i=1; i<(cwipiMembers+1); i++));
+do
+    #We copy the information from the root directory
+    caseName=$(pwd)"/member$i"
+    rm -rf $caseName
+    mkdir $caseName
+    cp -r 0/ $caseName/
+    cp -r constant/ $caseName/
+    cp -r system/ $caseName/
+    echo $caseName
+
+    # We set the initial condition for the ensembles
+    let j=i-1
+    l=$(echo "$j 1.0 $cwipiMembers" | awk '{printf "%3.4f", ($1+$2)/$3}' |tr ',' '.')
+    echo $l
+    sed -i -e "s/uniform (1/uniform ($l/g" $caseName/0/U
+
+    # We decompose the domain in all the members
+    cd $caseName
+    decomposePar -force
+    cd ..
+
+    partCommand=" : -np $cwipiDec cwipiHLIcoFoamPar -case member$i -parallel"    # -output-filename to throw the logs in differents files
+    command="$command$partCommand"
+done
+
+mkdir -p $(pwd)/results
+
+# Run the application from the specification in the appConfig file
+# mpirun -np 1 ./KF_coupling.exe : -np $cwipiDec cwipiIcoFoamPar -case cavity_testPar1 -parallel : -np $cwipiDec cwipiIcoFoamPar -case cavity_testPar2 -parallel : -np $cwipiDec cwipiIcoFoamPar -case cavity_testPar3 -parallel : -np $cwipiDec cwipiIcoFoamPar -case cavity_testPar4 -parallel | tee log
+partEnKF="mpirun -output-filename logs -np 1 ./../../build/HLEnKF_main.exe"
+finalCommand="$partEnKF$command"
+# echo $finalCommand
+
+$finalCommand | tee log
+# $finalCommand
+
+#mpirun -np 1 ./KF_coupling.exe : -np $processors valgrind cwipiIcoFoamPar -parallel | tee log

@@ -1,0 +1,41 @@
+#ifndef __CWP_CONFIG_H__
+#define __CWP_CONFIG_H__
+
+/*------------------------------------------------------------------------------
+ * Version (CWIPI_* variable are deprecated)
+ *-----------------------------------------------------------------------------*/
+
+#define CWP_VERSION       "@CWP_VERSION@"
+#define CWIPI_VERSION       "@CWP_VERSION@"
+#define CWP_DEF_VERSION       "@CWP_DEF_VERSION@"
+
+#define CWP_VERSION_MAJOR @CWP_VERSION_MAJOR@
+#define CWP_VERSION_MINOR @CWP_VERSION_MINOR@
+#define CWP_VERSION_PATCH @CWP_VERSION_PATCH@
+
+#define CWP_MAJOR_VERSION @CWP_VERSION_MAJOR@
+#define CWP_MINOR_VERSION @CWP_VERSION_MINOR@
+#define CWP_RELEASE_VERSION @CWP_VERSION_PATCH@
+
+#cmakedefine HAVE_MPI  @MPI_C_FOUND@
+
+#cmakedefine HAVE_MPI_IO  @MPI_C_FOUND@
+
+#cmakedefine HAVE_MPI_ONE_SIDED  @MPI_C_FOUND@
+
+#cmakedefine HAVE_SPACE_BASIS
+
+#cmakedefine CWP_HAVE_FORTRAN_MPI_MODULE
+
+#cmakedefine CWP_HAVE_BLAS
+
+#cmakedefine CWP_HAVE_LAPACK
+
+#cmakedefine CWP_HAVE_MKL
+
+#cmakedefine CWP_HAVE_NOT_FORTRAN_IN_C @CWP_HAVE_NOT_FORTRAN_IN_C@
+
+#define CWP_MESH_DIR "@PROJECT_BINARY_DIR@/tests/meshes/"
+
+
+#endif /* __CWP_CONFIG_H__ */

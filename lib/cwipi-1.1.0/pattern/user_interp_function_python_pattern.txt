@@ -1,0 +1,93 @@
+#=============================================================================
+# This file contains the functions in Python to be called in a user interpolation
+# function (ie. callback) to retrieve local geometric data.
+#=============================================================================
+
+import sys
+
+def user_interp_function_python(field,
+                                i_part,
+                                buffer_in,
+                                buffer_out):
+
+  # IMPORT
+
+  try:
+    from pycwp import pycwp
+  except:
+    if i_rank == 0:
+      print("      Error : CWIPI module not found (update PYTHONPATH variable)")
+      sys.exit(1)
+
+  # GENERAL GEOMETRIC DATA
+
+  # Get the number of components of the field
+
+  n_components = field.n_components
+
+  # Get the field data storage type
+
+  storage = field.storage
+
+  # Get the location of the degrees of freedom
+
+  dof_location = field.dof_location
+
+  # Get data from the source of the exchange
+
+  src_data = field.src_data_properties_get(i_part)
+
+  n_src          = src_data["n_src"]
+  src_to_tgt_idx = src_data["src_to_tgt_idx"]
+
+  # Get data from the target of the exchange
+
+  tgt_data = field.tgt_data_properties_get(i_part)
+
+  n_tgt          = tgt_data["n_tgt"]
+  computed_tgt   = tgt_data["computed_tgt"]
+  tgt_to_src_idx = tgt_data["tgt_to_src_idx"]
+
+  spatial_interp_algorithm = field.spatial_interp_algo
+
+  # LOCATION SPATIAL INTERPOLATION ALGORITHM
+
+  # Get the weights computed by the location spatial interpolation algorithm
+
+  weights = field.location_weights_get(i_part)
+
+  # Get the point data
+
+  point_data = location_point_data_get(i_part)
+
+  points_coords           = point_data["points_coords"]
+  points_uvw              = point_data["points_uvw"]
+  points_dist2            = point_data["points_dist2"]
+  points_projected_coords = point_data["points_projected_coords"]
+
+  # Get the spatial interpolation internal cell->vertex connectivity
+
+  connectivity_data = field.location_internal_cell_vtx_get(i_part)
+
+  cell_vtx_idx = connectivity_data["cell_vtx_idx"]
+  cell_vtx     = connectivity_data["cell_vtx"]
+
+  # INTERSECTION SPATIAL INTERPOLATION ALGORITHM
+
+  # Get the intersection volumes
+
+  volumes = field.intersection_volumes_get(i_part)
+
+  # Get local target elements volumes
+
+  elt_tgt_volume = field.intersection_tgt_elt_volumes_get(i_part)
+
+  # NEAREST NEIGHBORS SPATIAL INTERPOLATION ALGORITHM
+
+  # Get squared distances to nearest source points
+
+  distances2 = field.nearest_neighbors_distances_get(i_part)
+
+  # Get coordinates of nearest source points
+
+  clst_src_point_coords = field.nearest_neighbors_coord_get(i_part)

@@ -1,0 +1,94 @@
+/*
+ * This stylesheet is applied after the theme's default one,
+ * and thus any overrides or additions can be added here.
+ *
+ * More info:
+ *    https://www.sphinx-doc.org/en/master/extdev/appapi.html#sphinx.application.Sphinx.add_css_file
+ */
+
+/*.wy-menu-vertical p.caption {
+  color: #e6e6e6;
+}*/
+
+/* Start section cards. */
+.toc-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(225px, 1fr));
+  grid-gap: 20px;
+  list-style-type: none;
+  margin-bottom: 0px;/*24px;*/
+}
+
+.card {
+  border-radius: .6em;
+  user-select: none;
+}
+
+.card div.figure,
+.card figure {
+  margin-bottom: 0px;
+  display: block;
+}
+
+.card img {
+  border-top-left-radius: .6em;
+  border-top-right-radius: .6em;
+}
+
+.card dl {
+  margin-bottom: 10px
+}
+
+.card dl dt>a {
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.card dl dt a em,
+.card dl dt a span {
+  font-weight: bold;
+  font-style: normal;
+  font-size: 115%;
+}
+
+.card dl dt {
+  padding: 18px 15px 0px !important
+}
+
+.card dl dd {
+  padding: 0px 15px 5px 15px;
+  font-style: normal;
+  margin: 0px;
+  color: #808080;
+  font-size: 90%;
+}
+
+.card {
+  box-shadow: rgba(0, 0, 0, 0.08) 0px 1px 4px 0px,
+    rgba(211, 216, 223, 0.33) 0px 8px 14px -1px;
+}
+
+/* End section cards. */
+
+/* End genindex consistency. */
+
+
+.red {
+  color: #eb4034;
+}
+
+.green {
+  color: #03a621;
+}
+
+
+.largered {
+  color: #eb4034;
+  font-size:120%;
+}
+
+.largegreen {
+  color: #03a621;
+  font-size:120%;
+}

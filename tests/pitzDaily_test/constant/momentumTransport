@@ -1,0 +1,64 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  8
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      momentumTransport;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+simulationType RAS;
+
+RAS
+{
+    // Tested with kEpsilon, realizableKE, kOmega, kOmegaSST, v2f,
+    // ShihQuadraticKE, LienCubicKE.
+    model           kEpsilon;
+    // model	    kOmegaSST;
+
+    turbulence      on;
+
+    printCoeffs     on;
+    
+    // These are the values of the k-epsilon model by default
+    Cmu             0.09;
+    C1              1.44;
+    C2              1.92;
+    C3              0.0;
+    sigmak          1.0;
+    sigmaEps        1.3;
+    
+    // These are the values of the kOmega-SST model by default
+    // alphaK1     	0.85;
+    // alphaK2     	1.0;
+    // alphaOmega1 	0.5;
+    // alphaOmega2 	0.856;
+    // beta1       	0.075;
+    // beta2       	0.0828;
+    // betaStar    	0.09;
+    // gamma1      	0.5556;
+    // gamma2      	0.44;
+    // a1          	0.31;
+    // b1          	1.0;
+    // c1          	10.0;
+    // F3          	no;
+    
+    // These are the targeted values
+    /*Cmu 	    0.55;
+    C1		    2.0;
+    C2		    0.5;
+    C3		    0.0; // This is not a constant of k-epsilon, so we leave the same value as by default
+    sigmak	    2.0;
+    sigmaEps	2.0;*/	
+}
+
+
+// ************************************************************************* //

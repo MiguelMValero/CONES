@@ -1,0 +1,93 @@
+#! /usr/bin/bash
+
+# Source tutorial run functions
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+# We read the number of ensembles and subdomains from the configuration file
+conesDict=$(pwd)"/system/conesDict"
+decomposeParDict=$(pwd)"/system/decomposeParDict"
+
+while read -r name num
+do
+    if
+        [[ $name == "ensemble" ]]; then
+        printf -v ensembles "%s\n" "$num"
+    fi
+done < $conesDict
+
+while read -r name num
+do
+    if
+        [[ $name == "numberOfSubdomains" ]]; then
+        printf -v subdomains "%s\n" "$num"
+    fi
+done < $decomposeParDict
+
+echo 'The number of ensembles we are dealing with is' $ensembles |sed 's/;//'
+cwipiMembers=$(printf "%s" "$ensembles" |sed 's/;//')
+echo 'The number of decompositions we are dealing with is' $subdomains |sed 's/;//'
+cwipiDec=$(printf "%s" "$subdomains" |sed 's/;//')
+
+blockMesh
+
+# We create the "processor" folders with all information they need
+for ((i=1; i<(cwipiMembers+1); i++));
+do
+    #We copy the information from the root directory
+    caseName=$(pwd)"/member$i"
+    rm -rf $caseName
+    mkdir $caseName
+    cp -r 0/ $caseName/
+    cp -r constant/ $caseName/
+    cp -r system/ $caseName/
+    echo $caseName
+    # Python default ubuntu version must be python 3 in order to use numpy for random normal distrib
+    a=$(python3 -c "import numpy as np; print('{:.4f}'.format(np.random.normal(0.85, 0.03)))")
+    b=$(python3 -c "import numpy as np; print('{:.4f}'.format(np.random.normal(1.0, 0.03)))")
+    c=$(python3 -c "import numpy as np; print('{:.4f}'.format(np.random.normal(0.5, 0.03)))")
+    d=$(python3 -c "import numpy as np; print('{:.4f}'.format(np.random.normal(0.856, 0.03)))")
+    e=$(python3 -c "import numpy as np; print('{:.4f}'.format(np.random.normal(0.5556, 0.03)))")
+    f=$(python3 -c "import numpy as np; print('{:.4f}'.format(np.random.normal(0.44, 0.03)))")
+    g=$(python3 -c "import numpy as np; print('{:.4f}'.format(np.random.normal(0.075, 0.01)))")
+    h=$(python3 -c "import numpy as np; print('{:.4f}'.format(np.random.normal(0.0828, 0.01)))")
+    j=$(python3 -c "import numpy as np; print('{:.4f}'.format(np.random.normal(0.09, 0.01)))")
+    echo $a
+    echo $b
+    echo $c
+    echo $d
+    echo $e
+    echo $f
+    echo $g
+    echo $h
+    echo $j
+    sed -i -e "s/alphaK1     	0.85;/alphaK1     	$a;/g" member$i/constant/momentumTransport
+    sed -i -e "s/alphaK2     	1.0;/alphaK2     	$b;/g" member$i/constant/momentumTransport
+    sed -i -e "s/alphaOmega1 	0.5;/alphaOmega1              $c;/g" member$i/constant/momentumTransport
+    sed -i -e "s/alphaOmega2 	0.856;/alphaOmega2          $d;/g" member$i/constant/momentumTransport
+    sed -i -e "s/gamma1      	0.5556;/gamma1        $e;/g" member$i/constant/momentumTransport
+    sed -i -e "s/gamma2      	0.44;/gamma2              $f;/g" member$i/constant/momentumTransport
+    sed -i -e "s/beta1       	0.075;/beta1              $g;/g" member$i/constant/momentumTransport
+    sed -i -e "s/beta2       	0.0828;/beta2          $h;/g" member$i/constant/momentumTransport
+    sed -i -e "s/betaStar    	0.09;/betaStar        $j;/g" member$i/constant/momentumTransport
+    # We decompose the domain in all the members
+    cd $caseName
+    runApplication decomposePar -force
+    cd ..
+
+    partCommand=" : -np $cwipiDec cwipiHLSimpleFoamkOmegaSSTPar -case member$i -parallel"
+    command="$command$partCommand"
+done
+
+rm -rf results postProcessing log
+mkdir -p $(pwd)/results
+
+# We run in parallel with the number of ensembles wished
+
+partEnKF="mpirun -output-filename logs -np 1 ./../../build/HLEnKF_main.exe"
+finalCommand="$partEnKF$command"
+# echo $finalCommand
+
+$finalCommand | tee log.full
+
+#mpirun -np 1 ./KF_coupling.exe : -np $cwipiMembers cwipiSimpleFoamkEps -parallel | tee log
+#mpirun -np 1 ./KF_coupling.exe : -np $cwipiMembers cwipiSimpleFoamkOmegaSST -parallel | tee log

@@ -1,0 +1,251 @@
+# Declare stages
+stages:
+  - init
+  - build
+  - test
+  - deploy
+  - coverage
+
+# Default variables and parameters
+variables:
+#  CI_BUILDS_DIR: $WORKDIR/.jacamar-ci/builds
+  CUSTOM_CI_BUILDS_DIR: $WORKDIR/test # inactif car option non activee dans la configuration du runner
+  GIT_STRATEGY: none # don't do anything by default
+  # SCHEDULER_PARAMETERS:  "--qos=co_inter_std  --cpus-per-task=24  --ntasks=24 --time=00:01:00 "
+  SCHEDULER_PARAMETERS:  "--qos=co_inter_bigmem  --ntasks=40 --time=01:00:00 --exclusive"
+  #SCHEDULER_PARAMETERS:  "-M rhel8 --qos=el8_gbe --ntasks=24 --time=10:00:00"
+  # CI_DEBUG_TRACE: "true" #Uncomment to debug CI
+default:
+  tags: #All jobs uses jamacar-slurm executor
+    - slurm
+
+
+job:init_repo:
+  variables:
+    GIT_STRATEGY: clone
+    GIT_SUBMODULE_STRATEGY: none
+    SCHEDULER_PARAMETERS:  "--qos=co_inter_bigmem  --cpus-per-task=24  --ntasks=1 --time=01:00:00"
+    #SCHEDULER_PARAMETERS:  "-M rhel8 --qos=el8_gbe --ntasks=1 --time=00:10:00"
+  stage: init
+  script: # explicitly load modules one by one, so that if one fails, it will be easy to identify
+#    - echo "CI_PROJECT_DIR: $CI_PROJECT_DIR"
+    - echo "Clone directory $PWD"
+    - echo "CUSTOM_CI_DIR=$PWD" >> build.env
+    - git submodule update --init external/paradigm
+  artifacts:
+    reports:
+      dotenv: build.env
+
+job:build:
+  parallel:
+    matrix:
+        - COMPILER: "gcc@12"
+          MPI_LIB: 
+            - "intel-oneapi"
+          BUILD_TYPE: 
+            - "Sanitize"
+        - COMPILER: "gcc@10"
+          MPI_LIB: 
+            - "openmpi"
+          BUILD_TYPE: 
+            - "Debug"
+        - COMPILER: "gcc@10"
+          MPI_LIB: 
+            - "intel-oneapi"
+          BUILD_TYPE: 
+            - "Sanitize"
+        - COMPILER: "intel-llvm@2022"
+          MPI_LIB: 
+            - "intel-oneapi"
+          BUILD_TYPE: 
+            - "Debug"
+        - COMPILER: "intel@2022"
+          MPI_LIB: 
+            - "intel-oneapi"
+          BUILD_TYPE: 
+            - "Debug"
+  variables:
+    MATRIX_KEY: _${COMPILER}_${MPI_LIB}_BUILD_${BUILD_TYPE}
+  stage: build
+  before_script:
+    - module purge
+    - echo "compilo = $COMPILER"
+    - source /scratchm/sonics/dist/source.sh --env sonics_dev --compiler $COMPILER --mpi $MPI_LIB && module load py-gcovr-4.2-gcc-8.3.1-6lqfk6f py-breathe-4.21.0-gcc-8.3.1-t576gc7 doxygen-1.9.3-gcc-8.3.1-4qcntlg texlive/2021
+  script:
+    - echo "Runner directory is $PWD; move to working directory $CUSTOM_CI_DIR"
+    - cd $CUSTOM_CI_DIR
+    - mkdir -p build$MATRIX_KEY && cd build$MATRIX_KEY
+    - if [ "${COMPILER}" == "gcc@12" ]; then
+    -   cmake -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCWP_ENABLE_EXTERNAL_PDM=OFF -DCWP_ENABLE_PARMETIS=OFF -DCWP_ENABLE_PTSCOTCH=OFF -DCWP_ENABLE_PYTHON_BINDINGS=ON -DCWP_ENABLE_STATIC=ON -DCWP_ENABLE_SHARED=ON -DCWP_ENABLE_Fortran=ON -DCWP_ENABLE_Fortran_MPI_MODULE=OFF -DCWP_ENABLE_DOCUMENTATION=OFF -DCWP_ENABLE_BLASLAPACK=OFF -DCWP_ENABLE_PDM_TESTS=OFF -DCWP_ENABLE_CLIENT_SERVER=ON  ../
+    - elif [ "${COMPILER}" == "gcc@10" ]; then
+    -   cmake -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCWP_ENABLE_EXTERNAL_PDM=OFF -DCWP_ENABLE_PARMETIS=OFF -DCWP_ENABLE_PTSCOTCH=OFF -DCWP_ENABLE_PYTHON_BINDINGS=ON -DCWP_ENABLE_STATIC=ON -DCWP_ENABLE_SHARED=ON -DCWP_ENABLE_Fortran=ON -DCWP_ENABLE_Fortran_MPI_MODULE=ON -DCWP_ENABLE_DOCUMENTATION=OFF -DCWP_ENABLE_BLASLAPACK=OFF -DCWP_ENABLE_PDM_TESTS=OFF -DCWP_ENABLE_CLIENT_SERVER=ON  ../
+    - elif [ "${COMPILER}" == "intel@2022" ]; then
+    -   cmake -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCWP_ENABLE_EXTERNAL_PDM=OFF -DCWP_ENABLE_PARMETIS=OFF -DCWP_ENABLE_PTSCOTCH=OFF -DCWP_ENABLE_PYTHON_BINDINGS=ON -DCWP_ENABLE_STATIC=ON -DCWP_ENABLE_SHARED=ON -DCWP_ENABLE_Fortran=ON -DCWP_ENABLE_Fortran_MPI_MODULE=ON -DCWP_ENABLE_DOCUMENTATION=ON -DCWP_ENABLE_BLASLAPACK=OFF -DCWP_ENABLE_PDM_TESTS=OFF -DCWP_ENABLE_CLIENT_SERVER=ON  ../
+    - elif [ "${COMPILER}" == "intel-llvm@2022" ]; then
+    -   cmake -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCWP_ENABLE_EXTERNAL_PDM=OFF -DCWP_ENABLE_PARMETIS=OFF -DCWP_ENABLE_PTSCOTCH=OFF -DCWP_ENABLE_PYTHON_BINDINGS=ON -DCWP_ENABLE_STATIC=ON -DCWP_ENABLE_SHARED=ON -DCWP_ENABLE_Fortran=OFF -DCWP_ENABLE_Fortran_MPI_MODULE=OFF -DCWP_ENABLE_DOCUMENTATION=OFF -DCWP_ENABLE_BLASLAPACK=OFF -DCWP_ENABLE_PDM_TESTS=OFF -DCWP_ENABLE_CLIENT_SERVER=OFF  ../
+    - fi
+    - make -j
+#          -DPDM_ENABLE_Fortran_MPI_MODULE=OFF \
+
+job:build_coverage:
+  stage: build
+  before_script:
+    - module purge
+    - source /scratchm/sonics/dist/source.sh --env sonics_dev --compiler "gcc@12" --mpi "intel-oneapi" && module load py-gcovr-4.2-gcc-8.3.1-6lqfk6f py-breathe-4.21.0-gcc-8.3.1-t576gc7 doxygen-1.9.3-gcc-8.3.1-4qcntlg texlive/2021
+  script:
+    - cd $CUSTOM_CI_DIR
+    - mkdir -p build_coverage && cd build_coverage
+    - cmake -DCMAKE_BUILD_TYPE="Coverage" -DCWP_ENABLE_EXTERNAL_PDM=OFF -DCWP_ENABLE_PARMETIS=OFF -DCWP_ENABLE_PTSCOTCH=OFF -DCWP_ENABLE_PYTHON_BINDINGS=ON -DCWP_ENABLE_STATIC=OFF -DCWP_ENABLE_SHARED=ON -DCWP_ENABLE_Fortran=ON -DCWP_ENABLE_Fortran_MPI_MODULE=OFF -DCWP_ENABLE_DOCUMENTATION=OFF -DCWP_ENABLE_BLASLAPACK=OFF -DCWP_ENABLE_PDM_TESTS=OFF -DCWP_ENABLE_CLIENT_SERVER=ON -DMPIEXEC_EXECUTABLE=/opt/tools/intel/oneapi/mpi/2021.6.0/bin/mpirun ../
+    - make -j
+
+#job:doc:
+# stage: build
+# needs: ["job:init_repo", "job:build"] #job:init is needed to get dotenv artifacts
+# before_script:
+#   - module purge
+#   - source /scratchm/sonics/dist/source.sh --env sonics_dev --compiler "intel@2022" --mpi "intel-oneapi" && module load py-gcovr-4.2-gcc-8.3.1-6lqfk6f py-breathe-4.21.0-gcc-8.3.1-t576gc7 doxygen-1.9.3-gcc-8.3.1-4qcntlg texlive/2021 
+# rules:
+#   - if: $CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH == "dev"
+# script:
+#   - echo "Runner directory is $PWD; move to working directory $CUSTOM_CI_DIR"
+#   - cd $CUSTOM_CI_DIR/build_intel@2022_intel-oneapi_BUILD_Debug
+#   - make doc
+# artifacts:
+#   paths:
+#     - ./build/doc/*
+#   expire_in: 24 hours
+
+unit_test:
+  parallel:
+    matrix:
+        - COMPILER: "gcc@12"
+          MPI_LIB: 
+            - "intel-oneapi"
+          BUILD_TYPE: 
+            - "Sanitize"
+        - COMPILER: "gcc@10"
+          MPI_LIB: 
+            - "openmpi"
+          BUILD_TYPE: 
+            - "Debug"
+        - COMPILER: "gcc@10"
+          MPI_LIB: 
+            - "intel-oneapi"
+          BUILD_TYPE: 
+            - "Sanitize"
+        - COMPILER: "intel-llvm@2022"
+          MPI_LIB: 
+            - "intel-oneapi"
+          BUILD_TYPE: 
+            - "Debug"
+        - COMPILER: "intel@2022"
+          MPI_LIB: 
+            - "intel-oneapi"
+          BUILD_TYPE: 
+            - "Debug"
+  variables:
+    MATRIX_KEY: _${COMPILER}_${MPI_LIB}_BUILD_${BUILD_TYPE}
+    SCHEDULER_PARAMETERS:  "--qos=co_inter_bigmem  --ntasks=40 --time=01:00:00 --exclusive"
+  stage: test
+  before_script:
+    - module purge
+    - source /scratchm/sonics/dist/source.sh --env sonics_dev --compiler $COMPILER --mpi $MPI_LIB && module load py-gcovr-4.2-gcc-8.3.1-6lqfk6f py-breathe-4.21.0-gcc-8.3.1-t576gc7 doxygen-1.9.3-gcc-8.3.1-4qcntlg texlive/2021
+  script:
+    - echo "Runner directory is $PWD; move to working directory $CUSTOM_CI_DIR"
+    - export SLURM_EXACT=1
+    - export I_MPI_PMI_LIBRARY=/usr/lib64/libpmi.so 
+    - cd $CUSTOM_CI_DIR/build$MATRIX_KEY
+    - ./cwp_run -srun -ics -timeout 2
+#    - ./cwp_run
+#    - ctest -R new --timeout 120 --verbose --output-junit $CI_PROJECT_DIR/cwp_ctest$MATRIX_KEY.xml || echo " "
+    # - cd $CUSTOM_CI_DIR/build$MATRIX_KEY
+    # - ctest --output-junit $CI_PROJECT_DIR/paradigm_ctest$MATRIX_KEY.xml
+   #    # Artefacts are searched in CI_PROJECT_DIR, but job was executed in CUSTOM_CI_DIR
+   #    #- ctest -V --output-junit $CI_PROJECT_DIR/paradigm_ctest$MATRIX_KEY.xml
+   #    # Go back to runner dir for artifact modification
+  after_script:
+    - echo $PWD
+    - cd $CI_PROJECT_DIR
+    - sed -i '/testsuite name/c\<testsuite name="'"$MATRIX_KEY"'"' cwp_ctest$MATRIX_KEY.xml
+    - sed -i 's/" classname/_'"$MATRIX_KEY"'" classname/' cwp_ctest$MATRIX_KEY.xml
+
+  artifacts:
+    when: always
+    reports:
+      junit: cwp_ctest$MATRIX_KEY.xml
+
+job:coverage_report:
+  stage: coverage
+  before_script:
+    - module purge
+    - source /scratchm/sonics/dist/source.sh --env sonics_dev --compiler "gcc@12" --mpi "intel-oneapi" && module load py-gcovr-4.2-gcc-8.3.1-6lqfk6f py-breathe-4.21.0-gcc-8.3.1-t576gc7 doxygen-1.9.3-gcc-8.3.1-4qcntlg texlive/2021
+  script:
+    - export SLURM_EXACT=1
+    - export I_MPI_PMI_LIBRARY=/usr/lib64/libpmi.so
+    - cd $CUSTOM_CI_DIR/build_coverage
+    - ./cwp_run -srun -ics -timeout 2
+    - gcovr --xml-pretty --exclude-unreachable-branches --print-summary --root ${CUSTOM_CI_DIR}/src/new --object-directory ${CUSTOM_CI_DIR}/build_coverage --output $CI_PROJECT_DIR/coverage.xml
+  when: on_success
+  coverage: /lines:\s*(\d+\.\d+)%/
+  artifacts:
+    when: always
+    reports:
+        coverage_report:
+          coverage_format: cobertura
+          path: coverage.xml
+
+
+pages:
+  stage: deploy
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_TAG != null
+  before_script: 
+    - ''
+  script:
+    - mkdir -p public
+    - echo "CI_COMMIT_TAG = ${CI_COMMIT_TAG}"
+    - if [ "${CI_COMMIT_TAG}" == "" ]; then
+    -   cp -r $CUSTOM_CI_DIR/build_intel@2022_intel-oneapi_BUILD_Debug/doc/sphinx/html public/$CI_COMMIT_BRANCH
+    - else
+    -   cp -r $CUSTOM_CI_DIR/build_intel@2022_intel-oneapi_BUILD_Debug/doc/sphinx/html public/$CI_COMMIT_TAG
+    - fi 
+    # - |
+    #   cat > public/index.html << EOF
+    #   <head>
+    #     <meta http-equiv='refresh' content='0; URL=dev/index.html'>
+    #   </head>
+    #   EOF
+  artifacts:
+    paths:
+      - public
+    expire_in: never
+
+# $CI_COMMIT_TAG
+# non_regression:
+#   variables:
+#     COMPILER: "gcc@10"
+#     GNUM64: "ON"
+#     MPI_LIB: "impi"
+#     MATRIX_KEY: _${COMPILER}_${MPI_LIB}_GNUM64_${GNUM64}
+#   stage: test
+#   before_script:
+#     - module purge
+#     - source /scratchm/sonics/dist/spiro_el8.sh --compiler=$COMPILER --mpi=$MPI_LIB && module load py-gcovr-4.2-gcc-8.3.1-6lqfk6f
+#   script:
+#     - echo "Runner directory is $PWD; move to working directory $CUSTOM_CI_DIR"
+#     - cd $CUSTOM_CI_DIR/build$MATRIX_KEY
+#     - mkdir -p reports
+#     - export LSAN_OPTIONS=suppressions=$CUSTOM_CI_DIR/script/asan/asan.supp
+#     - echo $LSAN_OPTIONS
+#     - ./script/prepare_ci/run_top_test_base.sh --log_file_name reports/output_alltest_pdm --matrix_key ${MATRIX_KEY} --output_xml $CI_PROJECT_DIR/paradigm_alltest$MATRIX_KEY.xml
+#   artifacts:
+#    when: always
+#    reports:
+#      junit: paradigm_alltest$MATRIX_KEY.xml
+
+# TODO :
+#  - Rajouter des regles pour faire plus de compilo quand on merge sur dev : impi + clang + pgi par exemple
+# rules:
+#   - if: $CI_COMMIT_BRANCH == "dev"
+# Rajouter int/long
+# Tester si paradigm se compiler seul (sans paradigma)

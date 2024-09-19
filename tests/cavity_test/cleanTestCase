@@ -1,0 +1,36 @@
+#! /bin/bash
+
+echo 'Cleaning test case : '$(pwd)
+
+# We read the number of ensembles and subdomains from the configuration file
+conesDict=$(pwd)"/system/conesDict"
+decomposeParDict=$(pwd)"/system/decomposeParDict"
+
+while read -r name num
+do
+    if
+        [[ $name == "ensemble" ]]; then
+        printf -v ensembles "%s\n" "$num"
+    fi
+done < $conesDict
+
+while read -r name num
+do
+    if
+        [[ $name == "numberOfSubdomains" ]]; then
+        printf -v subdomains "%s\n" "$num"
+    fi
+done < $decomposeParDict
+
+cwipiMembers=$(printf "%s" "$ensembles" |sed 's/;//')
+cwipiDec=$(printf "%s" "$subdomains" |sed 's/;//')
+
+for ((i=1; i<(cwipiMembers+1); i++));
+do
+    #We copy the information from the root directory
+    caseName=$(pwd)"/member$i"
+    rm -rf $caseName
+done
+
+# We clean the root directory
+rm -rf results log*

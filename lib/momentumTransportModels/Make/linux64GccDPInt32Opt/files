@@ -1,0 +1,4 @@
+SOURCE += makemomentumTransportModel.C
+
+LIB = $(PWD)/lib/libDASmagorinsky
+LIB = $(FOAM_USER_LIBBIN)/libDASmagorinsky

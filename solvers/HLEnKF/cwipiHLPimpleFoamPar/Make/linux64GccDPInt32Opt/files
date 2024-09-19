@@ -1,0 +1,3 @@
+SOURCE += cwipiHLPimpleFoamPar.C
+
+EXE = $(FOAM_USER_APPBIN)/cwipiHLPimpleFoamPar

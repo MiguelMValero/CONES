@@ -1,0 +1,40 @@
+#ifndef __BFTC_CONFIG_H__
+#define __BFTC_CONFIG_H__
+
+/* Complete version number */
+#define BFTC_VERSION "1.1.3"
+
+/* Major version number */
+#define BFTC_MAJOR_VERSION 1
+
+/* Minor version number */
+#define BFTC_MINOR_VERSION 1
+
+/* Release version number */
+#define BFTC_RELEASE_VERSION 3
+
+/* The size of a 'void *', as computed by sizeof. */
+#define BFTC_SIZEOF_VOID_P @SIZEOF_VOID_P@
+
+/* The size of a 'short', as computed by sizeof. */
+#define BFTC_SIZEOF_SHORT @SIZEOF_SHORT@
+
+/* The size of a 'int', as computed by sizeof. */
+#define BFTC_SIZEOF_INT @SIZEOF_INT@
+
+/* The size of a 'long', as computed by sizeof. */
+#define BFTC_SIZEOF_LONG @SIZEOF_LONG@
+
+/* The size of a 'long long', as computed by sizeof. */
+#define BFTC_SIZEOF_LONG_LONG @SIZEOF_LONG_LONG@
+
+/* The size of a 'float', as computed by sizeof. */
+#define BFTC_SIZEOF_FLOAT @SIZEOF_FLOAT@
+
+/* The size of a 'double', as computed by sizeof. */
+#define BFTC_SIZEOF_DOUBLE @SIZEOF_DOUBLE@
+
+/* The size of a 'off_t', as computed by sizeof. */
+#define BFTC_SIZEOF_OFF_T @SIZEOF_OFF_T@
+
+#endif /* __BFTC_CONFIG_H__ */

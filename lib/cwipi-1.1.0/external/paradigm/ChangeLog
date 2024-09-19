@@ -1,0 +1,288 @@
+## [2.4.1] - 2024-01-12
+### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+- PDM_part : Fortran API
+## [2.4.0] - 2024-01-09
+### Added
+- Training : Jupyter notebook in 3 languages (C, Fortran, Python)
+- Documentation : Partial Sphinx documentation
+- Fortran API : PDM_dmesh_nodal, PDM_dist_cloud_surf, PDM_mesh_intersection, PDM_part_connectivity_transform, PDM_dcube_nodal_gen
+- Python API : PDM_distrib, PDM_multi_block_to_part
+- 7 Tests + 2 Tutorials
+### Changed
+- PDM_mesh_location : API
+- PDM_multipart : API + Add 1D and 0D
+- PDM_part_extension : API
+### Deprecated
+### Removed
+### Fixed
+## [2.3.0] - 2023-06-23
+### Added
+- PDM_generate_mesh : Unique API for simple mesh generation
+- PDM_dmesh_extract : Extract mesh in distributed blocks
+### Changed
+- CI : Improvment
+- PDM_mesh_location : Add PDM_MESh_LOCATION_LOCATE_ALL_TGT mode (All points are located)
+- PDM_multipart : Add 0D, 1D and 2D meshes
+- PDM_extract_part : Add 0D and 1D and meshes + Fix npart=0 case + groups preservation
+- PDM_part_to_part : Add API to setup a user buffer + API Fortran
+- PDM_iso_surface : Groups preservation + Fix polygon mode
+- Cython : Improvment (ownership)
+### Deprecated
+### Removed
+### Fixed
+## [2.2.0] - 2023-03-20
+### Added
+- migration to the internal gitlab server
+- CI with LeakSanitizer
+- pdm_run : script to simplify the launch of tests
+- PDM_field_cell_to_vtx : Python interface
+- PDM_global_mean : Python interface
+- PDM_inria_mesh_fmt : Python interface
+- PDM_mesh_intersection : Python interface
+- PDM_sphere_surf_gen : Python interface
+- PDM_iso_surface.pxi (ParaDiGMA) : Python interfaceq
+- PDM_field_cell_to_vtx : Transfer a cell field to a vertex field
+- PDM_mesh_nodal : Fortran interface
+- PDM_part_mesh_nodal : Fortran interface
+- PDM_multipart : Fortran interface
+- 30 Tests (including 3 for ParaDiGMA)
+### Changed
+- PDM_dist_cloud_surf : PDM_part_mesh_nodal is accepted in input
+- PDM_ho_location : Implement a Newton method for all elements (for all orders)
+- PDM_mesh_intersection : PDM_part_mesh_nodal is accepted in input
+- PDM_part_mesh_nodal : Replace PDM_part_mesh (more general and generic structure)
+- PDM_part_mesh_nodal_to_pmesh : Compute faces and (or) edges from a PDM_part_mesh_nodal
+- PDM_lagrange_to_bezier : Implement all standard high-order elements
+- PDM_mesh_location : Add high order elements + switch to PDM_part_mesh_nodal
+- PDM_point_location : Use the Newton method primarily
+- PDM_writer : Switch to PDM_part_mesh_nodal structure
+- PDM_part : Call PDM_multi_part from PDM_part if the environment variable PDM_USE_MULTIPART is defined
+- PDM_part_renum : Renumbering of groups of entities (face, edge, vertex)
+- PDM_multi_part : PDM_part_mesh_nodal as output + HO
+- PDM_partitioning_algorithm : Support HO elements
+- PDM_partitioning_nodal_algorithm : Support HO elements
+- PDM_box_tree : An user init location is accepted in input
+- PDM_extract_part : PDM_part_mesh_nodal is accepted in input
+- PDM_gnum : Build global numbering from tuple + Optimization
+- PDM_part_mesh : Manage group (Face, edge, vertex) + boundaries
+- PDM_iso_surface (ParaDiGMA) : Transfer boundary data to iso_surface (beta)
+### Deprecated
+- PDM_mesh_nodal : Replace with PDM_part_mesh_nodal
+### Removed
+- Nuga sources (ParaDiGMA)
+### Fixed
+- PDM_para_octree (fix multiple points)
+- PDM_part_extension (fix n_part > 1)
+- PDM_part_to_block (fix n_part > 1)
+- PDM_point_tree_seq
+## [2.1.0] - 2022-12-06
+### Added
+- PDM_ho_bezier : Elementary functions for high-order Bezier elements
+- PDM_ho_bezier_basis : Bezier basis functions
+- PDM_lagrange_to_bezier : Conversion for Lagarange basis to Bezier basis
+- PDM_box_gen : Generate sets of boxes
+- PDM_sphere_vol_gen : Generate 3D mesh of a sphere
+- PDM_reader_gamma : Read GAMMA mesh format (partial implementation)
+- PDM_reader_stl : Read STL mesh format
+### Changed
+- PDM_dmesh_nodal_reorder : remove 'order' argument (minor change of API)
+- PDM_mesh_location : Add the communication graph to the results
+- PDM_mesh_location : New optimized algorithm
+- PDM_Mesh_nodal : cell3d_cellface_add (minor change of API)
+- PDM_multipart  : get_part_mesh_nodal (minor change of API (add ownership))
+- PDM_part_to_block : Add reverse exchange
+- PDM_part_to_part : Add PDM_part_to_part_create_from_num2_triplet
+- PDM_extract_part : Improved and optimized
+- PDM_dist_cloud_surf : Improved memory efficient and performance
+  (optional, set PDM_DIST_CLOUD_SURF_OPTIM to 1 to use it)
+- PDM_writer : Concatenate all time step into a single file per field
+### Deprecated
+### Removed
+### Fixed
+- bugfix : PDM_part_to_part
+- bugfix : PDM_extract_part
+## [2.0.0] - 2022-06-09
+### Added
+- PDM_vtk : Write ASCII VTK files for visulization with ParaView
+- PDM_dgeom_elem : Multiple method to compute center of entity with distributed conectivities and coordinates (usefull for hilbert ordering)
+- PDM_dmesh_nodal_elmts : Sub-structure of dmesh_nodal that contains for one geom kind (volumic/surfacic/ridge/corner) the associate element connectivtities
+- PDM_domain_interface : Structure and algorithme to manage interface between domain (for exemple between 2 mesh with 2 separate global numbering). Algorithm is useful to deduce other connectivities betwenn domain (for exemple face -> vtx)
+- PDM_ho_ordering : Generic definition of high order elements
+- PDM_part_domain_interface : Same as PDM_domain_interface but in partitioned view (usefull for part_extension)
+- PDM_predicate : Numerically robust geometric predicates
+- PDM_point_cloud_gen : Generate a random point cloud
+- PDM_sphere_surf_gen : Generate a distributed suface mesh of a sphere
+- PDM_extract_part : Build a child mesh from the extraction of selected elements in the parent mesh
+- PDM_global_reduce : Global reduce applied to a partitionned field
+- PDM_part_to_part : Browse an MPI communication graph defined by two global numberings
+- PDM_pointer_array : Fortran derived type for interfacing C pointers of arrays
+- PDM_hkey : Compute an hash key from a list of integer
+- PDM_memory_stats : Structure to monitor the memory uses by snapshot
+### Changed
+- New Fortran API based on iso-c-binding
+- Adds functionalities in Fortran API
+- Adds functionalities in Python API
+### Deprecated
+### Removed
+- Removes handles in some functionalities
+### Fixed
+## [1.13.0] - 2021-07-28
+### Added
+- PDM_part_extension: Generate extension of a existing partition for graph, usefull to setup ghost cell
+- PDM_distant_neighbor: Exchange protocol in order to communicate by triplet (i_proc, i_part, i_entity)
+- PDM_mesh_adapt: First API of mesh adaptation
+- PDM_dcube_nodal_gen: Cube generator with element connectivity (3D : Hexa/Pyra/Tetra and 2D : Quad/Tri )
+- PDM_part1_to_selected_part2: Exchange protocol between two partitioned numbering
+- PDM_interpolate_from_mesh_location: Simple inplementation of exhange after a localisation (can be replace by PDM_part1_to_selected_part2)
+- PDM_dmesh_nodal: Low level structure to describe a mesh by elemt in distributed maner
+- PDM_dmesh_nodal_to_dmesh: Algorithm to deduce from mesh_nodal connectivity a descending connectivity (ex: cell_vtx ---> face_cell)
+- PDM_poly_vol_gen: Polyhedral mesh generation (PDM_poly_surf extruded)
+- PDM_array: Generic functions for arrays
+- PDM_partitioning_nodal_algorithm: A collection of algorithm to help partitionning of dmesh_nodal (Beta)
+### Changed
+- ParaDiGMA is an extension of ParaDiGM and becomes a git submodule of ParaDiGM
+- PDM_closest_points: Greatly improves robustness and efficiency
+- PDM_mesh_location: Greatly improves robustness and efficiency
+- PDM_para_octree: Greatly improves robustness and efficiency
+- PDM_dbbtree: Greatly improves robustness and efficiency
+- PDM_overlay: Greatly improves robustness and efficiency
+- PDM_dist_cloud_surf: Greatly improves robustness and efficiency
+- CMake 3.0 -> CMake 3.19
+- Adds functionalities in Fortran API
+- Adds functionalities in Python API
+- Removes handles in some functionalities
+### Deprecated
+### Removed
+### Fixed
+## [1.12.5] - 2021-07-01
+### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+bugfix : pdm_writer_ensight
+## [1.12.4] - 2021-03-23
+### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+bugfix : pdm_hilbert 2D
+## [1.12.3] - 2021-03-10
+### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+bugfix : renum cacheblocking
+## [1.12.2] - 2021-02-05
+### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+bugfix : pdm_box_tree (normalization)
+bugfix : pdm_dbbtree (normalization)
+## [1.12.1] - 2021-01-20
+### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+## [1.12.0] - 2020-11-30
+### Added
+- API :
+  - PDM_overlay : Intersection of two plane meshes
+  - PDM_closest_points     : Parallel knn algorithm
+  - PDM_dmesh_partitioning : New implementation of parallel meshe partitioning (old implementation : PDM_part)
+  - PDM_multipart : Parallel meshes partitioning with preservation of links between meshes
+  - PDM_mesh_location : A partitioned point cloud location in a partitionned mesh
+  - PDM_distant_neighbor : Exchange data between distant neighbors (only collective communication for the moment)
+- Internal functions :
+  - PDM_mean_values : Polygon and Polyedra mean values (generalization of barycentric coordinates)
+  - PDM_ho_basis : High order basis for tetrahedron, hexahedron, prism, pyramid, triangle and quadrangle
+  - PDM_ho_location : Point location into a high order curved element
+  - PDM_logging : Managing a logging file
+  - PDM_dconnectivity_transform : Set of function to perform distributed operation on connectivity (combine, transform, reverse)
+  - PDM_dmesh_nodal_elements_utils : Operations about a dmesh_nodal mesh
+  - PDM_point_location : Point location in a PDM_mesh_nodal
+  - PDM_tetrahedron : Elementary functions about tetrahedron
+  - PDM_triangulate : Polygon triangulation
+  - PDM_para_graph_dual : Parallel building of a dual graph mesh
+  - PDM_partitioning_algorithm : Steps of the partitioning algorithm called from PDM_dmesh_partitioning
+  - PDM_compare_operator : Implementation of comparaison operator for string and connectivity (useful for PDM_gnum_from_hash_values)
+  - PDM_dmesh : Distributed mesh defined from a top-down connectivity
+  - PDM_equal_operator : Implementation of equal operator for string and connectivity (useful for PDM_gnum_from_hash_values)
+  - PDM_gnum_from_hash_values : Structure to build a global numbering from keys, useful to building edge global numebring or face global numbering. The idea is to use a distribution of key for each rank, sort locally and resend to original distribution
+- Fortran interface : PDM_closest_points,
+                      PDM_mesh_location,
+                      PDM_block_to_part,
+                      PDM_part_to_block
+	              PDM_overlay
+- Cython interface : PDM_closest_points,
+                     PDM_dcube_gen,
+                     PDM_distant_neighbor,
+                     PDM_dmesh,
+                     PDM_gnum,
+                     PDM_gnum_location,
+                     PDM_mesh_location,
+                     PDM_multi_part
+                     PDM_points_merge
+                     PDM_overlay
+- C tests : pdm_t_closest_points,
+            pdm_t_create_edge_gnum,
+            pdm_t_distant_neighbor,
+            pdm_t_distant_neighbor_nomatch,
+            pdm_t_gnum_from_hash_values,
+            pdm_t_knn_cube,
+            pdm_t_mesh_location_dcube,
+            pdm_t_mesh_location_poly_surf,
+            pdm_t_multipart,
+            pdm_t_order,
+            pdm_t_partitioning_dcube
+            pdm_t_plane_intersect_unit,
+            pdm_t_plane_meshes_intersect_unit,
+            pdm_t_plane_meshes_intersect
+- Fortran tests : pdm_t_block_to_part_f,
+                  pdm_t_mesh_location_f,
+                  pdm_t_part_to_block_f
+                  pdm_t_plane_intersect_unit_f
+- Unitests from DocTest : pdm_dconnectivity_transform.test,
+                          pdm_dmesh_nodal.test,
+                          pdm_dmesh_nodal_elements_utils,
+                          block_to_part.test
+### Changed
+### Deprecated
+### Removed
+### Fixed
+## [1.11.0] - 2019-12-10
+### Added
+- PDM_para_octree : Parallel linear octree (partial implementation)
+### Changed
+- PDM_block_to_part : Point to point communication if buffers are too large
+- PDM_dbbtree : Change default parameters
+- PDM_mesh_nodal : Add cell centers
+- PDM_MPI : Add large allToall (sdispls and rdispls in int64)
+### Deprecated
+### Removed
+- PDM_box_tree :  Remove extents attribute
+### Fixed
+- Windows portage
+- Corrections for PDM_block_to_part
+- Corrections for PDM_dist_cloud_surf
+- PDM_MPI_Comme_split : memory leaks
+## [1.10.0] - 2019-06-03
+### Added
+- ChangeLog file
+- PDM_gnum_location : Give the location of an entity (process, number of partition, local number) from its global numbering
+### Changed
+- pdm_mesh_dist -> pdm_dist_cloud_surf
+### Deprecated
+### Removed
+### Fixed
+- Correction for multigrid
+- Correction for part_to_block

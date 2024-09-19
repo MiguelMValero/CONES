@@ -1,0 +1,85 @@
+#! /bin/bash
+
+# We read the number of ensembles and subdomains from the configuration file
+conesDict=$(pwd)"/system/conesDict"
+decomposeParDict=$(pwd)"/system/decomposeParDict"
+
+while read -r name num
+do
+    if
+        [[ $name == "ensemble" ]]; then
+        printf -v ensembles "%s\n" "$num"
+    fi
+done < $conesDict
+
+while read -r name num
+do
+    if
+        [[ $name == "numberOfSubdomains" ]]; then
+        printf -v subdomains "%s\n" "$num"
+    fi
+done < $decomposeParDict
+
+echo 'The number of ensembles we are dealing with is' $ensembles |sed 's/;//'
+cwipiMembers=$(printf "%s" "$ensembles" |sed 's/;//')
+echo 'The number of decompositions we are dealing with is' $subdomains |sed 's/;//'
+cwipiDec=$(printf "%s" "$subdomains" |sed 's/;//')
+
+
+blockMesh
+mkdir -p $(pwd)/results
+
+for ((i=1; i<(cwipiMembers+1); i++));
+do
+    #We copy the information from the root directory
+    caseName=$(pwd)"/member$i"
+    rm -rf $caseName
+    mkdir $caseName
+    cp -r 0/ $caseName/
+    cp -r constant/ $caseName/
+    cp -r system/ $caseName/
+    echo $caseName
+
+    # We set the initial condition for the ensembles
+    fillFile=""
+    for ((j=1; j<5; j++));
+    do
+        #Amplitude des sine waves
+        amplitude=$(python -c "import scipy.stats as stats; print('{:.6f}'.format(stats.truncnorm.rvs((4-5)/0.5, (6-5)/0.5, loc=(5), scale=0.5)))")
+        sed -i -e "s/amplitude$j   (1/amplitude$j   ($amplitude/g" $caseName/0/U
+
+        #Fréquence des sine waves
+        frequency=$(python -c "import scipy.stats as stats; print('{:.6f}'.format(stats.truncnorm.rvs((10-20)/5, (30-20)/5, loc=20, scale=5)))")
+        sed -i -e "s/frequency$j   1/frequency$j   $frequency/g" $caseName/0/U
+
+        #Phase des sine waves
+        phase=$(python -c "import scipy.stats as stats; print('{:.6f}'.format(stats.truncnorm.rvs((-0.5-0)/0.25, (0.5-0)/0.25, loc=0, scale=0.25)))")
+        sed -i -e "s/phase$j       1/phase$j       $phase/g" $caseName/0/U
+
+        fillFile+="$amplitude $frequency $phase "
+    done
+    #Offset total des sine waves
+    offset=$(python -c "import scipy.stats as stats; print('{:.6f}'.format(stats.truncnorm.rvs((8-10)/4, (12-10)/1, loc=10, scale=1)))")
+    sed -i -e "s/offset       (1/offset       ($offset/g" $caseName/0/U
+
+    fillFile+="$offset "
+    echo $fillFile >> results/initConditions.txt
+
+    # We decompose the domain in all the members
+    cd $caseName
+    decomposePar -force
+    cd ..
+
+    partCommand=" : -np $cwipiDec cwipiIcoFoamPar -case member$i -parallel"
+    command="$command$partCommand"
+done
+
+# Run the application from the specification in the appConfig file
+# mpirun -np 1 ./KF_coupling.exe : -np $cwipiDec cwipiIcoFoamPar -case cavity_testPar1 -parallel : -np $cwipiDec cwipiIcoFoamPar -case cavity_testPar2 -parallel : -np $cwipiDec cwipiIcoFoamPar -case cavity_testPar3 -parallel : -np $cwipiDec cwipiIcoFoamPar -case cavity_testPar4 -parallel | tee log
+partEnKF="mpirun -np 1 ./../../lib/CONES_interface/KF_coupling.exe"
+finalCommand="$partEnKF$command"
+# echo $finalCommand
+
+$finalCommand | tee log
+
+#mpirun -np 1 ./KF_coupling.exe : -np $processors valgrind cwipiIcoFoamPar -parallel | tee log

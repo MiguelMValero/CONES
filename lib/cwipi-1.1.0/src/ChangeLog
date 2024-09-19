@@ -1,0 +1,66 @@
+## [0.11.0] - 2020-02-04
+### Added
+- high order mesh interface : add lineic and volume element
+- Python3 Cython interface
+### Changed
+### Deprecated
+### Removed
+### Fixed
+
+## [0.10.4] - 2019-12-13
+### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+- Bug in polygon location
+
+=## [0.10.3] - 2019-02-26
+### Added
+- ChangeLog file
+### Changed
+- INSTALL file : about blas libraries
+### Deprecated
+### Removed
+### Fixed
+- FindBLAS error to find cblas
+- Default number of processes to launch ctest
+
+
+## [0.10.2] - 2018-12-17
+### Added
+- New CMake option : CWP_ENABLE_BLAS (default value = FALSE)
+### Changed
+### Deprecated
+### Removed
+### Fixed
+- Cython was missing -lcwp to build python module
+- FindBLAS error
+
+
+## [0.10.1] - 2018-11-27
+### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+- Compatibily between high order functions and old linear functions
+
+
+## [0.10.0] - 2018-11-12
+### Added
+- INSTALL file
+- cwipi_ho_define_mesh : Define a high order mesh interface
+- cwipi_ho_options_set : Define high order options
+- cwipi_ho_ordering_from_IJK_set : Define the internal numbering of a high order element
+- cwipi_ho_set_interpolation_function : Define a user interpolation for a high order mesh
+- python and C high order API
+- CMake build system
+### Changed
+- libcwipi -> libcwp
+- libfvm and libbftc are incluted into libcwp
+- libcwipi_f -> libcwpf
+### Deprecated
+### Removed
+- Autototools build system
+### Fixed

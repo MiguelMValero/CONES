@@ -1,0 +1,125 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  9                                     |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      conesDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+paramEstSwitch true; // Switch for parameter estimation
+stateEstSwitch true; // Switch for state estimation
+
+// Number of time steps between each analysis phase
+observationWindow 2;
+
+// Number of members in the ensemble
+ensemble 3;
+
+// Number of parameters to optimize with the DA
+// numberParameters 9; // k-omega SST
+numberParameters 5; // k-eps
+
+observationSubDict
+{
+    // Name of the file containing the observation coordinates
+    obsCoordFile "obs_coordinates.txt";
+
+    // Name of the file containing the observation data
+    obsDataFile "obs_field.txt";
+
+    // Number of observation probes for velocity
+    numberObsProbesVelocity 93;
+
+    // Specify velocity components in the observation
+    obsVelocityComponents (1 1 1);
+
+    // Number of observation probes for pressure
+    numberObsProbesPressure 0;
+
+    // Number of observation probes for friction coefficient (default = 1)
+    numberObsProbesCf 0;
+
+    // pertubation of the obs and diagonal of R matrix for velocity
+    velocityObsNoise (0.2 0.2 0.2);
+
+    // pertubation of the obs and diagonal of R matrix for pressure
+    pressureObsNoise 0.05;
+
+    // pertubation of the obs and diagonal of R matrix for friction coefficient
+    // cfObsNoise 0;
+
+    // Switch to for the obs: true = obs depends on time, false = obs does not depend on time
+    // obsTimeDependency 0;
+
+    // The time step of the observations if the case is unsteady
+    obsTimeStep 0.0002;
+
+    // The start time for the observation data
+    obsStartTime 0;
+
+    // Definition of observation parameter :  U (velocity only), p (pressure only), Up (velocity and pressure), UCf (velocity and friction coefficient)
+    obsType "U";
+
+    // Inputs for R are given in absolute values (absVal), percentage (relVal)
+    obsNoiseType "absVal";
+}
+
+inflationSubDict
+{
+    // Definition of inflation (0 = stochastic, 1 = deterministic)
+    inflationType "deterministic";
+
+    // State inflation (default = 0)
+    stateInflation 0;
+
+    // Parameters inflation (default = 0)
+    parametersInflation 0;
+}
+
+localizationSubDict
+{
+    // Switch for the clipping
+    clippingSwitch false;
+
+    // Name of the file containing the clippings IDs in case switch is true
+    clippingFile "clippingCells.txt";
+    
+    // Switch for the localisation (basic clipping or hyperlocalisation activated)
+    covarianceLocalizationSwitch false;
+    
+    // Covariance localization type of function
+    covarianceLocalizationType "default";
+
+    // Pertubation of the Kalman gain to take into consideration the localization direction
+    correlationScale (0.003295 0.003295 0.003295);
+
+    // Switch for hyperlocalization
+    hyperlocalizationSwitch false;
+}
+
+
+geometricToleranceSubDict
+{
+    geometricTolerance 0.1;
+}
+
+// Number of txt file written beginning from the last one
+numberOutputs 1; 
+
+// Print all the debuging messages or not: 1 = printed, 0 = nothing
+verbosityLevel 1;
+
+// Geometric tolerance of the cwipi coupling meshes
+// geometricTolerance 0.1;
+
+// Value used to calculate the NSRMD when deviding by 0
+// epsilon 0.000000001;
+// ************************************************************************* //
