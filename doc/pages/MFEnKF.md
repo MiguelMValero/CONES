@@ -104,3 +104,5 @@ posterior knowledge through the linear control variate technique:
 \f]
 
 where \f$\mathbf{S} = \mathbf{\Phi_r}/2\f$
+
+Very soon on CONES...

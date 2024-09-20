@@ -39,3 +39,5 @@ Fine members are denoted as \f$\textrm{F}\f$ superscript, \f$\textrm{C}\f$ for c
     \left( \mathbf{x}^\textrm{F}_k \right)^\prime = \left( \mathbf{x}^\textrm{F}_k \right)^f + \Pi_{\textrm{C} \rightarrow \textrm{F}}\underbrace{\left( \left( \mathbf{x}^\textrm{C}_k \right)^\prime - \left( \mathbf{x}^\textrm{C}_k \right)^\star \right)}_{= \mathbf{K}_k^\textrm{C} \left( \mathbf{y}_k^\textrm{C} - \mathcal{H}_k^\textrm{C} \left( \mathbf{x}_k^\textrm{C} \right)^\star  \right)}
 \end{equation}
 \f]
+
+Very soon on CONES...
