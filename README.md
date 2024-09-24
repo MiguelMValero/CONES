@@ -49,7 +49,7 @@ We want to predict the state of the system and its future in the **best possible
 
 At every $k$ DA cycle,
 
-1. **Prediction / Forecast step** : the forecast state $\mathbf{x}_k^f$ is given by the forward model $\mathcal{M}_{k:k-1}$ of our system.
+1. **Prediction / Forecast step** : the forecast state $\mathbf{x}_k^f$  is given by the forward model $\mathcal{M}_{k:k-1}$ of our system.
 
 2. **Correction / analysis step** : we perform a correction of the state $\mathbf{x}_k^a$ based on the forecast state $\mathbf{x}_k^f$ and some high-fidelity observation $\mathbf{y}_k$ through the estimation of the so-called *Kalman gain* matrix $\mathbf{K}_k$ that minimizes the error covariance matrix of the updated state $\mathbf{P}_k^a$.
 
