@@ -5,7 +5,16 @@
     <img src="doxygen-awesome-css/img/header_cones_v1.png" alt="drawing" width="600"/>
 </p>
 
-[TOC]
+[CONES (Coupling OpenFOAM with Numerical EnvironmentS)](#cones-coupling-openfoam-with-numerical-environments)
+- [CONES (Coupling OpenFOAM with Numerical EnvironmentS)](#cones-coupling-openfoam-with-numerical-environments)
+  - [Introduction](#introduction)
+  - [Data Assimilation](#data-assimilation)
+    - [What is Data Assimilation ?](#what-is-data-assimilation-)
+    - [Sequential Data Assimilation : Kalman Filter](#sequential-data-assimilation--kalman-filter)
+    - [Ensemble Kalman Filter with extended state](#ensemble-kalman-filter-with-extended-state)
+  - [Procedure to run a case (e.g., cavity test case)](#procedure-to-run-a-case-eg-cavity-test-case)
+  - [References](#references)
+
 
 ## Introduction
 
@@ -13,7 +22,7 @@ CONES is an application aiming to couple the CFD software OpenFOAM with any othe
 
 Three main elements constitute CONES:
 
-1. Ensemble of  $m $ simulations in OpenFOAM.
+1. Ensemble of  $m$ simulations in OpenFOAM.
 2. Code with the Data Assimilation (DA) algorithm.
 3. Open source coupler *CWIPI*.
 
@@ -25,7 +34,7 @@ Three main elements constitute CONES:
 ## Data Assimilation
 
 ### What is Data Assimilation ?
-Data Assimilation is an approach / method for combining **high-fidelity observations** with **low-fidelity model output** to improve the latter.
+Data Assimilation is an approach/method for combining **high-fidelity observations** with **low-fidelity model output** to improve the latter.
 
 We want to predict the state of the system and its future in the **best possible way**.
 
@@ -36,13 +45,13 @@ We want to predict the state of the system and its future in the **best possible
 
 ### Sequential Data Assimilation : Kalman Filter
 
-**Initialization** : initial estimate for  $\mathbf{x}_0^a $
+**Initialization** : initial estimate for  $\mathbf{x}_0^a$
 
-At every  $ k  $ DA cycle,
+At every $k$ DA cycle,
 
-1. **Prediction / Forecast step** : the forecast state  $ \mathbf{x}_k^f  $ is given by the forward model  $\mathcal{M}_{k:k-1} $ of our system.
+1. **Prediction / Forecast step** : the forecast state  $\mathbf{x}_k^f$ is given by the forward model  $\mathcal{M}_{k:k-1}$ of our system.
 
-2. **Correction / analysis step** : we perform a correction of the state  $\mathbf{x}_k^a $ based on the forecast state  $\mathbf{x}_k^f $ and some high-fidelity observation  $\mathbf{y}_k $ through the estimation of the so-called *Kalman gain* matrix  $\mathbf{K}_k $ that minimizes the error covariance matrix of the updated state  $\mathbf{P}_k^a $.
+2. **Correction / analysis step** : we perform a correction of the state  $\mathbf{x}_k^a $ based on the forecast state  $\mathbf{x}_k^f$ and some high-fidelity observation  $\mathbf{y}_k$ through the estimation of the so-called *Kalman gain* matrix  $\mathbf{K}_k$ that minimizes the error covariance matrix of the updated state  $\mathbf{P}_k^a$.
 
 <!-- \image html ./img/KF_algorithm-1.png  width=50% -->
 <p align="center">
@@ -51,40 +60,51 @@ At every  $ k  $ DA cycle,
 
 The inconveniences of the Kalman Filter are:
 1. The Kalman Filter - also the Extended Kalman Filter (EKF) - only works for moderate deviations from linearity and Gaussianity:
- \[ \mathcal{M}_{k:k-1} \longrightarrow \textrm{Navier-Stokes equations (non-linear)}  \]
-2. **High dimensionality** of the error covariance matrix  $\mathbf{P}_k $, with a number of degree of freedom equal to  $3 \times n_\textrm{cells} $:
- \[ \left[ \mathbf{P}_k \right]_{3 \times n_\textrm{cells}, \, 3 \times n_\textrm{cells}}  \]
+$$
+\begin{equation*}
+    \mathcal{M}_{k:k-1} \longrightarrow \textrm{Navier-Stokes equations (non-linear)}  
+\end{equation*}
+$$
+
+2. **High dimensionality** of the error covariance matrix  $\mathbf{P}_k $, with a number of degree of freedom equal to  $3 \times n_\textrm{cells}$:
+$$
+\begin{equation*}
+    \left[ \mathbf{P}_k \right]_{3 \times n_\textrm{cells}, \, 3 \times n_\textrm{cells}}  
+\end{equation*}
+$$
 
 The possible alternatives to the KF are :
-1. Particle filter: cannot yet to be applied to very high dimensional systems ($m $ = size of the ensembles)
+1. Particle filter: cannot yet to be applied to very high dimensional systems ($m$ = size of the ensembles)
 2. Ensemble Kalman Filter (EnKF):
 
-    a. High dimensional systems  $\rightarrow $ we avoid the explicit definition of  $\mathbf{P}_k $.
+    a. High dimensional systems  $\rightarrow $ we avoid the explicit definition of  $\mathbf{P}_k$.
 
     b. Non-linear models  $\rightarrow $ Monte-Carlo realisations.
 
-    c. But underestimation of  $\mathbf{P}_k^a $  $\rightarrow $ inflation & localisation.
+    c. But underestimation of  $\mathbf{P}_k^a \rightarrow$ inflation & localisation.
 
 ### Ensemble Kalman Filter with extended state
 
 The system state  $\mathbf{x}_k $ is as follows:
- \[
+$$
 \begin{bmatrix}
     \mathbf{u}_k \\
     \theta_k
 \end{bmatrix}_{3 \times n_\textrm{cells}+n_\theta,m}
- \]
+$$
 where
 
--  $\mathbf{u}_k $ is the velocity field of the whole domain at the instant  $k $.
--  $\theta_k $ are the coefficients from the model we want to infer at the instant  $k $.
+-  $\mathbf{u}_k$ is the velocity field of the whole domain at the instant $k$.
+-  $\theta_k$ are the coefficients from the model we want to infer at the instant $k$.
 
-The observation data  $\mathbf{y}_k $:
- \[
-\left[ \mathbf{y}_k \right]_{n_o,m} \rightarrow \mathcal{N}\left( y_k,\mathbf{R}_k \right)
- \]
+The observation data  $\mathbf{y}_k$:
+$$
+\begin{equation*}
+    \left[ \mathbf{y}_k \right]_{n_o,m} \rightarrow \mathcal{N}\left( y_k,\mathbf{R}_k \right)
+\end{equation*}
+$$
 
-1. Set of probes with local velocity  $\mathbf{u} $ and pressure  $p $ values.
+1. Set of probes with local velocity  $\mathbf{u}$ and pressure  $p $ values.
 2. Instantaneous global force coeffcients  $C_D $,  $C_L $,  $C_f $, ...
 
 <!-- \image html ./img/EnKF_algorithm-1.png  width=50% -->
@@ -93,25 +113,33 @@ The observation data  $\mathbf{y}_k $:
 </p>
 
 The following different matrices are needed:
-1. Observation covariance matrix  $\mathbf{R}_k $ : we assume Gaussian, non-correlated uncertainty for the observation ($\sigma_{i,k} $ is the standard deviation for the variable  $i $ and the instant  $k $)
- \[
+1. Observation covariance matrix  $\mathbf{R}_k$ : we assume Gaussian, non-correlated uncertainty for the observation ($\sigma_{i,k} $ is the standard deviation for the variable  $i $ and the instant  $k $)
+$$
+\begin{equation*}
     \left[ \mathbf{R}_k \right]_{n_o,\, n_o} = \sigma^2_{i,k} \left[ I \right]_{n_o, \, n_o}
- \]
+\end{equation*}
+$$
 
-2. Samplig matrix  $\mathcal{H} \left( \mathbf{x}_k^f \right) $ : it is the projection of the model into the position of the observations.
- \[
+2. Samplig matrix  $\mathcal{H} \left( \mathbf{x}_k^f \right)$ : it is the projection of the model into the position of the observations.
+$$
+\begin{equation*}
     \left[ \mathcal{H} \left( \mathbf{x}_k^f \right) \right]_{n_o, \, m}
- \]
+\end{equation*}
+$$
 
-3. Anomaly matrices for the system's state  $\mathbf{X}_k^f $ and sampling  $\mathbf{S}_k^f $ : they measure the deviation of each realisations with respect to the mean.
- \[
+3. Anomaly matrices for the system's state  $\mathbf{X}_k^f$ and sampling  $\mathbf{S}_k^f$ : they measure the deviation of each realisations with respect to the mean.
+$$
+\begin{equation*}
     \left[ \mathbf{X}_k^f \right]_{3 \times n_\textrm{cells}+n_\theta,m} , \qquad \left[ \mathbf{S}_k^f \right]_{n_o,\,m}
- \]
+\end{equation*}
+$$
 
-4. Kalman gain  $\mathbf{K}_k $ and covariance localisation  $\mathbf{L} $.
- \[
+4. Kalman gain  $\mathbf{K}_k$ and covariance localisation  $\mathbf{L}$.
+$$
+\begin{equation*}
     \left[ \mathbf{K}_k \right]_{3 \times n_\textrm{cells}+n_\theta,n_o} , \qquad \left[ \mathbf{L} \right]_{3 \times n_\textrm{cells}+n_\theta,n_o} 
- \]
+\end{equation*}
+$$
 
 ## Some requirements
 
