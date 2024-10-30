@@ -2,7 +2,7 @@
 
 <!-- ![alt text](doxygen-awesome-css/img/header_cones_v1.png) -->
 <p align="center">
-    <img src="doxygen-awesome-css/img/header_cones_v1.png" alt="drawing" width="600"/>
+    <img src="doxygen-awesome-css/img/header_cones_v2.png" alt="drawing" width="600"/>
 </p>
 
 [CONES (Coupling OpenFOAM with Numerical EnvironmentS)](#cones-coupling-openfoam-with-numerical-environments)
