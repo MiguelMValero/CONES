@@ -1,6 +1,6 @@
 # CONES (Coupling OpenFOAM with Numerical EnvironmentS)
 
-\image html header_cones_v1.png width=85%
+\image html header_cones_v2.png width=85%
 
 [TOC]
 
